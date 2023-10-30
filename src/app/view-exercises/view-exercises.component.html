@@ -1,21 +1,27 @@
 <ng-container *ngIf="exercises | async as exercisesData; else elseTemplate">
   <ng-container *ngIf="exercisesData.length > 0; else elseTemplate">
-    <mat-accordion>
+    <mat-accordion class="space-between-header-desc-items">
       <ng-container *ngFor="let exercise of exercisesData; index as i; trackBy: exerciseTrackingFn">
         <mat-expansion-panel [expanded]="stepIndex == i" (opened)="setStep(i)" hideToggle>
           <mat-expansion-panel-header>
             <mat-panel-title>
               {{exercise.name}}
-              <button mat-icon-button color="primary" (click)="editExercise(exercise)">
+              <button class="ms-2" mat-icon-button color="primary" (click)="editExercise(exercise)">
                 <mat-icon>edit</mat-icon>
               </button>
             </mat-panel-title>
             <mat-panel-description>
-              <ng-container *ngIf="exercise.description; else elseTemplate">
+              <ng-container *ngIf="exercise.description; else defaultDescription">
                 {{exercise.description}}
               </ng-container>
-              <ng-template #elseTemplate>
+              <ng-template #defaultDescription>
                 No description found!
+              </ng-template>
+              <ng-container *ngIf="exercise.disabled; else exerciseEnabledTemplate">
+                <span class="fw-lighter align-icon-and-text-vertically">Disabled <mat-icon>visibility_off</mat-icon></span>
+              </ng-container>
+              <ng-template #exerciseEnabledTemplate>
+                <span class="fw-medium align-icon-and-text-vertically">Enabled <mat-icon>visibility</mat-icon></span>
               </ng-template>
             </mat-panel-description>
           </mat-expansion-panel-header>

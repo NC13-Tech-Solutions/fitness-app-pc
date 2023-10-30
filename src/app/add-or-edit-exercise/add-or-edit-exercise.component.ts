@@ -179,7 +179,7 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
     return obj ? obj.value : MiscDataType.NONE;
   }
   valueOfB(obj: AbstractControl | null): boolean {
-    return obj ? obj.value : false;
+    return obj != null ? obj.value : false;
   }
 
   sToMDT(value: string | MiscDataType): MiscDataType {
