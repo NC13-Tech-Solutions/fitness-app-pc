@@ -1,0 +1,13 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button color="basic" (click)="close_nav()"><mat-icon>close</mat-icon></button>
+  <span class="space-inBetween"></span>
+  <span>Exercises</span>
+  <span class="space-inBetween"></span>
+  <button mat-icon-button color="basic" (click)="addExercise()"><mat-icon>add_task</mat-icon></button>
+</mat-toolbar>
+<ng-container *ngIf="mode == exerciseMode.VIEW">
+  <app-view-exercises [exercises]="exercises" (callback)="editExercise($event)"></app-view-exercises>
+</ng-container>
+<ng-container *ngIf="mode == exerciseMode.ADD || mode == exerciseMode.EDIT">
+  <app-add-or-edit-exercise [exercise]="editExerciseData" [mode]="mode" (callback)="addOrEditExercise($event)"></app-add-or-edit-exercise>
+</ng-container>

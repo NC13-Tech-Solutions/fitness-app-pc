@@ -1,0 +1,38 @@
+<ng-container *ngIf="exercises | async as exercisesData; else elseTemplate">
+  <ng-container *ngIf="exercisesData.length > 0; else elseTemplate">
+    <mat-accordion>
+      <ng-container *ngFor="let exercise of exercisesData; index as i; trackBy: exerciseTrackingFn">
+        <mat-expansion-panel [expanded]="stepIndex == i" (opened)="setStep(i)" hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{exercise.name}}
+              <button mat-icon-button color="primary" (click)="editExercise(exercise)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{exercise.description}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-action-row *ngIf="exercisesData.length > 1">
+            <button *ngIf="stepIndex > 0" mat-button color="warn" (click)="prevStep()">Previous</button>
+            <button *ngIf="stepIndex < (exercisesData.length-1)" mat-button color="primary"
+              (click)="nextStep()">Next</button>
+            <button *ngIf="stepIndex == (exercisesData.length-1)" mat-button color="primary"
+              (click)="setStep(-1)">End</button>
+          </mat-action-row>
+          <mat-action-row *ngIf="exercisesData.length == 1">
+            <button mat-button color="primary" (click)="setStep(-1)">End</button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      </ng-container>
+
+    </mat-accordion>
+  </ng-container>
+  <ng-template #elseTemplate>
+    <h2>No exercises found</h2>
+  </ng-template>
+</ng-container>
+<ng-template #elseTemplate>
+  <h2>No exercises found</h2>
+</ng-template>

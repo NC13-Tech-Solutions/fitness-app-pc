@@ -1,0 +1,28 @@
+<div class="container">
+  <h2 class="text-center pt-3">Fitness Tracking App</h2>
+  <div class="mt-3 pt-3 text-center">
+    <form #f="ngForm" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input type="text" matInput placeholder="Enter your registered Username" name="username"
+            formControlName="username" required>
+          <mat-icon matSuffix color="warn" *ngIf="UserName?.invalid">sentiment_very_dissatisfied</mat-icon>
+          <mat-icon matSuffix *ngIf="UserName?.valid">sentiment_very_satisfied</mat-icon>
+        </mat-form-field>
+      </div>
+      <div class="mb-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input type="password" matInput placeholder="Enter your Password" name="password" formControlName="password"
+            required>
+          <mat-icon matSuffix color="warn" *ngIf="Password?.invalid">sentiment_very_dissatisfied</mat-icon>
+          <mat-icon matSuffix *ngIf="Password?.valid">sentiment_very_satisfied</mat-icon>
+        </mat-form-field>
+      </div>
+      <button class="me-3" mat-raised-button type="submit" color="primary" [disabled]="f.invalid">Login</button>
+      <button mat-raised-button type="reset" color="accent">Reset</button>
+      <mat-error *ngIf="userInvalid && f.invalid">User doesn't exist</mat-error>
+    </form>
+  </div>
+</div>

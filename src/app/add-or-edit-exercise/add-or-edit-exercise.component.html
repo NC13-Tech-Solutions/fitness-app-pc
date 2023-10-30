@@ -1,0 +1,83 @@
+<div class="container">
+  <h4 class="text-center pt-3">
+    <ng-container *ngIf="mode == exerciseMode.ADD; else elseTemplate">
+      Add new Exercise
+    </ng-container>
+    <ng-template #elseTemplate>
+      Edit Exercise <strong>{{exercise?.name}}</strong>
+    </ng-template>
+  </h4>
+  <form class="w-100" #f="ngForm" [formGroup]="formGroup" (ngSubmit)="onSubmit()" (reset)="resetForm()">
+    <div class="mb-5">
+      <label for="exerciseName" class="form-label me-2">Exercise Name</label>
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input type="text" id="exerciseName" matInput placeholder="Enter the exercise name" name="exerciseName"
+          formControlName="name" required>
+        <mat-hint>Exercise name is unique!</mat-hint>
+        <mat-error *ngIf="ExerciseName?.hasError('notUnique') && !ExerciseName?.hasError('required')">This name already
+          exists!</mat-error>
+        <mat-error *ngIf="ExerciseName?.hasError('required')">Name is <strong>required</strong></mat-error>
+      </mat-form-field>
+    </div>
+    <div class="mb-3">
+      <label for="exerciseDescription" class="form-label me-2">Exercise Description</label>
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea matInput id="exerciseDescription" rows="3" placeholder="Describe anything about the exercise"
+          name="exerciseDescription" formControlName="description"></textarea>
+      </mat-form-field>
+    </div>
+    <div class="mb-3">
+      <label for="exerciseMiscDataType" class="form-label me-2">Extra Exercise Data(if any)</label>
+      <mat-form-field appearance="outline">
+        <mat-select placeholder="Extra Exercise Data" id="exerciseMiscDataType" formControlName="miscDataType">
+          <mat-option [value]="extraDataType.NONE" selected>None</mat-option>
+          <mat-option [value]="extraDataType.IMAGE">Image</mat-option>
+          <mat-option [value]="extraDataType.VIDEO">Video</mat-option>
+          <mat-option [value]="extraDataType.EMBEDDED">Embedded Video</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="mb-3">
+      <label for="exerciseMiscData" class="form-label me-2">Extra Data Link</label>
+      <mat-form-field appearance="outline">
+        <mat-label>{{extraDataText}}</mat-label>
+        <textarea id="exerciseMiscData" matInput [placeholder]="extraDataText" name="miscData"
+          formControlName="miscData"></textarea>
+      </mat-form-field>
+      <input type="file" name="file-mock-input" id="file-mock-input" style="display: none;" #file_mock_input
+        (change)="file_mock_input_changeEvent($event)" [accept]="acceptText">
+      <button class="ms-3" mat-raised-button type="button" color="accent"
+        [disabled]="ExerciseMiscDataType?.value == extraDataType.NONE || ExerciseMiscDataType?.value == extraDataType.EMBEDDED || ExerciseMiscData?.value != ''"
+        (click)="openFileDialog()">Open Local {{localDataText}}</button>
+      <button *ngIf="openedFile" class="ms-3" mat-raised-button type="button" color="accent"
+        [disabled]="ExerciseMiscDataType?.value == extraDataType.NONE || ExerciseMiscDataType?.value == extraDataType.EMBEDDED"
+        (click)="uploadOrDeleteLocalFile()">{{fileStatus}} Local {{localDataText}}</button>
+      <button class="ms-3" mat-raised-button type="button" color="accent"
+        [disabled]="!ExerciseMiscData?.value" (click)="openPreview()">{{togglePreview}} Preview</button>
+    </div>
+    <div class="mb-3" *ngIf="enablePreview">
+      <ng-container *ngIf="ExerciseMiscDataType?.value == extraDataType.IMAGE">
+        <img [src]="getSanitizedUrl()" alt="Welp. I guess image didn't render" width="480px">
+      </ng-container>
+      <ng-container *ngIf="ExerciseMiscDataType?.value == extraDataType.VIDEO">
+        <video height="auto" width="480px" autoplay loop controls>
+          <source [src]="getSanitizedUrl()" type="video/mp4">
+          Your browser doesn't support this video format.
+        </video>
+      </ng-container>
+      <ng-container *ngIf="ExerciseMiscDataType?.value == extraDataType.EMBEDDED">
+        <div #embeddedVideoAdditionDiv id="embeddedVideoAdditionDiv" [innerHTML]="getSanitizedHtml()" class="container">
+        </div>
+      </ng-container>
+    </div>
+    <div class="mb-3" *ngIf="mode == exerciseMode.EDIT">
+      <label for="exerciseDisableToggle" class="form-label me-2">Enable or Disable Exercise</label>
+      <mat-slide-toggle formControlName="disabled" id="exerciseDisableToggle">{{toggleText}}</mat-slide-toggle>
+    </div>
+    <button class="me-3" mat-raised-button type="submit" color="primary" [disabled]="f.invalid">{{submitButtonText}}</button>
+    <button class="me-3" mat-raised-button type="reset" color="accent">Reset</button>
+    <button class="me-3" mat-raised-button type="button" color="basic" (click)="cancelForm()">Cancel</button>
+  </form>
+</div>
