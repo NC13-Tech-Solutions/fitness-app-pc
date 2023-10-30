@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Observable, take } from 'rxjs';
 import { ExerciseService } from '../services/http/exercise.service';
 import { Exercise } from '../shared/models/exercise.model';
@@ -55,9 +51,13 @@ export class ExercisesComponent {
             if (result == 1) {
               this.editExerciseData = undefined;
               this.mode = Mode.VIEW;
-              this.snackbar.open('Exercise Added', 'Dismiss');
+              this.snackbar.open('Exercise Added', 'Dismiss', {
+                duration: 5000,
+              });
             } else if (result == 0) {
-              this.snackbar.open('Exercise already exists', 'Got it');
+              this.snackbar.open('Exercise already exists', 'Got it', {
+                duration: 5000,
+              });
             }
           });
       } else if (this.mode == Mode.EDIT) {
@@ -68,9 +68,13 @@ export class ExercisesComponent {
             if (result == 1) {
               this.editExerciseData = undefined;
               this.mode = Mode.VIEW;
-              this.snackbar.open('Exercise Edit Successful', 'Dismiss');
+              this.snackbar.open('Exercise Edit Successful', 'Dismiss', {
+                duration: 5000,
+              });
             } else if (result == 0) {
-              this.snackbar.open('Exercise name already exists', 'Got it');
+              this.snackbar.open('Exercise name already exists', 'Got it', {
+                duration: 5000,
+              });
             }
           });
       }
