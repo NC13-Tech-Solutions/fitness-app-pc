@@ -94,9 +94,9 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
         value.forEach((ex) => this.exercisesData.push(ex));
       });
     this.resetForm();
-    if(this.mode == Mode.ADD){
+    if (this.mode == Mode.ADD) {
       this.submitButtonText = 'Add';
-    } else if(this.mode == Mode.EDIT){
+    } else if (this.mode == Mode.EDIT) {
       this.submitButtonText = 'Edit';
     }
   }
@@ -230,25 +230,31 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   resetForm() {
     type ExerciseWithoutID = Omit<Exercise, 'exId'>;
     let resetValues: ExerciseWithoutID;
-    if (this.mode == Mode.ADD || this.exercise == undefined) {
-      resetValues = {
-        name: '',
-        description: '',
-        miscDataType: MiscDataType.NONE,
-        miscData: '',
-        disabled: false,
-      };
-    } else {
-      resetValues = {
-        name: this.exercise.name ?? '',
-        description: this.exercise.description ?? '',
-        miscDataType:
-          this.sToMDT(this.exercise.miscDataType) ?? MiscDataType.NONE,
-        miscData: this.exercise.miscData ?? '',
-        disabled: this.exercise.disabled ?? false,
-      };
-    }
+    resetValues = {
+      name: '',
+      description: '',
+      miscDataType: MiscDataType.NONE,
+      miscData: '',
+      disabled: false,
+    };
     this.formGroup.reset(resetValues);
+    if (this.mode == Mode.EDIT) {
+      setTimeout(() => {
+        if (this.exercise != undefined) {
+          this.ExerciseName?.setValue(this.exercise.name);
+          this.ExerciseDescription?.setValue(this.exercise.description);
+          const eMDT = this.sToMDT(this.exercise.miscDataType);
+          this.ExerciseMiscDataType?.setValue(eMDT);
+          this.ExerciseMiscData?.setValue(this.exercise.miscData);
+          if (eMDT == MiscDataType.IMAGE || eMDT == MiscDataType.EMBEDDED) {
+            this.ExerciseMiscData?.enable();
+          } else {
+            this.ExerciseMiscData?.disable();
+          }
+          this.ExerciseDisabled?.setValue(this.exercise.disabled);
+        }
+      }, 100);
+    }
   }
 
   cancelForm() {
@@ -315,7 +321,7 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
       }
     } else {
       if (this.fileStatus == 'Delete') {
-        if(this.enablePreview){
+        if (this.enablePreview) {
           this.openPreview();
         }
         if (this.localDataText == 'Image') {
