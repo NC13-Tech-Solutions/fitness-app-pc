@@ -182,7 +182,7 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
     return obj ? obj.value : false;
   }
 
-  sToMDT(value: unknown): MiscDataType {
+  sToMDT(value: string | MiscDataType): MiscDataType {
     if (typeof value == 'string') {
       switch (value) {
         case 'NONE':
@@ -196,10 +196,9 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
         default:
           return MiscDataType.NONE;
       }
-    } else if (value as MiscDataType) {
-      return value as MiscDataType;
+    } else {
+      return value;
     }
-    return MiscDataType.NONE;
   }
 
   // Async validators

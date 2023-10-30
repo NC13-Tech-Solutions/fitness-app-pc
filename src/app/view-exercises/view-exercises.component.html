@@ -11,9 +11,33 @@
               </button>
             </mat-panel-title>
             <mat-panel-description>
-              {{exercise.description}}
+              <ng-container *ngIf="exercise.description; else elseTemplate">
+                {{exercise.description}}
+              </ng-container>
+              <ng-template #elseTemplate>
+                No description found!
+              </ng-template>
             </mat-panel-description>
           </mat-expansion-panel-header>
+          <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.IMAGE">
+            <div class="normal-content">
+              <img [src]="getSanitizedUrl(exercise.miscData)" alt="Welp. I guess image didn't render" width="480px">
+            </div>
+          </ng-container>
+          <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.VIDEO">
+            <div class="normal-content">
+              <video height="auto" width="480px" autoplay loop controls>
+                <source [src]="getSanitizedUrl(exercise.miscData)" type="video/mp4">
+                Your browser doesn't support this video format.
+              </video>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.EMBEDDED">
+            <div class="normal-content">
+              <div [innerHTML]="getSanitizedHtml(exercise.miscData)" class="container">
+              </div>
+            </div>
+          </ng-container>
           <mat-action-row *ngIf="exercisesData.length > 1">
             <button *ngIf="stepIndex > 0" mat-button color="warn" (click)="prevStep()">Previous</button>
             <button *ngIf="stepIndex < (exercisesData.length-1)" mat-button color="primary"

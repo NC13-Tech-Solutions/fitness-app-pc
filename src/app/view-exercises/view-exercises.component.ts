@@ -4,14 +4,14 @@ import {
   EventEmitter,
   Input,
   Output,
-  TrackByFunction,
   inject,
 } from '@angular/core';
-import { ExerciseService } from '../services/http/exercise.service';
 import { Observable, take } from 'rxjs';
 import { Exercise } from '../shared/models/exercise.model';
 import { MatDialog } from '@angular/material/dialog';
 import { EditDialogComponent } from '../shared/dialogs/edit-dialog/edit-dialog.component';
+import { MiscDataType } from '../shared/models/misc-data-type.model';
+import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-view-exercises',
@@ -22,6 +22,9 @@ import { EditDialogComponent } from '../shared/dialogs/edit-dialog/edit-dialog.c
 export class ViewExercisesComponent {
   @Input() exercises: Observable<Exercise[]> | undefined;
   @Output() callback = new EventEmitter<Exercise>();
+  private sanitizer = inject(DomSanitizer);
+
+  extraDataType = MiscDataType;
 
   public editDialog = inject(MatDialog);
 
@@ -54,5 +57,32 @@ export class ViewExercisesComponent {
           this.callback.emit(value);
         }
       });
+  }
+
+  getSanitizedUrl(value: string): SafeUrl {
+    return this.sanitizer.bypassSecurityTrustUrl(value);
+  }
+
+  getSanitizedHtml(value: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(value);
+  }
+
+  sToMDT(value: string | MiscDataType): MiscDataType {
+    if (typeof value == 'string') {
+      switch (value) {
+        case 'NONE':
+          return MiscDataType.NONE;
+        case 'IMAGE':
+          return MiscDataType.IMAGE;
+        case 'VIDEO':
+          return MiscDataType.VIDEO;
+        case 'EMBEDDED':
+          return MiscDataType.EMBEDDED;
+        default:
+          return MiscDataType.NONE;
+      }
+    } else {
+      return value;
+    }
   }
 }
