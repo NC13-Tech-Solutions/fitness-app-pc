@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './login/login.component';
+import { LoginComponent } from './components/login/login.component';
 import { authentication } from './core/auth-guard.service';
-import { EmptyComponent } from './empty/empty.component';
-import { MainComponent } from './main/main.component';
-import { ExercisesComponent } from './exercises/exercises.component';
+import { EmptyComponent } from './components/empty/empty.component';
+import { MainComponent } from './components/main/main.component';
+import { ExercisesComponent } from './components/exercises/exercises.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [authentication] },

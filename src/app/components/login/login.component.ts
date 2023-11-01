@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from '../services/http/user.service';
+import { UserService } from '../../services/http/user.service';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { take } from 'rxjs';
 

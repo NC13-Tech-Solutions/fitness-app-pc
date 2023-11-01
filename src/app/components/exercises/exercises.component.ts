@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Observable, take } from 'rxjs';
-import { ExerciseService } from '../services/http/exercise.service';
-import { Exercise } from '../shared/models/exercise.model';
-import { Mode } from '../shared/models/mode.model';
+import { ExerciseService } from '../../services/http/exercise.service';
+import { Exercise } from '../../shared/models/exercise.model';
+import { Mode } from '../../shared/models/mode.model';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 

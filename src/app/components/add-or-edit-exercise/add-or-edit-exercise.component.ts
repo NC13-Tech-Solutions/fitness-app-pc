@@ -10,8 +10,8 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { Mode } from '../shared/models/mode.model';
-import { Exercise } from '../shared/models/exercise.model';
+import { Mode } from '../../shared/models/mode.model';
+import { Exercise } from '../../shared/models/exercise.model';
 import {
   AbstractControl,
   FormControl,
@@ -19,11 +19,11 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { MiscDataType } from '../shared/models/misc-data-type.model';
-import { ExerciseService } from '../services/http/exercise.service';
+import { MiscDataType } from '../../shared/models/misc-data-type.model';
+import { ExerciseService } from '../../services/http/exercise.service';
 import { Observable, of, take } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { FileSharingService } from '../services/http/file-sharing.service';
+import { FileSharingService } from '../../services/http/file-sharing.service';
 import { environment } from 'src/environments/environment';
 
 @Component({

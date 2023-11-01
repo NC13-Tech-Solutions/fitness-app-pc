@@ -7,10 +7,10 @@ import {
   inject,
 } from '@angular/core';
 import { Observable, take } from 'rxjs';
-import { Exercise } from '../shared/models/exercise.model';
+import { Exercise } from '../../shared/models/exercise.model';
 import { MatDialog } from '@angular/material/dialog';
-import { EditDialogComponent } from '../shared/dialogs/edit-dialog/edit-dialog.component';
-import { MiscDataType } from '../shared/models/misc-data-type.model';
+import { EditDialogComponent } from '../../shared/dialogs/edit-dialog/edit-dialog.component';
+import { MiscDataType } from '../../shared/models/misc-data-type.model';
 import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
 
 @Component({

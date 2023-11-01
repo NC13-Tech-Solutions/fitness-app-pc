@@ -5,10 +5,10 @@ import {
   decrementMonth,
   incrementMonth,
   reset,
-} from '../services/ctrl/months.actions';
-import { WeeksMonthYear } from '../shared/models/weeks-month-year.model';
+} from '../../services/ctrl/months.actions';
+import { WeeksMonthYear } from '../../shared/models/weeks-month-year.model';
 import { Observable, map, take } from 'rxjs';
-import { UserService } from '../services/http/user.service';
+import { UserService } from '../../services/http/user.service';
 import { MatDrawer } from '@angular/material/sidenav';
 
 @Component({
