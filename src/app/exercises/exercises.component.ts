@@ -5,7 +5,6 @@ import { Exercise } from '../shared/models/exercise.model';
 import { Mode } from '../shared/models/mode.model';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MiscDataType } from '../shared/models/misc-data-type.model';
 
 @Component({
   selector: 'app-exercises',

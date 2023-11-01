@@ -32,11 +32,49 @@
     </div>
   </div>
   <div class="container-fluid text-center">
+    <div class="week mb-3">
+      <div class="day fw-bolder text-red">Sun</div>
+      <div class="day fw-bolder">Mon</div>
+      <div class="day fw-bolder">Tue</div>
+      <div class="day fw-bolder">Wed</div>
+      <div class="day fw-bolder">Thu</div>
+      <div class="day fw-bolder">Fri</div>
+      <div class="day fw-bolder text-grey">Sat</div>
+    </div>
     <div class="row">
-      <ng-container *ngIf="daysValue | async as dVal">
-        <ng-container *ngFor="let d of arrayOfNumbers(dVal)">
-          <div class="col-sm-2 col-4 mb-3">
-            <app-day-card [dayValue]="d" [workoutsDoneToday]="howManyWorkoutsThatDay(d)"></app-day-card>
+      <ng-container *ngIf="weeksArray | async as weeksMDA">
+        <ng-container *ngFor="let weeks of weeksMDA">
+          <div class="week mb-3">
+            <ng-container *ngFor="let d of weeks">
+              <ng-container *ngIf="d==1 && weeks.length < 7">
+                <ng-container *ngFor="let filler of fillerDays(7- weeks.length)">
+                  <div class="day"> <!--Filler days-->
+                    <mat-card>
+                      <mat-card-content>
+                        <h2 class="text-light-grey">--</h2>
+                      </mat-card-content>
+                      <mat-card-footer></mat-card-footer>
+                    </mat-card>
+                  </div>
+                </ng-container>
+              </ng-container>
+              <div class="day"> <!--Main days-->
+                <app-day-card [dayValue]="d" [workoutsDoneToday]="howManyWorkoutsThatDay(d)"
+                  (callback)="dayClicked(d)"></app-day-card>
+              </div>
+              <ng-container *ngIf="d==weeksMDA[weeksMDA.length-1][weeks.length-1] && weeks.length < 7">
+                <ng-container *ngFor="let filler of fillerDays(7- weeks.length)">
+                  <div class="day"> <!--Filler days-->
+                    <mat-card>
+                      <mat-card-content>
+                        <h2 class="text-light-grey">--</h2>
+                      </mat-card-content>
+                      <mat-card-footer></mat-card-footer>
+                    </mat-card>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </ng-container>
           </div>
         </ng-container>
       </ng-container>

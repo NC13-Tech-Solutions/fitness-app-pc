@@ -1,8 +1,21 @@
-import { createReducer, on } from "@ngrx/store";
-import { incrementMonth, decrementMonth, reset } from "./months.actions";
-import { DaysMonthYear } from "src/app/shared/models/days-month-year.model";
+import { createReducer, on } from '@ngrx/store';
+import { incrementMonth, decrementMonth, reset } from './months.actions';
+import { WeeksMonthYear } from 'src/app/shared/models/weeks-month-year.model';
 
-const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 
 /**
  * To go to the next month or previous month
@@ -10,19 +23,26 @@ const months = ['January','February','March','April','May','June','July','August
  * @param action +1 to increment month and -1 to decrement month
  * @returns the month, year and the number of days in that month, year.
  */
-export function changeMonth(currentMonth: DaysMonthYear, action:number): DaysMonthYear{
+export function changeMonth(
+  currentMonth: WeeksMonthYear,
+  action: number
+): WeeksMonthYear {
   var m = months.indexOf(currentMonth.Month);
   var y = currentMonth.Year;
 
-  if(action == 1){ // Go to the next month
-    if(m==11){ //If month is December, go to next year
+  if (action == 1) {
+    // Go to the next month
+    if (m == 11) {
+      //If month is December, go to next year
       m = 0;
       y++;
-    } else{
+    } else {
       m++;
     }
-  } else { // Go to the previous month
-    if(m == 0){ //If month is January, go to prev year
+  } else {
+    // Go to the previous month
+    if (m == 0) {
+      //If month is January, go to prev year
       m = 11;
       y--;
     } else {
@@ -31,9 +51,9 @@ export function changeMonth(currentMonth: DaysMonthYear, action:number): DaysMon
   }
 
   return {
-    Days: findNoOfDays(months[m], y),
+    Weeks: findNoOfWeeks(months[m], y),
     Month: months[m],
-    Year: y
+    Year: y,
   };
 }
 
@@ -43,14 +63,15 @@ export function changeMonth(currentMonth: DaysMonthYear, action:number): DaysMon
  * @param year in number. eg: 2023
  * @returns the number of days in that month and year
  */
-export function findNoOfDays(month: string, year: number): number{
-  switch(month){
+export function findNoOfDays(month: string, year: number): number {
+  switch (month) {
     case 'September':
     case 'April':
     case 'June':
-    case 'November': return 30;
+    case 'November':
+      return 30;
     case 'February':
-      if(year%4 == 0){
+      if (year % 4 == 0) {
         return 29;
       } else {
         return 28;
@@ -59,20 +80,46 @@ export function findNoOfDays(month: string, year: number): number{
   return 31;
 }
 
-export const initialState = ():DaysMonthYear => {
+/**
+ * Find the weeks in a month
+ * @param m in string. eg: 'November'
+ * @param y in number. eg: 2023
+ * @returns Multidimensional array with each array having the days in that week
+ */
+export function findNoOfWeeks(m: string, y: number): number[][] {
+  const result: number[][] = [];
+  const daysInTheMonth = findNoOfDays(m,y);
+  let temp: number[] = [];
+  let day = new Date(y,months.indexOf(m),1).getDay(); //Gets the day of the first day of the month [0-6]
+  for(let i=1;i<=daysInTheMonth;i++){
+    if(day == 0){ //Sunday
+      temp = []; //Clear array
+    }
+    temp.push(i);
+    if(day == 6 || i == daysInTheMonth){ //Saturday or last day of the month
+      result.push(temp); //Add week to main array
+      day = -1; //Reset day for next week
+    }
+    day++;
+  }
+  return result;
+}
+
+export const initialState = (): WeeksMonthYear => {
   const d = new Date();
   const m = months[d.getMonth()];
   const y = d.getFullYear();
   return {
-    Days: findNoOfDays(m, y),
-    Month : m,
-    Year: y
+    Weeks: findNoOfWeeks(m, y),
+    Month: m,
+    Year: y,
   };
 };
 
 export const monthsReducer = createReducer(
-initialState(),
-on(incrementMonth, state => changeMonth(state,1)),
-on(decrementMonth, state => changeMonth(state,-1)),
-on(reset, state => state = initialState())
+  initialState(),
+  on(incrementMonth, (state) => changeMonth(state, 1)),
+  on(decrementMonth, (state) => changeMonth(state, -1)),
+  on(reset, (state) => (state = initialState()))
 );
+
