@@ -5,9 +5,10 @@ import {
   decrementMonth,
   incrementMonth,
   reset,
+  setDay,
 } from '../../services/ctrl/months.actions';
-import { WeeksMonthYear } from '../../shared/models/weeks-month-year.model';
-import { Observable, map, take } from 'rxjs';
+import { DayWeeksMonthYear } from '../../shared/models/day-weeks-month-year.model';
+import { Observable, firstValueFrom, map, take } from 'rxjs';
 import { UserService } from '../../services/http/user.service';
 import { MatDrawer } from '@angular/material/sidenav';
 
@@ -19,10 +20,10 @@ import { MatDrawer } from '@angular/material/sidenav';
 })
 export class MainComponent {
   router = inject(Router);
-  store = inject(Store<{ dmy: WeeksMonthYear }>);
+  store = inject(Store<{ dmy: DayWeeksMonthYear }>);
   userService = inject(UserService);
 
-  dmy: Observable<WeeksMonthYear> = this.store.select('months');
+  dmy: Observable<DayWeeksMonthYear> = this.store.select('months');
   monthText: Observable<string> = this.dmy.pipe(
     map((snaps) => {
       return snaps.Month;
@@ -73,8 +74,6 @@ export class MainComponent {
   }
 
   fillerDays(value: number): Array<number> {
-    console.log('Moonjakkam', value);
-
     const x: number[] = [];
     for (let i = 0; i < value; i++) x.push(i);
     return x;
@@ -86,6 +85,7 @@ export class MainComponent {
   }
 
   dayClicked(day: number) {
-    console.log('Jimbarlakka', day);
+    this.store.dispatch(setDay({day}));
+    this.router.navigateByUrl('/day');
   }
 }

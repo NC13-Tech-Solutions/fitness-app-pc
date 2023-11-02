@@ -17,6 +17,7 @@ import { ViewExercisesComponent } from './components/view-exercises/view-exercis
 import { ExercisesComponent } from './components/exercises/exercises.component';
 import { AddOrEditExerciseComponent } from './components/add-or-edit-exercise/add-or-edit-exercise.component';
 import { EditDialogComponent } from './shared/dialogs/edit-dialog/edit-dialog.component';
+import { ViewDayComponent } from './components/view-day/view-day.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { EditDialogComponent } from './shared/dialogs/edit-dialog/edit-dialog.co
     ViewExercisesComponent,
     ExercisesComponent,
     AddOrEditExerciseComponent,
-    EditDialogComponent
+    EditDialogComponent,
+    ViewDayComponent
   ],
   imports: [
     BrowserModule,

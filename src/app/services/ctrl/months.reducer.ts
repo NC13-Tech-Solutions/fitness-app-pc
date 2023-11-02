@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
-import { incrementMonth, decrementMonth, reset } from './months.actions';
-import { WeeksMonthYear } from 'src/app/shared/models/weeks-month-year.model';
+import { incrementMonth, decrementMonth, reset, setDay } from './months.actions';
+import { DayWeeksMonthYear } from 'src/app/shared/models/day-weeks-month-year.model';
 
 const months = [
   'January',
@@ -24,9 +24,9 @@ const months = [
  * @returns the month, year and the number of days in that month, year.
  */
 export function changeMonth(
-  currentMonth: WeeksMonthYear,
+  currentMonth: DayWeeksMonthYear,
   action: number
-): WeeksMonthYear {
+): DayWeeksMonthYear {
   var m = months.indexOf(currentMonth.Month);
   var y = currentMonth.Year;
 
@@ -51,6 +51,7 @@ export function changeMonth(
   }
 
   return {
+    Day:1,
     Weeks: findNoOfWeeks(months[m], y),
     Month: months[m],
     Year: y,
@@ -105,11 +106,21 @@ export function findNoOfWeeks(m: string, y: number): number[][] {
   return result;
 }
 
-export const initialState = (): WeeksMonthYear => {
+function setDayMonthYear(state: DayWeeksMonthYear, day: number): DayWeeksMonthYear {
+  return {
+    Day: day,
+    Month: state.Month,
+    Weeks: state.Weeks,
+    Year: state.Year
+  }
+}
+
+export const initialState = (): DayWeeksMonthYear => {
   const d = new Date();
   const m = months[d.getMonth()];
   const y = d.getFullYear();
   return {
+    Day: 1,
     Weeks: findNoOfWeeks(m, y),
     Month: m,
     Year: y,
@@ -119,6 +130,7 @@ export const initialState = (): WeeksMonthYear => {
 export const monthsReducer = createReducer(
   initialState(),
   on(incrementMonth, (state) => changeMonth(state, 1)),
+  on(setDay, (state, prop) => setDayMonthYear(state, prop.day)),
   on(decrementMonth, (state) => changeMonth(state, -1)),
   on(reset, (state) => (state = initialState()))
 );
