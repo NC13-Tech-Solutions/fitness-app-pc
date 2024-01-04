@@ -8,7 +8,7 @@ import {
   setDay,
 } from '../../services/ctrl/months.actions';
 import { DayWeeksMonthYear } from '../../shared/models/day-weeks-month-year.model';
-import { Observable, firstValueFrom, map, take } from 'rxjs';
+import { Observable, map, take } from 'rxjs';
 import { UserService } from '../../services/http/user.service';
 import { MatDrawer } from '@angular/material/sidenav';
 
@@ -80,7 +80,7 @@ export class MainComponent {
   }
 
   howManyWorkoutsThatDay(day: number): number {
-    // TODO: need to extract day info here. remove code once done
+    // FIXME: need to extract day info here. remove code once done
     return day % 2 == 0 ? 1 : 0;
   }
 

@@ -1,0 +1,16 @@
+<mat-card class="mb-3">
+  <mat-icon>schedule</mat-icon> Time: <strong>{{workout.time}}</strong>
+</mat-card>
+<mat-card class="mb-3" *ngIf="workout.text">
+  <mat-icon>description</mat-icon> Description: <strong>{{workout.text}}</strong>
+</mat-card>
+<ng-container *ngFor="let p of workout.photos">
+  <!-- FIXME: Photos needs to be rendered here -->
+</ng-container>
+<ng-container *ngFor="let v of workout.videos">
+  <!-- FIXME: Videos needs to be rendered here -->
+</ng-container>
+
+<ng-container *ngFor="let exercise of workout.exercises">
+  <app-view-workout-exercises [exercise]="exercise"></app-view-workout-exercises>
+</ng-container>

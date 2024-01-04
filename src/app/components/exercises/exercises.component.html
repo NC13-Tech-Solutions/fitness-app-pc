@@ -3,7 +3,7 @@
   <span class="space-inBetween"></span>
   <span>Exercises</span>
   <span class="space-inBetween"></span>
-  <button mat-icon-button color="basic" (click)="addExercise()"><mat-icon>add_task</mat-icon></button>
+  <button mat-icon-button color="basic" (click)="addExercise()" [disabled]="mode == exerciseMode.ADD || mode == exerciseMode.EDIT"><mat-icon>add_task</mat-icon></button>
 </mat-toolbar>
 <ng-container *ngIf="mode == exerciseMode.VIEW">
   <app-view-exercises [exercises]="exercises" (callback)="editExercise($event)"></app-view-exercises>

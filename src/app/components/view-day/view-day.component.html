@@ -1,14 +1,31 @@
 <mat-toolbar color="accent">
   <button mat-icon-button color="basic" (click)="close_nav()"><mat-icon>close</mat-icon></button>
   <span class="space-inBetween"></span>
-  <span>This is {{monthText | async}} {{dayValue | async}}, {{yearValue | async}}</span>
+  <span>This is <strong>{{monthText | async}} {{dayValue | async}}, {{yearValue | async}}</strong></span>
   <span class="space-inBetween"></span>
-  <button mat-icon-button color="basic" (click)="addWorkout()"><mat-icon>add_task</mat-icon></button>
+  <button mat-icon-button color="basic" (click)="addWorkout()"
+    [disabled]="addWorkoutBtnDisabled()"><mat-icon>add_task</mat-icon></button>
 </mat-toolbar>
-<!-- <ng-container *ngIf="mode == exerciseMode.VIEW">
-  <app-view-exercises [exercises]="exercises" (callback)="editExercise($event)"></app-view-exercises>
+<ng-container *ngIf="mode == dayViewMode.VIEW">
+  <div class="container">
+    <ng-container *ngIf="dayData; else elseTemplate">
+      <mat-card class="mb-3">
+        <mat-icon>monitor_weight</mat-icon> User Weight: <strong>{{dayData.userWeight}}</strong>
+      </mat-card>
+      <ng-container *ngFor="let workout of dayData.workouts">
+        <app-view-workout [workout]="workout"></app-view-workout>
+      </ng-container>
+    </ng-container>
+    <ng-template #elseTemplate>
+      <h1>No Data has been added!</h1>
+      <p>Click here to add one, now</p>
+      <button mat-fab extended color="primary" (click)="addDayData()">
+        <mat-icon>home</mat-icon>
+        Add Data
+      </button>
+    </ng-template>
+  </div>
 </ng-container>
-<ng-container *ngIf="mode == exerciseMode.ADD || mode == exerciseMode.EDIT">
-  <app-add-or-edit-exercise [exercise]="editExerciseData" [mode]="mode"
-    (callback)="addOrEditExercise($event)"></app-add-or-edit-exercise>
-</ng-container> -->
+<ng-container *ngIf="mode == dayViewMode.ADD || mode == dayViewMode.EDIT">
+  <app-add-or-edit-day [mode]="mode" [dayData]="editDayData"></app-add-or-edit-day>
+</ng-container>

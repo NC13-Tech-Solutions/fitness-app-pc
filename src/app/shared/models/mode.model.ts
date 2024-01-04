@@ -1,5 +1,6 @@
 export enum Mode {
   VIEW,
   ADD,
-  EDIT
+  EDIT,
+  DELETE
 }

@@ -46,10 +46,10 @@ export class LoginComponent {
       .subscribe(
         (value) => {
           if (value) {
-            // TODO: Since the user exists, we go to main page. Should probably user credential here as well.
+            // Since the user exists, we go to main page.
             this.router.navigateByUrl('/main');
           } else {
-            // TODO: User doesn't exist, so we should raise error.
+            // User doesn't exist, so we should raise error.
             this.formGroup.reset({ username: '', password: '' });
             this.userInvalid = true;
           }

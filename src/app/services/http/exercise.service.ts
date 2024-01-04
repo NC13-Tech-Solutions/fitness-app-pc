@@ -4,15 +4,15 @@ import { Exercise } from 'src/app/shared/models/exercise.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ExerciseService {
   private api = inject(ApiService);
 
   public getAllExercises(): Observable<Exercise[]> {
-    const JwtToken = localStorage.getItem("JwtToken");
+    const JwtToken = localStorage.getItem('JwtToken');
     return this.api.getRequest<Exercise[], Exercise[]>(
-      "exercise/all",
+      'exercise/all',
       'json',
       [{ name: 'Authorization', value: `Bearer ${JwtToken}` }],
       (value) => {
@@ -20,17 +20,20 @@ export class ExerciseService {
           return value;
         }
         return [];
-      });
+      }
+    );
   }
 
   public getExercise(exId: number): Observable<Exercise> {
-    const JwtToken = localStorage.getItem("JwtToken");
+    const JwtToken = localStorage.getItem('JwtToken');
     return this.api.getRequest<Exercise, Exercise>(
       `exercise/${exId}`,
       'json',
       [{ name: 'Authorization', value: `Bearer ${JwtToken}` }],
-      (value) => { return value; }
-    )
+      (value) => {
+        return value;
+      }
+    );
   }
 
   public addExercise(exercise: Exercise): Observable<number> {
@@ -47,13 +50,12 @@ export class ExerciseService {
         return value;
       }
     );
-
   }
 
   public editExercise(exercise: Exercise): Observable<number> {
     const JwtToken = localStorage.getItem('JwtToken');
     return this.api.putRequest<number, number>(
-      'exercise/'+exercise.exId,
+      'exercise/' + exercise.exId,
       'text',
       exercise,
       [
@@ -64,8 +66,5 @@ export class ExerciseService {
         return value;
       }
     );
-
   }
-
-
 }

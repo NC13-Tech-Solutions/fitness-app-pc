@@ -2,7 +2,7 @@ import { createReducer, on } from '@ngrx/store';
 import { incrementMonth, decrementMonth, reset, setDay } from './months.actions';
 import { DayWeeksMonthYear } from 'src/app/shared/models/day-weeks-month-year.model';
 
-const months = [
+export const months = [
   'January',
   'February',
   'March',

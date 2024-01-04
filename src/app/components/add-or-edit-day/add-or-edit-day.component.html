@@ -1,0 +1,39 @@
+<div class="container">
+  <h4 class="text-center pt-3">
+    <ng-container *ngIf="mode == dayOperationMode.ADD; else elseTemplate">
+      Add new Day
+    </ng-container>
+    <ng-template #elseTemplate>
+      Edit Day <strong>{{dayData?.postedOn}}</strong>
+    </ng-template>
+  </h4>
+  <form class="w-100" #f="ngForm" [formGroup]="formGroup" (ngSubmit)="onSubmit()" (reset)="resetForm()">
+    <div class="mb-5">
+      <label for="userWeight" class="form-label me-2">Enter your weight(kg)</label>
+      <mat-form-field appearance="outline">
+        <mat-label>Weight</mat-label>
+        <input type="number" min="5" id="userWeight" matInput placeholder="Enter the user's weight" name="userWeight"
+          formControlName="userWeight" required>
+        <mat-error *ngIf="UserWeight?.hasError('required')">Weight is <strong>required</strong></mat-error>
+      </mat-form-field>
+    </div>
+    <div class="mb-5">
+      <div class="mb-2">
+        <h2 class="me-2">Workouts <span class="text-bg-danger">*</span></h2>
+        <button mat-icon-button color="basic" (click)="addWorkout()"><mat-icon>add_task</mat-icon></button>
+      </div>
+      <div formArrayName="workouts">
+        <ng-container *ngFor="let dayWorkoutsForm of DayWorkouts.controls; let i = index">
+          <app-add-or-edit-workout [formGroup]="dayWorkoutsForm" [workoutIndex]="i" class="mb-5"></app-add-or-edit-workout>
+          <button *ngIf="i!=0" class="mb-3" mat-raised-button type="button" color="basic" (click)="removeWorkout(i)">Cancel</button>
+        </ng-container>
+      </div>
+    </div>
+    <button class="me-3" mat-raised-button type="submit" color="primary"
+      [disabled]="f.invalid">{{submitButtonText}}</button>
+    <button class="me-3" mat-raised-button type="reset" color="accent">Reset</button>
+    <button class="me-3" mat-raised-button type="button" color="basic" (click)="cancelForm()">Cancel</button>
+  </form>
+  <!-- TODO: For Testing Purposes. Remove when done. -->
+  <pre class="mt-5 text-bg-danger border-4 p-5 border-success">{{formGroup.value | json}}</pre>
+</div>
