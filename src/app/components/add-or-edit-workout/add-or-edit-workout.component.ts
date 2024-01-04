@@ -1,8 +1,10 @@
-import { Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Store } from '@ngrx/store';
 import { take } from 'rxjs';
 import { FileSharingService } from 'src/app/services/http/file-sharing.service';
+import { ExerciseSelected } from 'src/app/shared/models/exercise-selected.model';
 import { MiscDataType } from 'src/app/shared/models/misc-data-type.model';
 import { VideoData } from 'src/app/shared/models/video-data.model';
 import { environment } from 'src/environments/environment';
@@ -12,7 +14,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './add-or-edit-workout.component.html',
   styleUrls: ['./add-or-edit-workout.component.sass'],
 })
-export class AddOrEditWorkoutComponent {
+export class AddOrEditWorkoutComponent implements AfterViewInit {
   // FIXME: Need to get Add or Edit input data
   @Input() workoutIndex!: number;
   @Input() formGroup!: FormGroup<{
@@ -37,6 +39,7 @@ export class AddOrEditWorkoutComponent {
   }>;
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
+  store = inject(Store<{ exercisesSelected: ExerciseSelected[] }>);
 
   allowWorkoutImageUpload = false;
   allowWorkoutVideoUpload = false;
@@ -48,12 +51,22 @@ export class AddOrEditWorkoutComponent {
     type: MiscDataType.IMAGE | MiscDataType.VIDEO;
   }[] = [];
 
+  hydratedStoreData: ExerciseSelected[] = [];
+
   @ViewChild('image_file_mock_input') image_file_mock_input:
     | ElementRef<HTMLInputElement>
     | undefined;
   @ViewChild('video_file_mock_input') video_file_mock_input:
     | ElementRef<HTMLInputElement>
     | undefined;
+
+  ngAfterViewInit(): void {
+    this.store.select('exerciseSelections').subscribe(
+      (value) => {
+        this.hydratedStoreData = value;
+      }
+    );
+  }
 
   // getters for formGroup
 

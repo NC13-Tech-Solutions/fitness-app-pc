@@ -2,10 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, firstValueFrom, map, take } from 'rxjs';
+import { resetSelection } from 'src/app/services/ctrl/exercise-selections.actions';
 import { months } from 'src/app/services/ctrl/months.reducer';
 import { DayService } from 'src/app/services/http/day.service';
 import { DayData } from 'src/app/shared/models/day-data.model';
 import { DayWeeksMonthYear } from 'src/app/shared/models/day-weeks-month-year.model';
+import { ExerciseSelected } from 'src/app/shared/models/exercise-selected.model';
 import { Mode } from 'src/app/shared/models/mode.model';
 
 @Component({
@@ -17,6 +19,7 @@ export class ViewDayComponent implements OnInit {
   private router = inject(Router);
   private dayService = inject(DayService);
   store = inject(Store<{ dmy: DayWeeksMonthYear }>);
+  exStore = inject(Store<{ exercisesSelected: ExerciseSelected[] }>);
   dmy: Observable<DayWeeksMonthYear> = this.store.select('months');
   dayValue: Observable<number> = this.dmy.pipe(
     map((snaps) => {
@@ -76,6 +79,7 @@ export class ViewDayComponent implements OnInit {
   addDayData(){
     this.mode = Mode.ADD;
     this.editDayData = undefined;
+    this.exStore.dispatch(resetSelection());
   }
 
   addWorkout() {}

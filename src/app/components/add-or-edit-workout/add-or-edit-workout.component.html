@@ -19,8 +19,8 @@
     </div>
     <div formArrayName="exercises">
       <ng-container *ngFor="let workEx of WorkoutExercises.controls; let i = index">
-        <app-workout-exercise-form [formGroup]="workEx" [exerciseIndex]="i"></app-workout-exercise-form>
-        <button *ngIf="i!=0" class="mb-3" mat-raised-button type="button" color="basic"
+        <app-workout-exercise-form [formGroup]="workEx" [exerciseIndex]="i" [exercisesSelected]="hydratedStoreData"></app-workout-exercise-form>
+        <button *ngIf="WorkoutExercises.controls.length > 1" class="mb-3" mat-raised-button type="button" color="basic"
           (click)="removeExercise(i)">Cancel</button>
       </ng-container>
     </div>

@@ -7,7 +7,6 @@ import {
 } from './exercise-selections.actions';
 import { ExerciseSelected } from 'src/app/shared/models/exercise-selected.model';
 
-
 function selectExercise(
   state: ExerciseSelected[],
   name: string,
@@ -19,26 +18,28 @@ function selectExercise(
     }
   }
 
-  state.push({
-    exerciseName: name,
-    exerciseSlNo: slNo,
-  });
-
-  return state;
+  return [
+    ...state,
+    {
+      exerciseName: name,
+      exerciseSlNo: slNo,
+    },
+  ];
 }
 
 function removeExercise(
   state: ExerciseSelected[],
   slNo: number
 ): ExerciseSelected[] {
+  let newState: ExerciseSelected[] = [];
   for (let i = 0; i < state.length; i++) {
     if (state[i].exerciseSlNo == slNo) {
-      state.splice(i, 1);
-      break;
+      continue;
     }
+    newState.push(state[i]);
   }
 
-  return state;
+  return newState;
 }
 
 function changeExercise(
@@ -46,22 +47,24 @@ function changeExercise(
   name: string,
   slNo: number
 ): ExerciseSelected[] {
+  let newState: ExerciseSelected[] = [];
   for (let i = 0; i < state.length; i++) {
     if (state[i].exerciseSlNo == slNo) {
-      state[i].exerciseName = name
-      break;
+      newState.push({ exerciseName: name, exerciseSlNo: slNo });
+      continue;
     }
+    newState.push(state[i]);
   }
 
-  return state;
+  return newState;
 }
 
-export const initialState = (): ExerciseSelected[] => {
+export const initialExerciseSelectionState = (): ExerciseSelected[] => {
   return [];
 };
 
 export const exerciseSelectionsReducer = createReducer(
-  initialState(),
+  initialExerciseSelectionState(),
   on(setExerciseSelection, (state, prop) =>
     selectExercise(state, prop.exerciseName, prop.exerciseSlNo)
   ),
@@ -71,5 +74,5 @@ export const exerciseSelectionsReducer = createReducer(
   on(removeExerciseSelection, (state, prop) =>
     removeExercise(state, prop.exerciseSlNo)
   ),
-  on(resetSelection, (state) => state = initialState())
+  on(resetSelection, (state) => (state = initialExerciseSelectionState()))
 );

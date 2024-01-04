@@ -46,19 +46,12 @@ export class WorkoutExerciseFormComponent implements OnInit, AfterViewInit {
     exerciseFormVideos: FormControl<VideoData[]>;
   }>;
   @Input() exerciseIndex!: number;
+  @Input() exercisesSelected!: ExerciseSelected[];
 
   private sanitizer = inject(DomSanitizer);
   private exerciseService = inject(ExerciseService);
   private fileSharingService = inject(FileSharingService);
   store = inject(Store<{ exercisesSelected: ExerciseSelected[] }>);
-  globalExercisesSelected: Observable<ExerciseSelected[]> =
-    this.store.select('exerciseSelections');
-  exercisesSelected: Observable<ExerciseSelected[]> =
-    this.globalExercisesSelected.pipe(
-      filter((value, i): boolean => {
-        return value[i].exerciseSlNo != this.exerciseIndex;
-      })
-    );
   availableExercises: Exercise[] = [];
 
   previousSelectedExId = 0;
@@ -163,6 +156,12 @@ export class WorkoutExerciseFormComponent implements OnInit, AfterViewInit {
 
   get WorkoutExerciseExerciseFormVideos() {
     return this.formGroup.get('exerciseFormVideos');
+  }
+
+  getFilteredArray(): ExerciseSelected[]{
+    return this.exercisesSelected.filter(
+      (value) => value.exerciseSlNo != this.exerciseIndex
+    );
   }
 
   getExerciseNameFromExId(exId: number): string {

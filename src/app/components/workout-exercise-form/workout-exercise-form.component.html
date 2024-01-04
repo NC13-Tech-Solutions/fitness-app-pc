@@ -18,7 +18,7 @@
         <mat-error *ngIf="WorkoutExerciseExId?.hasError('required')">Exercise is <strong>required</strong></mat-error>
       </mat-form-field>
     </div>
-    <ng-container *ngIf="exercisesSelected | async as exSelection">
+    <ng-container *ngIf="getFilteredArray() as exSelection">
       <div *ngIf="exSelection.length > 0" class="mb-3">
         <label for="workoutExerciseSuperSetOf" class="form-label me-2">Select Super Set(if any)</label>
         <mat-form-field appearance="outline">
