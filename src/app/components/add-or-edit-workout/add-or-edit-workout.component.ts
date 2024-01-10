@@ -1,4 +1,11 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
@@ -61,11 +68,9 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
     | undefined;
 
   ngAfterViewInit(): void {
-    this.store.select('exerciseSelections').subscribe(
-      (value) => {
-        this.hydratedStoreData = value;
-      }
-    );
+    this.store.select('exerciseSelections').subscribe((value) => {
+      this.hydratedStoreData = value;
+    });
   }
 
   // getters for formGroup
@@ -192,6 +197,11 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
     if (this.image_file_mock_input) {
       this.image_file_mock_input.nativeElement.click();
     }
+  }
+
+  addImageUrl(url: string) {
+    this.WorkoutPhotos?.value.push(url);
+    this.allowWorkoutImageUpload = false;
   }
 
   openVideoFileDialog() {

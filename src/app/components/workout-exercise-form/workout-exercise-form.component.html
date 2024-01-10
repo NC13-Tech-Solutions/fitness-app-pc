@@ -105,8 +105,8 @@
           <mat-option [value]="dataType.VIDEO">Local Video</mat-option>
           <mat-option [value]="dataType.EMBEDDED">Embedded Video</mat-option>
         </mat-select>
-        <button class="ms-3" mat-raised-button type="button" color="accent" (click)="addVideo()">Add Video</button>
       </mat-form-field>
+      <button class="ms-3" mat-raised-button type="button" color="primary" (click)="addVideo()">Add Video</button>
     </div>
     <div class="mb-3" *ngIf="allowVideoUpload">
       <label for="workoutVideoLink" class="form-label me-2">Add Workout Video</label>

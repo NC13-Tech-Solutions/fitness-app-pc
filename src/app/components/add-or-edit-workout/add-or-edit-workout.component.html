@@ -9,19 +9,27 @@
       <input type="text" id="time" matInput placeholder="Choose the workout time" name="time" formControlName="time"
         required>
       <mat-error *ngIf="WorkoutTime?.hasError('required')">Workout Time is <strong>required</strong></mat-error>
-      <mat-error *ngIf="WorkoutTime?.invalid">Incorrect Workout Time! Correct format is <strong>HH:MM AM/PM</strong></mat-error>
+      <mat-error *ngIf="WorkoutTime?.invalid">Incorrect Workout Time! Correct format is <strong>HH:MM
+          AM/PM</strong></mat-error>
     </mat-form-field>
   </div>
   <div class="mb-5">
     <div class="mb-2">
-      <h2 class="me-2">Exercises <span class="text-bg-danger">*</span></h2>
-      <button mat-icon-button color="basic" (click)="addExercise()"><mat-icon>add_task</mat-icon></button>
+      <h2>Exercises <span class="text-bg-danger">*</span>
+        <button matTooltip="Add new Exercise" matTooltipPosition="right" class="ms-2" mat-icon-button color="basic"
+          (click)="addExercise()"><mat-icon>add_task</mat-icon></button>
+      </h2>
     </div>
     <div formArrayName="exercises">
       <ng-container *ngFor="let workEx of WorkoutExercises.controls; let i = index">
-        <app-workout-exercise-form [formGroup]="workEx" [exerciseIndex]="i" [exercisesSelected]="hydratedStoreData"></app-workout-exercise-form>
-        <button *ngIf="WorkoutExercises.controls.length > 1" class="mb-3" mat-raised-button type="button" color="basic"
-          (click)="removeExercise(i)">Cancel</button>
+        <app-workout-exercise-form [formGroup]="workEx" [exerciseIndex]="i" [exercisesSelected]="hydratedStoreData"
+          class="ms-2"></app-workout-exercise-form>
+        <div class="mt-3 mb-3">
+          <button *ngIf="WorkoutExercises.controls.length == (i+1)" class="me-3" mat-raised-button type="button"
+            color="primary" (click)="addExercise()">Add Exercise #{{i+2}}</button>
+          <button *ngIf="WorkoutExercises.controls.length > 1" mat-raised-button type="button" color="basic"
+            (click)="removeExercise(i)">Remove Exercise #{{i+1}}</button>
+        </div>
       </ng-container>
     </div>
   </div>
@@ -40,19 +48,21 @@
         <mat-option [value]="dataType.IMAGE">Local Image</mat-option>
         <mat-option [value]="dataType.URL">Image Url</mat-option>
       </mat-select>
-      <button class="ms-3" mat-raised-button type="button" color="accent" (click)="addWorkoutImage()">Add Photo</button>
     </mat-form-field>
+    <button class="ms-3" mat-raised-button type="button" color="primary" (click)="addWorkoutImage()">Add Photo</button>
   </div>
   <div class="mb-3" *ngIf="allowWorkoutImageUpload">
     <label for="workoutImageUrl" class="form-label me-2">Add Workout Photo</label>
     <mat-form-field appearance="outline">
       <mat-label>Image Url</mat-label>
-      <textarea id="workoutImageUrl" matInput [placeholder]="'Image Url'"
+      <textarea id="workoutImageUrl" #workoutImageUrlTA matInput [placeholder]="'Image Url'"
         [disabled]="imageData == dataType.IMAGE"></textarea>
     </mat-form-field>
     <input type="file" name="image-file-mock-input" id="image-file-mock-input" style="display: none;"
       #image_file_mock_input (change)="image_file_mock_input_changeEvent($event)" [accept]="'image/*'">
-    <button class="ms-3" mat-raised-button type="button" color="accent" [disabled]="imageData == dataType.URL"
+    <button *ngIf="imageData == dataType.URL" class="ms-3" mat-raised-button type="button" color="accent"
+      [disabled]="!workoutImageUrlTA.value" (click)="addImageUrl(workoutImageUrlTA.value)">Add Image</button>
+    <button *ngIf="imageData == dataType.IMAGE" class="ms-3" mat-raised-button type="button" color="accent"
       (click)="openImageFileDialog()">Open and Upload Local Image</button>
   </div>
   <ng-container *ngIf="WorkoutPhotos != null">
@@ -77,8 +87,8 @@
         <mat-option [value]="dataType.VIDEO">Local Video</mat-option>
         <mat-option [value]="dataType.EMBEDDED">Embedded Video</mat-option>
       </mat-select>
-      <button class="ms-3" mat-raised-button type="button" color="accent" (click)="addWorkoutVideo()">Add Video</button>
     </mat-form-field>
+    <button class="ms-3" mat-raised-button type="button" color="primary" (click)="addWorkoutVideo()">Add Video</button>
   </div>
   <div class="mb-3" *ngIf="allowWorkoutVideoUpload">
     <label for="workoutVideoLink" class="form-label me-2">Add Workout Video</label>
