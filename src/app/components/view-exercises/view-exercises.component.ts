@@ -25,7 +25,10 @@ export class ViewExercisesComponent {
   private sanitizer = inject(DomSanitizer);
 
   extraDataType = MiscDataType;
-  panelOpen = false;
+  panelOpenData: { openedIndex: number; state: boolean } = {
+    openedIndex: 0,
+    state: false,
+  };
 
   public editDialog = inject(MatDialog);
 
@@ -87,11 +90,28 @@ export class ViewExercisesComponent {
     }
   }
 
-  shortDescription(inputText: string): string {
-    if (this.panelOpen) return 'Description';
+  shortDescription(inputText: string, index: number): string {
+    console.log(
+      'Enthonede nadakkunnath',
+      this.panelOpenData.openedIndex,
+      this.panelOpenData.state
+    );
+    if (this.panelOpenData.openedIndex == index && this.panelOpenData.state)
+      return 'Description';
     if (inputText.length < 50) {
       return inputText;
     }
     return inputText.substring(0, 47) + '...';
+  }
+
+  panelOpened(index: number) {
+    this.panelOpenData.openedIndex = index;
+    this.panelOpenData.state = true;
+  }
+
+  panelClosed(index: number) {
+    if(this.stepIndex != index) return //This code is needed as other accordions closing will also trigger this function
+    this.panelOpenData.openedIndex = index;
+    this.panelOpenData.state = false;
   }
 }

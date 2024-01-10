@@ -2,7 +2,7 @@
   <ng-container *ngIf="exercisesData.length > 0; else elseTemplate">
     <mat-accordion class="space-between-header-desc-items">
       <ng-container *ngFor="let exercise of exercisesData; index as i; trackBy: exerciseTrackingFn">
-        <mat-expansion-panel (opened)="panelOpen = true" (closed)="panelOpen = false" [expanded]="stepIndex == i" (opened)="setStep(i)" hideToggle>
+        <mat-expansion-panel (opened)="panelOpened(i)" (closed)="panelClosed(i)" [expanded]="stepIndex == i" (opened)="setStep(i)" hideToggle>
           <mat-expansion-panel-header>
             <mat-panel-title>
               {{exercise.name}}
@@ -12,7 +12,7 @@
             </mat-panel-title>
             <mat-panel-description>
               <ng-container *ngIf="exercise.description; else defaultDescription">
-                {{shortDescription(exercise.description)}}
+                {{shortDescription(exercise.description,i)}}
               </ng-container>
               <ng-template #defaultDescription>
                 No description found!
