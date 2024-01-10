@@ -34,14 +34,15 @@
       </div>
     </ng-container>
     <div class="mb-3">
+      <label for="workoutWeightsChipGrid" class="form-label me-2">Weights Used in the exercise(if any)</label>
       <mat-form-field appearance="outline">
         <mat-label>Weights Used in the exercise(if any)</mat-label>
-        <mat-chip-grid #workoutWeights aria-label="Enter Weights used(in kg)">
+        <mat-chip-grid id="workoutWeightsChipGrid" #workoutWeights aria-label="Enter Weights used(in kg)">
           <ng-container *ngFor="let weightUsed of WorkoutExerciseWeightsUsed?.value; let wIndex = index">
 
             <mat-chip-row (removed)="removeWeight(wIndex)" [editable]="true" (edited)="editWeight(wIndex,$event)"
               [aria-description]="'press enter to edit ' + weightUsed">
-              {{weightUsed}}
+              {{weightUsed}} kg
               <button matChipRemove [attr.aria-label]="'remove ' + weightUsed">
                 <mat-icon>cancel</mat-icon>
               </button>
@@ -110,20 +111,19 @@
     </div>
     <div class="mb-3" *ngIf="allowVideoUpload">
       <label for="workoutVideoLink" class="form-label me-2">Add Workout Video</label>
-      <mat-form-field appearance="outline" *ngIf="videoData == dataType.EMBEDDED">
+      <mat-form-field appearance="outline">
         <mat-label>Embedded Video Link</mat-label>
-        <textarea #embeddedVideoLinkTA id="embeddedVideoLinkTA" matInput
-          [placeholder]="'Embedded Video Link'"></textarea>
-        <button class="ms-3" mat-raised-button type="button" color="accent"
-          [disabled]="embeddedVideoLinkTA.value.trim() == ''" (click)="addEmbeddedVideo(embeddedVideoLinkTA.value)">Add
-          Embedded Video</button>
+        <textarea #embeddedVideoLinkTA id="embeddedVideoLinkTA" matInput [placeholder]="'Embedded Video Link'"
+          [disabled]="videoData == dataType.VIDEO"></textarea>
       </mat-form-field>
-      <mat-form-field appearance="outline" *ngIf="videoData == dataType.VIDEO">
-        <input type="file" name="video-file-mock-input" id="video-file-mock-input" style="display: none;"
-          #video_file_mock_input (change)="video_file_mock_input_changeEvent($event)" [accept]="'video/mp4'">
-        <button class="ms-3" mat-raised-button type="button" color="accent" (click)="openVideoFileDialog()">Open and
-          Upload Local Video</button>
-      </mat-form-field>
+      <input type="file" name="video-file-mock-input" id="video-file-mock-input" style="display: none;"
+        #video_file_mock_input (change)="video_file_mock_input_changeEvent($event)" [accept]="'video/mp4'">
+      <button *ngIf="videoData == dataType.EMBEDDED" class="ms-3" mat-raised-button type="button" color="accent"
+        [disabled]="embeddedVideoLinkTA.value.trim() == ''" (click)="addEmbeddedVideo(embeddedVideoLinkTA.value)">Add
+        Embedded Video</button>
+      <button *ngIf="videoData == dataType.VIDEO" class="ms-3" mat-raised-button type="button" color="accent"
+        (click)="openVideoFileDialog()">Open and
+        Upload Local Video</button>
     </div>
     <ng-container *ngIf="WorkoutExerciseExerciseFormVideos != null">
       <ng-container *ngFor="let workoutVid of WorkoutExerciseExerciseFormVideos.value; let vidIndex = index">
@@ -147,6 +147,6 @@
         </div>
       </ng-container>
     </ng-container>
-    <button class="me-3" mat-raised-button type="reset" color="accent">Reset</button>
+    <button class="me-3" mat-raised-button type="reset" color="warn">Reset</button>
   </form>
 </div>

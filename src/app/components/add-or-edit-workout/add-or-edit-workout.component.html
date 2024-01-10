@@ -92,19 +92,19 @@
   </div>
   <div class="mb-3" *ngIf="allowWorkoutVideoUpload">
     <label for="workoutVideoLink" class="form-label me-2">Add Workout Video</label>
-    <mat-form-field appearance="outline" *ngIf="videoData == dataType.EMBEDDED">
+    <mat-form-field appearance="outline">
       <mat-label>Embedded Video Link</mat-label>
-      <textarea #workoutVideoLinkTA id="workoutVideoLink" matInput [placeholder]="'Embedded Video Link'"></textarea>
-      <button class="ms-3" mat-raised-button type="button" color="accent"
-        [disabled]="workoutVideoLinkTA.value.trim() == ''" (click)="addEmbeddedVideo(workoutVideoLinkTA.value)">Add
-        Embedded Video</button>
+      <textarea #workoutVideoLinkTA id="workoutVideoLink" matInput [placeholder]="'Embedded Video Link'"
+        [disabled]="videoData == dataType.VIDEO"></textarea>
     </mat-form-field>
-    <mat-form-field appearance="outline" *ngIf="videoData == dataType.VIDEO">
-      <input type="file" name="video-file-mock-input" id="video-file-mock-input" style="display: none;"
-        #video_file_mock_input (change)="video_file_mock_input_changeEvent($event)" [accept]="'video/mp4'">
-      <button class="ms-3" mat-raised-button type="button" color="accent" (click)="openVideoFileDialog()">Open and
-        Upload Local Video</button>
-    </mat-form-field>
+    <input type="file" name="video-file-mock-input" id="video-file-mock-input" style="display: none;" #video_file_mock_input
+      (change)="video_file_mock_input_changeEvent($event)" [accept]="'video/mp4'">
+    <button *ngIf="videoData == dataType.EMBEDDED" class="ms-3" mat-raised-button type="button" color="accent"
+      [disabled]="!workoutVideoLinkTA.value" (click)="addEmbeddedVideo(workoutVideoLinkTA.value)">Add
+      Embedded Video</button>
+    <button *ngIf="videoData == dataType.VIDEO" class="ms-3" mat-raised-button type="button" color="accent"
+      (click)="openVideoFileDialog()">Open and
+      Upload Local Video</button>
   </div>
   <ng-container *ngIf="WorkoutVideos != null">
     <ng-container *ngFor="let workoutVid of WorkoutVideos.value; let vidIndex = index">
