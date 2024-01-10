@@ -2,7 +2,7 @@
   <ng-container *ngIf="exercisesData.length > 0; else elseTemplate">
     <mat-accordion class="space-between-header-desc-items">
       <ng-container *ngFor="let exercise of exercisesData; index as i; trackBy: exerciseTrackingFn">
-        <mat-expansion-panel [expanded]="stepIndex == i" (opened)="setStep(i)" hideToggle>
+        <mat-expansion-panel (opened)="panelOpen = true" (closed)="panelOpen = false" [expanded]="stepIndex == i" (opened)="setStep(i)" hideToggle>
           <mat-expansion-panel-header>
             <mat-panel-title>
               {{exercise.name}}
@@ -12,7 +12,7 @@
             </mat-panel-title>
             <mat-panel-description>
               <ng-container *ngIf="exercise.description; else defaultDescription">
-                {{exercise.description}}
+                {{shortDescription(exercise.description)}}
               </ng-container>
               <ng-template #defaultDescription>
                 No description found!
@@ -25,6 +25,11 @@
               </ng-template>
             </mat-panel-description>
           </mat-expansion-panel-header>
+          <div class="mb-3">
+            <ng-container *ngIf="exercise.description">
+              <p class="lead">{{exercise.description}}</p>
+            </ng-container>
+          </div>
           <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.IMAGE">
             <div class="normal-content">
               <img [src]="getSanitizedUrl(exercise.miscData)" alt="Welp. I guess image didn't render" width="480px">

@@ -25,6 +25,7 @@ export class ViewExercisesComponent {
   private sanitizer = inject(DomSanitizer);
 
   extraDataType = MiscDataType;
+  panelOpen = false;
 
   public editDialog = inject(MatDialog);
 
@@ -84,5 +85,13 @@ export class ViewExercisesComponent {
     } else {
       return value;
     }
+  }
+
+  shortDescription(inputText: string): string {
+    if (this.panelOpen) return 'Description';
+    if (inputText.length < 50) {
+      return inputText;
+    }
+    return inputText.substring(0, 47) + '...';
   }
 }
