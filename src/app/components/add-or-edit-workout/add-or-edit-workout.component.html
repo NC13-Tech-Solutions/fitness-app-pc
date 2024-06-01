@@ -16,14 +16,15 @@
   <div class="mb-5">
     <div class="mb-2">
       <h2>Exercises <span class="text-bg-danger">*</span>
-        <button matTooltip="Add new Exercise" matTooltipPosition="right" class="ms-2" mat-icon-button color="basic"
-          (click)="addExercise()"><mat-icon>add_task</mat-icon></button>
+        <button matTooltip="Add new Exercise" type="button" matTooltipPosition="right" class="ms-2" mat-icon-button
+          color="basic" (click)="addExercise()"><mat-icon>add_task</mat-icon></button>
       </h2>
     </div>
     <div formArrayName="exercises">
       <ng-container *ngFor="let workEx of WorkoutExercises.controls; let i = index">
         <app-workout-exercise-form [formGroup]="workEx" [exerciseIndex]="i" [exercisesSelected]="hydratedStoreData"
-          class="ms-2"></app-workout-exercise-form>
+          [availableExercises]="availableExercises" (addNewExercise)="addNewExercise.emit($event)"
+          [parentFormStatus]="formStatusInfoForChild" (formStatus)="childFormStatus(i,$event)" class="ms-2"></app-workout-exercise-form>
         <div class="mt-3 mb-3">
           <button *ngIf="WorkoutExercises.controls.length == (i+1)" class="me-3" mat-raised-button type="button"
             color="primary" (click)="addExercise()">Add Exercise #{{i+2}}</button>
@@ -97,8 +98,8 @@
       <textarea #workoutVideoLinkTA id="workoutVideoLink" matInput [placeholder]="'Embedded Video Link'"
         [disabled]="videoData == dataType.VIDEO"></textarea>
     </mat-form-field>
-    <input type="file" name="video-file-mock-input" id="video-file-mock-input" style="display: none;" #video_file_mock_input
-      (change)="video_file_mock_input_changeEvent($event)" [accept]="'video/mp4'">
+    <input type="file" name="video-file-mock-input" id="video-file-mock-input" style="display: none;"
+      #video_file_mock_input (change)="video_file_mock_input_changeEvent($event)" [accept]="'video/mp4'">
     <button *ngIf="videoData == dataType.EMBEDDED" class="ms-3" mat-raised-button type="button" color="accent"
       [disabled]="!workoutVideoLinkTA.value" (click)="addEmbeddedVideo(workoutVideoLinkTA.value)">Add
       Embedded Video</button>

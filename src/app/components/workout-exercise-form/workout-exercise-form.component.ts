@@ -2,15 +2,15 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
-  OnInit,
+  Output,
   ViewChild,
   inject,
 } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Observable, filter, take } from 'rxjs';
-import { ExerciseService } from 'src/app/services/http/exercise.service';
+import { take } from 'rxjs';
 import { FileSharingService } from 'src/app/services/http/file-sharing.service';
 import { Exercise } from 'src/app/shared/models/exercise.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -25,13 +25,16 @@ import {
   removeExerciseSelection,
   setExerciseSelection,
 } from 'src/app/services/ctrl/exercise-selections.actions';
+import { MatDialog } from '@angular/material/dialog';
+import { AddExerciseDialogComponent } from 'src/app/shared/dialogs/add-exercise-dialog/add-exercise-dialog.component';
+import { FormStatus } from 'src/app/shared/models/form-status.model';
 
 @Component({
   selector: 'app-workout-exercise-form',
   templateUrl: './workout-exercise-form.component.html',
   styleUrls: ['./workout-exercise-form.component.sass'],
 })
-export class WorkoutExerciseFormComponent implements OnInit, AfterViewInit {
+export class WorkoutExerciseFormComponent implements AfterViewInit {
   // FIXME: Need to get Add or Edit input data
   @Input() formGroup!: FormGroup<{
     slNo: FormControl<number>;
@@ -47,12 +50,15 @@ export class WorkoutExerciseFormComponent implements OnInit, AfterViewInit {
   }>;
   @Input() exerciseIndex!: number;
   @Input() exercisesSelected!: ExerciseSelected[];
+  @Input() availableExercises!: Exercise[];
+  @Output() addNewExercise = new EventEmitter<Exercise>();
+  @Input() parentFormStatus = new EventEmitter<FormStatus>();
+  @Output() formStatus = new EventEmitter<FormStatus>();
 
   private sanitizer = inject(DomSanitizer);
-  private exerciseService = inject(ExerciseService);
   private fileSharingService = inject(FileSharingService);
   store = inject(Store<{ exercisesSelected: ExerciseSelected[] }>);
-  availableExercises: Exercise[] = [];
+  public addExerciseDialog = inject(MatDialog);
 
   previousSelectedExId = 0;
   addWeightOnBlur = true;
@@ -65,17 +71,6 @@ export class WorkoutExerciseFormComponent implements OnInit, AfterViewInit {
   @ViewChild('video_file_mock_input') video_file_mock_input:
     | ElementRef<HTMLInputElement>
     | undefined;
-
-  ngOnInit(): void {
-    this.exerciseService
-      .getAllExercises()
-      .pipe(take(1))
-      .subscribe((value) => {
-        value.forEach((ex) => {
-          if (!ex.disabled) this.availableExercises.push(ex);
-        });
-      });
-  }
 
   ngAfterViewInit(): void {
     if (this.WorkoutExerciseSlNo) {
@@ -114,6 +109,18 @@ export class WorkoutExerciseFormComponent implements OnInit, AfterViewInit {
         }
       });
     }
+
+    this.parentFormStatus.subscribe((value) => {
+      if (value == FormStatus.CANCEL) {
+        // FIXME: Call the form cancellor in this component
+        console.log('Form Cancelled in Parent Component:', value);
+        this.parentFormReset();
+      } else if (value == FormStatus.RESET) {
+        // FIXME: Call the form resetter in this component
+        console.log('Form Reset in Parent Component:', value);
+        this.parentFormCancelled();
+      }
+    });
   }
 
   // getters for formGroup
@@ -158,10 +165,65 @@ export class WorkoutExerciseFormComponent implements OnInit, AfterViewInit {
     return this.formGroup.get('exerciseFormVideos');
   }
 
-  getFilteredArray(): ExerciseSelected[]{
+  getArrayWithoutCurrentIndex(): ExerciseSelected[] {
     return this.exercisesSelected.filter(
       (value) => value.exerciseSlNo != this.exerciseIndex
     );
+  }
+
+  getFilteredArray_ES(
+    input: ExerciseSelected[],
+    filter: string | number
+  ): ExerciseSelected[] {
+    // If filter is an empty string
+    if (filter === '') return input;
+    // If filter is a number
+    let numFilter = Number(filter);
+    if (numFilter != undefined && !isNaN(numFilter)) {
+      let x = this.checkIfExSlNoIsInArray(input, Number(filter));
+      if (x.status) {
+        return x.value ? [x.value] : input;
+      }
+      return input;
+    }
+    // If filter is a string and string is not empty
+    else if (typeof filter === 'string') {
+      return input.filter((value) =>
+        value.exerciseName.toLowerCase().includes(filter.trim().toLowerCase())
+      );
+    }
+    // If filter is undefined
+    return input;
+  }
+
+  getFilteredArray_E(input: Exercise[], filter: string | number): Exercise[] {
+    // If filter is an empty string
+    if (filter === '') return input;
+    // If filter is a number
+    let numFilter = Number(filter);
+    if (numFilter != undefined && !isNaN(numFilter)) {
+      let x = this.checkIfExIdIsInArray(input, numFilter);
+      if (x.status) {
+        return x.value ? [x.value] : input;
+      }
+      return input;
+    }
+    // If filter is a string and string is not empty
+    else if (typeof filter === 'string') {
+      return input.filter((value) =>
+        value.name.toLowerCase().includes(filter.trim().toLowerCase())
+      );
+    }
+    // If filter is undefined
+    return input;
+  }
+
+  trackBy_ES(index: number, item: ExerciseSelected) {
+    return item.exerciseSlNo;
+  }
+
+  trackBy_E(index: number, item: Exercise) {
+    return item.exId;
   }
 
   getExerciseNameFromExId(exId: number): string {
@@ -171,6 +233,32 @@ export class WorkoutExerciseFormComponent implements OnInit, AfterViewInit {
       }
     }
     return '';
+  }
+
+  checkIfExSlNoIsInArray(
+    input: ExerciseSelected[],
+    exerciseSlNo: number
+  ): { status: boolean; value: ExerciseSelected | undefined } {
+    console.log(`ExerciseSlNo check: ${exerciseSlNo}`);
+    for (let ex of input) {
+      if (ex.exerciseSlNo == exerciseSlNo) {
+        return { status: true, value: ex };
+      }
+    }
+    return { status: false, value: undefined };
+  }
+
+  checkIfExIdIsInArray(
+    input: Exercise[],
+    exId: number
+  ): { status: boolean; value: Exercise | undefined } {
+    console.log(`Exid check: ${exId}`);
+    for (let ex of input) {
+      if (ex.exId == exId) {
+        return { status: true, value: ex };
+      }
+    }
+    return { status: false, value: undefined };
   }
 
   addWeight(event: MatChipInputEvent) {
@@ -286,5 +374,28 @@ export class WorkoutExerciseFormComponent implements OnInit, AfterViewInit {
 
   resetForm() {
     // FIXME: On Form Reset
+    console.log('Jimbarlakka', 'Workout Exercise Form Reset');
+  }
+
+  parentFormReset() {
+    // FIXME: Form Reset. So do any deletion here, if necessary
+    this.formStatus.emit(FormStatus.RESET);
+  }
+
+  parentFormCancelled() {
+    // FIXME: Form Cancelled. So do any deletion here, if necessary
+    this.formStatus.emit(FormStatus.CANCEL);
+  }
+
+  addExercise() {
+    const dialogRef = this.addExerciseDialog.open(AddExerciseDialogComponent, {data: this.availableExercises});
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((result: { data: Exercise; submit: boolean }) => {
+        if (result.submit) {
+          this.addNewExercise.emit(result.data);
+        }
+      });
   }
 }

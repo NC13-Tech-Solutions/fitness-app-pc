@@ -8,25 +8,28 @@
       <label for="workoutExerciseExId" class="form-label me-2">Select Exercise</label>
       <mat-form-field appearance="outline">
         <mat-label>Name</mat-label>
-        <input type="text" id="workoutExerciseExId" matInput placeholder="Enter the exercise name" name="exId"
+        <input type="text" #workoutExInput id="workoutExerciseExId" matInput placeholder="Enter the exercise name" name="exId"
           [matAutocomplete]="exerciseNameAC" formControlName="exId" required>
         <mat-autocomplete #exerciseNameAC="matAutocomplete">
-          <ng-container *ngFor="let ex of availableExercises">
+          <ng-container *ngFor="let ex of getFilteredArray_E(availableExercises,workoutExInput.value); trackBy: trackBy_E">
             <mat-option [value]="ex.exId">{{ex.name}}</mat-option>
           </ng-container>
         </mat-autocomplete>
         <mat-error *ngIf="WorkoutExerciseExId?.hasError('required')">Exercise is <strong>required</strong></mat-error>
+        <mat-hint *ngIf="previousSelectedExId!=0">Selected Exercise <span class="text-success">{{getExerciseNameFromExId(previousSelectedExId)}}</span></mat-hint>
       </mat-form-field>
+      <button type="button" matTooltip="Add new Exercise" matTooltipPosition="right" class="ms-2 align-middle" mat-fab extended color="accent"
+        (click)="addExercise()"><mat-icon>add_task</mat-icon> Add new Exercise to Selection</button>
     </div>
-    <ng-container *ngIf="getFilteredArray() as exSelection">
+    <ng-container *ngIf="getArrayWithoutCurrentIndex() as exSelection">
       <div *ngIf="exSelection.length > 0" class="mb-3">
         <label for="workoutExerciseSuperSetOf" class="form-label me-2">Select Super Set(if any)</label>
         <mat-form-field appearance="outline">
           <mat-label>Name</mat-label>
-          <input type="text" id="workoutExerciseSuperSetOf" matInput placeholder="Enter the exercise name"
+          <input type="text" #workoutExSSInput id="workoutExerciseSuperSetOf" matInput placeholder="Enter the exercise name"
             name="superSetOf" [matAutocomplete]="superSetNameAC" formControlName="superSetOf">
           <mat-autocomplete #superSetNameAC="matAutocomplete">
-            <ng-container *ngFor="let ex of exSelection">
+            <ng-container *ngFor="let ex of getFilteredArray_ES(exSelection,workoutExSSInput.value); trackBy: trackBy_ES">
               <mat-option [value]="ex.exerciseSlNo">{{ex.exerciseName}}</mat-option>
             </ng-container>
           </mat-autocomplete>
@@ -43,7 +46,7 @@
             <mat-chip-row (removed)="removeWeight(wIndex)" [editable]="true" (edited)="editWeight(wIndex,$event)"
               [aria-description]="'press enter to edit ' + weightUsed">
               {{weightUsed}} kg
-              <button matChipRemove [attr.aria-label]="'remove ' + weightUsed">
+              <button type="button" matChipRemove [attr.aria-label]="'remove ' + weightUsed">
                 <mat-icon>cancel</mat-icon>
               </button>
             </mat-chip-row>

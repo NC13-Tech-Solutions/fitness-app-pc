@@ -32,15 +32,19 @@
           </div>
           <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.IMAGE">
             <div class="normal-content">
-              <img [src]="getSanitizedUrl(exercise.miscData)" alt="Welp. I guess image didn't render" width="480px">
+              <ng-container *ngIf="loadFile(exercise.miscData, exercise.exId) | async as imgSrc">
+                <img [src]="getSanitizedUrl(imgSrc)" alt="Welp. I guess image didn't render" width="480px">
+              </ng-container>
             </div>
           </ng-container>
           <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.VIDEO">
             <div class="normal-content">
-              <video height="auto" width="480px" autoplay loop controls>
-                <source [src]="getSanitizedUrl(exercise.miscData)" type="video/mp4">
-                Your browser doesn't support this video format.
-              </video>
+              <ng-container *ngIf="loadFile(exercise.miscData, exercise.exId) | async as vidSrc">
+                <video height="auto" width="480px" autoplay loop controls>
+                  <source [src]="getSanitizedUrl(vidSrc)" type="video/mp4">
+                  Your browser doesn't support this video format.
+                </video>
+              </ng-container>
             </div>
           </ng-container>
           <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.EMBEDDED">

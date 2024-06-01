@@ -18,7 +18,7 @@
         <button mat-icon-button (click)="goToPrevMonth()"><mat-icon>navigate_before</mat-icon></button>
       </div>
       <div class="col-sm-8 col-12">
-        <h3>{{monthText | async}}, {{yearValue | async}}
+        <h3>{{monthData ? monthData : ""}}, {{yearData ? yearData : ""}}
           <button class="ms-2" mat-icon-button matTooltip="Go to Current Month"
             (click)="goToCurrentMonth()"><mat-icon>today</mat-icon></button>
         </h3>

@@ -78,7 +78,14 @@ export class ApiService {
 
   public getRequest<T, V>(
     url: string,
-    responseType: 'text' | 'json',
+    responseType: 'blob',
+    additionalHeaders: { name: string; value: string }[],
+    callback: (x: V) => T
+  ): Observable<T>;
+
+  public getRequest<T, V>(
+    url: string,
+    responseType: 'text' | 'json' | 'blob',
     additionalHeaders: { name: string; value: string }[],
     callback: (x: V) => T
   ): Observable<T> {
@@ -89,9 +96,22 @@ export class ApiService {
     for (let x of additionalHeaders) {
       headers.set(x.name, x.value);
     }
+
     if (responseType == 'json')
       return this.http
         .get(environment.api_url + url, {
+          headers: new HttpHeaders(headers),
+          responseType: responseType,
+        })
+        .pipe(
+          map((value, index) => {
+            return callback(value as V);
+          })
+        );
+
+    if (responseType == 'blob')
+      return this.http
+        .get(url, {
           headers: new HttpHeaders(headers),
           responseType: responseType,
         })

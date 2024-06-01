@@ -8,11 +8,16 @@ import { Observable } from 'rxjs';
 })
 export class ExerciseService {
   private api = inject(ApiService);
+  private entryPoint = 'exercise';
 
+  /**
+   * Finds all exercises
+   * @returns Observable of list of all {@link Exercise}
+   */
   public getAllExercises(): Observable<Exercise[]> {
     const JwtToken = localStorage.getItem('JwtToken');
     return this.api.getRequest<Exercise[], Exercise[]>(
-      'exercise/all',
+      `${this.entryPoint}/all`,
       'json',
       [{ name: 'Authorization', value: `Bearer ${JwtToken}` }],
       (value) => {
@@ -23,11 +28,15 @@ export class ExerciseService {
       }
     );
   }
-
+  /**
+   * Finds the exercise with {@link Exercise.exId}
+   * @param exId
+   * @returns Observable of {@link Exercise} or `null` if exercise doesn't exist
+   */
   public getExercise(exId: number): Observable<Exercise> {
     const JwtToken = localStorage.getItem('JwtToken');
     return this.api.getRequest<Exercise, Exercise>(
-      `exercise/${exId}`,
+      `${this.entryPoint}/${exId}`,
       'json',
       [{ name: 'Authorization', value: `Bearer ${JwtToken}` }],
       (value) => {
@@ -36,10 +45,16 @@ export class ExerciseService {
     );
   }
 
+  /**
+   * Adds a new exercise
+   * @param exercise
+   * @returns Observable of number which returns the following:
+   * `1` - if insert is successful; `-1` - if not successful; `0` - if {@link Exercise.name} already exists
+   */
   public addExercise(exercise: Exercise): Observable<number> {
     const JwtToken = localStorage.getItem('JwtToken');
     return this.api.postRequest<number, number>(
-      'exercise/new',
+      `${this.entryPoint}/new`,
       'text',
       exercise,
       [
@@ -52,10 +67,17 @@ export class ExerciseService {
     );
   }
 
+  /**
+   * Edits the exercise data
+   * @param exercise
+   * @remarks {@link Exercise.exId} will be used to find the exercise
+   * @returns Observable of number which returns the following:
+   * `1` - if update is successful; `-1` - if exercise is not found; `0` - if {@link Exercise.name} already exists
+   */
   public editExercise(exercise: Exercise): Observable<number> {
     const JwtToken = localStorage.getItem('JwtToken');
     return this.api.putRequest<number, number>(
-      'exercise/' + exercise.exId,
+      `${this.entryPoint}/${exercise.exId}`,
       'text',
       exercise,
       [

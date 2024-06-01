@@ -1,7 +1,19 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  inject,
+} from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { DayService } from 'src/app/services/http/day.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { BehaviorSubject, Observable, take } from 'rxjs';
+import { ExerciseService } from 'src/app/services/http/exercise.service';
 import { DayData } from 'src/app/shared/models/day-data.model';
+import { Exercise } from 'src/app/shared/models/exercise.model';
+import { FormStatus } from 'src/app/shared/models/form-status.model';
 import { Mode } from 'src/app/shared/models/mode.model';
 import { VideoData } from 'src/app/shared/models/video-data.model';
 
@@ -10,10 +22,15 @@ import { VideoData } from 'src/app/shared/models/video-data.model';
   templateUrl: './add-or-edit-day.component.html',
   styleUrls: ['./add-or-edit-day.component.sass'],
 })
-export class AddOrEditDayComponent {
-  @Input() mode!: Mode;
+export class AddOrEditDayComponent implements OnInit{
+  @Input() mode: Mode = Mode.ADD;
   @Input() dayData: DayData | undefined;
   @Output() callback = new EventEmitter<{ data: DayData; submit: boolean }>();
+
+  private exerciseService = inject(ExerciseService);
+  private snackbar = inject(MatSnackBar);
+
+  private exerciseDataSubject = new BehaviorSubject<Exercise[]>([]);
 
   dayOperationMode = Mode;
   submitButtonText: 'Add' | 'Edit' = 'Add';
@@ -83,6 +100,23 @@ export class AddOrEditDayComponent {
       }),
     ]),
   });
+
+  allExercises: Observable<Exercise[]> | undefined;
+  availableExercises: Exercise[] = [];
+
+  formStatusInfoForChild = new EventEmitter<FormStatus>();
+
+  ngOnInit(): void {
+    this.refreshExerciseData();
+    this.allExercises = this.exerciseDataSubject.asObservable();
+
+    this.allExercises.subscribe((value) => {
+      this.availableExercises = [];
+      value.forEach((ex) => {
+        if (!ex.disabled) this.availableExercises.push(ex);
+      });
+    });
+  }
 
   // getters for formGroup
 
@@ -198,22 +232,59 @@ export class AddOrEditDayComponent {
     }
   }
 
+  addNewExercise(newExercise: Exercise) {
+    this.exerciseService
+      .addExercise(newExercise)
+      .pipe(take(1))
+      .subscribe((result) => {
+        if (result == 1) {
+          // this.availableExercises.push(newExercise);
+          this.refreshExerciseData();
+          this.snackbar.open('Exercise Added', 'Dismiss', {
+            duration: 5000,
+          });
+        } else if (result == 0) {
+          this.snackbar.open('Exercise already exists', 'Got it', {
+            duration: 5000,
+          });
+        }
+      });
+  }
+
   removeWorkout(indexNumber: number) {
     if (this.DayWorkouts != null) this.DayWorkouts.removeAt(indexNumber);
   }
 
   onSubmit() {
     // FIXME: On main form submit
+    // FIXME: User data is not retrieved here
     console.log('Jimbarlakka', 'Form Submit');
+    this.callback.emit({data:{
+      ddId: this.dayData?.ddId ?? 0,
+      modifiedBy:
+    },submit: true})
   }
 
   resetForm() {
     // FIXME: On main form reset
     console.log('Jimbarlakka', 'Form Reset');
+    this.formStatusInfoForChild.emit(FormStatus.RESET);
   }
 
   cancelForm() {
     // FIXME: On form cancelled
     console.log('Jimbarlakka', 'Form Cancelled');
+    this.formStatusInfoForChild.emit(FormStatus.CANCEL);
+  }
+
+  childFormStatus(index: number, status: FormStatus) {
+    console.log(`Workout Form #${index} reset status=${status}`);
+  }
+
+  refreshExerciseData(): void {
+    this.exerciseService
+      .getAllExercises()
+      .pipe(take(1))
+      .subscribe((result) => this.exerciseDataSubject.next(result));
   }
 }

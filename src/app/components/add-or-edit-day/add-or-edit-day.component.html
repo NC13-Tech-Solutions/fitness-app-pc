@@ -27,7 +27,8 @@
       <div formArrayName="workouts">
         <ng-container *ngFor="let dayWorkoutsForm of DayWorkouts.controls; let i = index">
           <app-add-or-edit-workout [formGroup]="dayWorkoutsForm" [workoutIndex]="i"
-            class="mb-5 ms-2"></app-add-or-edit-workout>
+            [availableExercises]="availableExercises" (addNewExercise)="addNewExercise($event)"
+            [parentFormStatus]="formStatusInfoForChild" (formStatus)="childFormStatus(i,$event)" class="mb-5 ms-2"></app-add-or-edit-workout>
           <div class="mb-3">
             <button *ngIf="DayWorkouts.controls.length == (i+1)" class="me-3" mat-raised-button type="button"
               color="primary" (click)="addWorkout()">Add Workout #{{i+2}}</button>

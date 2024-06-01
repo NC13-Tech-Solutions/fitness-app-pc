@@ -2,7 +2,10 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
+  OnInit,
+  Output,
   ViewChild,
   inject,
 } from '@angular/core';
@@ -12,7 +15,10 @@ import { Store } from '@ngrx/store';
 import { take } from 'rxjs';
 import { FileSharingService } from 'src/app/services/http/file-sharing.service';
 import { ExerciseSelected } from 'src/app/shared/models/exercise-selected.model';
+import { Exercise } from 'src/app/shared/models/exercise.model';
+import { FormStatus } from 'src/app/shared/models/form-status.model';
 import { MiscDataType } from 'src/app/shared/models/misc-data-type.model';
+import { Mode } from 'src/app/shared/models/mode.model';
 import { VideoData } from 'src/app/shared/models/video-data.model';
 import { environment } from 'src/environments/environment';
 
@@ -22,8 +28,9 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./add-or-edit-workout.component.sass'],
 })
 export class AddOrEditWorkoutComponent implements AfterViewInit {
-  // FIXME: Need to get Add or Edit input data
+  @Input() mode: Mode = Mode.ADD;
   @Input() workoutIndex!: number;
+  @Input() availableExercises!: Exercise[];
   @Input() formGroup!: FormGroup<{
     time: FormControl<string>;
     exercises: FormArray<
@@ -44,6 +51,10 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
     photos: FormControl<string[]>;
     videos: FormControl<VideoData[]>;
   }>;
+  @Output() addNewExercise = new EventEmitter<Exercise>();
+  @Input() parentFormStatus = new EventEmitter<FormStatus>();
+  @Output() formStatus = new EventEmitter<FormStatus>();
+
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
   store = inject(Store<{ exercisesSelected: ExerciseSelected[] }>);
@@ -60,6 +71,8 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
 
   hydratedStoreData: ExerciseSelected[] = [];
 
+  formStatusInfoForChild = new EventEmitter<FormStatus>();
+
   @ViewChild('image_file_mock_input') image_file_mock_input:
     | ElementRef<HTMLInputElement>
     | undefined;
@@ -70,6 +83,17 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.store.select('exerciseSelections').subscribe((value) => {
       this.hydratedStoreData = value;
+    });
+
+    this.parentFormStatus.subscribe((value) => {
+      if (value == FormStatus.CANCEL) {
+        // FIXME: Call the form cancellor in this component
+        console.log('Form Cancelled in Parent Component:', value);
+      } else if (value == FormStatus.RESET) {
+        // FIXME: Call the form resetter in this component
+        console.log('Form Reset in Parent Component:', value);
+      }
+      this.formStatusInfoForChild.emit(value);
     });
   }
 
@@ -312,5 +336,14 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
 
   checkIfLocalFile(url: string): boolean {
     return url.startsWith(environment.api_url);
+  }
+
+  resetForm() {
+   // FIXME: Form Reset. So do any deletion here, if necessary
+    this.formStatus.emit(FormStatus.RESET);
+  }
+
+  childFormStatus(index: number, status: FormStatus) {
+    console.log(`Work Exercise Form #${index} reset status=${status}`);
   }
 }

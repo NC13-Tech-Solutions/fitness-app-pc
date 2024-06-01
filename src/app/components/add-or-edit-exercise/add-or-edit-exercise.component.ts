@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -20,7 +21,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { MiscDataType } from '../../shared/models/misc-data-type.model';
-import { ExerciseService } from '../../services/http/exercise.service';
 import { Observable, of, take } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FileSharingService } from '../../services/http/file-sharing.service';
@@ -35,11 +35,11 @@ import { environment } from 'src/environments/environment';
 export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   @Input() mode: Mode = Mode.ADD;
   @Input() exercise: Exercise | undefined;
+  @Input() allExercisesData!: Exercise[];
   @Output() callback = new EventEmitter<{ data: Exercise; submit: boolean }>();
   private sanitizer = inject(DomSanitizer);
-  private exerciseService = inject(ExerciseService);
   private fileSharingService = inject(FileSharingService);
-  private exercisesData: Exercise[] = [];
+  private changeDetection = inject(ChangeDetectorRef);
 
   toggleText: 'Enabled' | 'Disabled' = 'Enabled';
   togglePreview: 'See' | 'Close' = 'See';
@@ -87,12 +87,6 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   });
 
   ngOnInit(): void {
-    this.exerciseService
-      .getAllExercises()
-      .pipe(take(1))
-      .subscribe((value) => {
-        value.forEach((ex) => this.exercisesData.push(ex));
-      });
     this.resetForm();
     if (this.mode == Mode.ADD) {
       this.submitButtonText = 'Add';
@@ -367,14 +361,46 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
     if (value != '') {
       switch (dt) {
         case MiscDataType.IMAGE:
-          this.previewData = value;
-          this.enablePreview = true;
-          this.togglePreview = 'Close';
+          if (this.checkIfLocalFile(value)) {
+            this.fileSharingService
+              .viewFileWithUrl(value)
+              .pipe(take(1))
+              .subscribe({
+                next: (result) =>
+                  result.pipe(take(1)).subscribe((imgSrc) => {
+                    this.previewData = imgSrc;
+                    this.enablePreview = true;
+                    this.togglePreview = 'Close';
+                    this.changeDetection.detectChanges();
+                  }),
+                error: (err) => console.log(err),
+              });
+          } else {
+            this.previewData = value;
+            this.enablePreview = true;
+            this.togglePreview = 'Close';
+          }
           break;
         case MiscDataType.VIDEO:
-          this.previewData = value;
-          this.enablePreview = true;
-          this.togglePreview = 'Close';
+          if (this.checkIfLocalFile(value)) {
+            this.fileSharingService
+              .viewFileWithUrl(value)
+              .pipe(take(1))
+              .subscribe({
+                next: (result) =>
+                  result.pipe(take(1)).subscribe((vidSrc) => {
+                    this.previewData = vidSrc;
+                    this.enablePreview = true;
+                    this.togglePreview = 'Close';
+                    this.changeDetection.detectChanges();
+                  }),
+                error: (err) => console.log(err),
+              });
+          } else {
+            this.previewData = value;
+            this.enablePreview = true;
+            this.togglePreview = 'Close';
+          }
           break;
         case MiscDataType.EMBEDDED:
           this.previewData = value;
@@ -397,7 +423,7 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   }
 
   exerciseNameAlreadyExists(name: string): boolean {
-    for (let ex of this.exercisesData) {
+    for (let ex of this.allExercisesData) {
       if (
         this.mode == Mode.EDIT &&
         this.exercise != undefined &&
@@ -410,5 +436,9 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
       }
     }
     return false;
+  }
+
+  checkIfLocalFile(url: string): boolean {
+    return url.startsWith(environment.api_url);
   }
 }

@@ -23,6 +23,7 @@ import { ViewWorkoutExercisesComponent } from './components/view-workout-exercis
 import { AddOrEditDayComponent } from './components/add-or-edit-day/add-or-edit-day.component';
 import { AddOrEditWorkoutComponent } from './components/add-or-edit-workout/add-or-edit-workout.component';
 import { WorkoutExerciseFormComponent } from './components/workout-exercise-form/workout-exercise-form.component';
+import { AddExerciseDialogComponent } from './shared/dialogs/add-exercise-dialog/add-exercise-dialog.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { WorkoutExerciseFormComponent } from './components/workout-exercise-form
     ViewWorkoutExercisesComponent,
     AddOrEditDayComponent,
     AddOrEditWorkoutComponent,
-    WorkoutExerciseFormComponent
+    WorkoutExerciseFormComponent,
+    AddExerciseDialogComponent
   ],
   imports: [
     BrowserModule,

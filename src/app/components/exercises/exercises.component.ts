@@ -1,5 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Observable, take } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+} from '@angular/core';
+import { BehaviorSubject, Observable, take } from 'rxjs';
 import { ExerciseService } from '../../services/http/exercise.service';
 import { Exercise } from '../../shared/models/exercise.model';
 import { Mode } from '../../shared/models/mode.model';
@@ -12,19 +17,23 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./exercises.component.sass'],
   changeDetection: ChangeDetectionStrategy.Default,
 })
-export class ExercisesComponent {
+export class ExercisesComponent implements OnInit {
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
 
   private exerciseService = inject(ExerciseService);
 
-  public exercises: Observable<Exercise[]> = this.exerciseService
-    .getAllExercises()
-    .pipe(take(1));
+  private exerciseDataSubject = new BehaviorSubject<Exercise[]>([]);
+  public exercises: Observable<Exercise[]> | undefined;
 
   public mode: Mode = Mode.VIEW;
   exerciseMode = Mode;
   editExerciseData: Exercise | undefined;
+
+  ngOnInit(): void {
+    this.refreshExerciseData();
+    this.exercises = this.exerciseDataSubject.asObservable();
+  }
 
   close_nav() {
     this.router.navigateByUrl('/main');
@@ -50,6 +59,7 @@ export class ExercisesComponent {
             if (result == 1) {
               this.editExerciseData = undefined;
               this.mode = Mode.VIEW;
+              this.refreshExerciseData();
               this.snackbar.open('Exercise Added', 'Dismiss', {
                 duration: 5000,
               });
@@ -67,6 +77,7 @@ export class ExercisesComponent {
             if (result == 1) {
               this.editExerciseData = undefined;
               this.mode = Mode.VIEW;
+              this.refreshExerciseData();
               this.snackbar.open('Exercise Edit Successful', 'Dismiss', {
                 duration: 5000,
               });
@@ -81,5 +92,12 @@ export class ExercisesComponent {
       this.editExerciseData = undefined;
       this.mode = Mode.VIEW;
     }
+  }
+
+  refreshExerciseData(): void {
+    this.exerciseService
+      .getAllExercises()
+      .pipe(take(1))
+      .subscribe((result) => this.exerciseDataSubject.next(result));
   }
 }
