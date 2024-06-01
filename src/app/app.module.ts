@@ -12,7 +12,7 @@ import { MainComponent } from './components/main/main.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgrxModule } from './core/ngrx.module';
 import { DayCardComponent } from './components/day-card/day-card.component';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ViewExercisesComponent } from './components/view-exercises/view-exercises.component';
 import { ExercisesComponent } from './components/exercises/exercises.component';
 import { AddOrEditExerciseComponent } from './components/add-or-edit-exercise/add-or-edit-exercise.component';
@@ -26,40 +26,34 @@ import { WorkoutExerciseFormComponent } from './components/workout-exercise-form
 import { AddExerciseDialogComponent } from './shared/dialogs/add-exercise-dialog/add-exercise-dialog.component';
 import { StoreModule } from '@ngrx/store';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    LoginComponent,
-    EmptyComponent,
-    MainComponent,
-    DayCardComponent,
-    ViewExercisesComponent,
-    ExercisesComponent,
-    AddOrEditExerciseComponent,
-    EditDialogComponent,
-    ViewDayComponent,
-    ViewWorkoutComponent,
-    ViewWorkoutExercisesComponent,
-    AddOrEditDayComponent,
-    AddOrEditWorkoutComponent,
-    WorkoutExerciseFormComponent,
-    AddExerciseDialogComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    MaterialModule,
-    FormsModule,
-    ReactiveFormsModule,
-    NgrxModule,
-    HttpClientModule,
-    StoreModule.forRoot({}, {})
-  ],
-  providers: [
-    { provide: LocationStrategy, useClass: HashLocationStrategy },
-    DatePipe
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        LoginComponent,
+        EmptyComponent,
+        MainComponent,
+        DayCardComponent,
+        ViewExercisesComponent,
+        ExercisesComponent,
+        AddOrEditExerciseComponent,
+        EditDialogComponent,
+        ViewDayComponent,
+        ViewWorkoutComponent,
+        ViewWorkoutExercisesComponent,
+        AddOrEditDayComponent,
+        AddOrEditWorkoutComponent,
+        WorkoutExerciseFormComponent,
+        AddExerciseDialogComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MaterialModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NgrxModule,
+        StoreModule.forRoot({}, {})], providers: [
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        DatePipe,
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule { }
