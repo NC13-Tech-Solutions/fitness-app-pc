@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "fitness-app-pc:build:production"
+              "buildTarget": "fitness-app-pc:build:production"
             },
             "development": {
-              "browserTarget": "fitness-app-pc:build:development"
+              "buildTarget": "fitness-app-pc:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "fitness-app-pc:build"
+            "buildTarget": "fitness-app-pc:build"
           }
         },
         "test": {
