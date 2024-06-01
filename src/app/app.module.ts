@@ -24,6 +24,7 @@ import { AddOrEditDayComponent } from './components/add-or-edit-day/add-or-edit-
 import { AddOrEditWorkoutComponent } from './components/add-or-edit-workout/add-or-edit-workout.component';
 import { WorkoutExerciseFormComponent } from './components/workout-exercise-form/workout-exercise-form.component';
 import { AddExerciseDialogComponent } from './shared/dialogs/add-exercise-dialog/add-exercise-dialog.component';
+import { StoreModule } from '@ngrx/store';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { AddExerciseDialogComponent } from './shared/dialogs/add-exercise-dialog
     FormsModule,
     ReactiveFormsModule,
     NgrxModule,
-    HttpClientModule
+    HttpClientModule,
+    StoreModule.forRoot({}, {})
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
