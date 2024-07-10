@@ -27,7 +27,7 @@ import { DayData } from 'src/app/shared/models/day-data.model';
 })
 export class MainComponent implements OnInit {
   router = inject(Router);
-  store = inject(Store<{ dmy: DayWeeksMonthYear }>);
+  store = inject(Store<{ months: DayWeeksMonthYear }>);
   userService = inject(UserService);
   dayService = inject(DayService);
 
@@ -65,7 +65,6 @@ export class MainComponent implements OnInit {
 
     this.dayDataArray$?.subscribe((dd) => {
       this.dayDataArray = dd;
-      console.log('Moonjakkam', `Day Data Array = ${dd}`);
     });
   }
 
@@ -112,9 +111,9 @@ export class MainComponent implements OnInit {
 
   howManyWorkoutsThatDay(day: number): number {
     // FIXME: need to extract day info here. remove code once done
-    if(this.monthData != undefined && this.yearData != undefined){
+    if (this.monthData != undefined && this.yearData != undefined) {
       let x = this.getDayDataByDMY(day, this.monthData, this.yearData);
-      if(x != undefined){
+      if (x != undefined) {
         return x.workouts.length;
       }
     }

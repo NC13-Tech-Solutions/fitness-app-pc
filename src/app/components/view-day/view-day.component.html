@@ -27,5 +27,7 @@
   </div>
 </ng-container>
 <ng-container *ngIf="mode == dayViewMode.ADD || mode == dayViewMode.EDIT">
-  <app-add-or-edit-day [mode]="mode" [dayData]="editDayData" (callback)=""></app-add-or-edit-day>
+  @if (currentDay) {
+    <app-add-or-edit-day [mode]="mode" [dayData]="editDayData" [curDay]="currentDay" (callback)="onFormSubmit($event)"></app-add-or-edit-day>
+  }
 </ng-container>

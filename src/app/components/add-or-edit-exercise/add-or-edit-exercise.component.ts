@@ -4,12 +4,11 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
   OnInit,
-  Output,
   ViewChild,
   inject,
+  input,
+  output,
 } from '@angular/core';
 import { Mode } from '../../shared/models/mode.model';
 import { Exercise } from '../../shared/models/exercise.model';
@@ -33,10 +32,10 @@ import { environment } from 'src/environments/environment';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
-  @Input() mode: Mode = Mode.ADD;
-  @Input() exercise: Exercise | undefined;
-  @Input() allExercisesData!: Exercise[];
-  @Output() callback = new EventEmitter<{ data: Exercise; submit: boolean }>();
+  mode = input<Mode>(Mode.ADD);
+  exercise = input<Exercise>();
+  allExercisesData =  input.required<Exercise[]>();
+  callback = output<{ data: Exercise; submit: boolean }>();
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
   private changeDetection = inject(ChangeDetectorRef);
@@ -88,9 +87,9 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
 
   ngOnInit(): void {
     this.resetForm();
-    if (this.mode == Mode.ADD) {
+    if (this.mode() == Mode.ADD) {
       this.submitButtonText = 'Add';
-    } else if (this.mode == Mode.EDIT) {
+    } else if (this.mode() == Mode.EDIT) {
       this.submitButtonText = 'Edit';
     }
   }
@@ -210,7 +209,7 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   onSubmit() {
     this.callback.emit({
       data: {
-        exId: this.exercise?.exId ?? 0,
+        exId: this.exercise()?.exId ?? 0,
         name: this.valueOfS(this.ExerciseName),
         description: this.valueOfS(this.ExerciseDescription),
         miscDataType: this.valueOfMDT(this.ExerciseMiscDataType),
@@ -232,20 +231,21 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
       disabled: false,
     };
     this.formGroup.reset(resetValues);
-    if (this.mode == Mode.EDIT) {
+    if (this.mode() == Mode.EDIT) {
       setTimeout(() => {
-        if (this.exercise != undefined) {
-          this.ExerciseName?.setValue(this.exercise.name);
-          this.ExerciseDescription?.setValue(this.exercise.description);
-          const eMDT = this.sToMDT(this.exercise.miscDataType);
+        let ex = this.exercise();
+        if (ex != undefined) {
+          this.ExerciseName?.setValue(ex.name);
+          this.ExerciseDescription?.setValue(ex.description);
+          const eMDT = this.sToMDT(ex.miscDataType);
           this.ExerciseMiscDataType?.setValue(eMDT);
-          this.ExerciseMiscData?.setValue(this.exercise.miscData);
+          this.ExerciseMiscData?.setValue(ex.miscData);
           if (eMDT == MiscDataType.IMAGE || eMDT == MiscDataType.EMBEDDED) {
             this.ExerciseMiscData?.enable();
           } else {
             this.ExerciseMiscData?.disable();
           }
-          this.ExerciseDisabled?.setValue(this.exercise.disabled);
+          this.ExerciseDisabled?.setValue(ex.disabled);
         }
       }, 100);
     }
@@ -363,7 +363,7 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
         case MiscDataType.IMAGE:
           if (this.checkIfLocalFile(value)) {
             this.fileSharingService
-              .viewFileWithUrl(value)
+              .viewImageFile(value)
               .pipe(take(1))
               .subscribe({
                 next: (result) =>
@@ -383,19 +383,17 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
           break;
         case MiscDataType.VIDEO:
           if (this.checkIfLocalFile(value)) {
-            this.fileSharingService
-              .viewFileWithUrl(value)
-              .pipe(take(1))
-              .subscribe({
-                next: (result) =>
-                  result.pipe(take(1)).subscribe((vidSrc) => {
+              this.fileSharingService
+                .viewVideoFile(value)
+                .pipe(take(1))
+                .subscribe((vidSrc) => {
+                  if (vidSrc) {
                     this.previewData = vidSrc;
                     this.enablePreview = true;
                     this.togglePreview = 'Close';
                     this.changeDetection.detectChanges();
-                  }),
-                error: (err) => console.log(err),
-              });
+                  }
+                });
           } else {
             this.previewData = value;
             this.enablePreview = true;
@@ -423,11 +421,12 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   }
 
   exerciseNameAlreadyExists(name: string): boolean {
-    for (let ex of this.allExercisesData) {
+    let editData = this.exercise();
+    for (let ex of this.allExercisesData()) {
       if (
-        this.mode == Mode.EDIT &&
-        this.exercise != undefined &&
-        ex.name.toLowerCase().startsWith(this.exercise.name.toLowerCase())
+        this.mode() == Mode.EDIT &&
+        editData != undefined &&
+        ex.name.toLowerCase().startsWith(editData.name.toLowerCase())
       ) {
         continue;
       }

@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, firstValueFrom, map, take } from 'rxjs';
 import { resetSelection } from 'src/app/services/ctrl/exercise-selections.actions';
-import { months } from 'src/app/services/ctrl/months.reducer';
 import { DayService } from 'src/app/services/http/day.service';
 import { DateData } from 'src/app/shared/models/date-data.model';
 import { DayData } from 'src/app/shared/models/day-data.model';
@@ -45,6 +44,7 @@ export class ViewDayComponent implements OnInit {
 
   dayData: DayData | undefined;
   editDayData: DayData | undefined;
+  currentDay: DateData | undefined;
 
   ngOnInit(): void {
     this.refreshDayData();
@@ -65,9 +65,12 @@ export class ViewDayComponent implements OnInit {
   }
 
   addDayData() {
-    this.mode = Mode.ADD;
-    this.editDayData = undefined;
-    this.exStore.dispatch(resetSelection());
+    this.getThisDateData().then((value) => {
+      this.currentDay = value;
+      this.mode = Mode.ADD;
+      this.editDayData = undefined;
+      this.exStore.dispatch(resetSelection());
+    });
   }
 
   addWorkout() {
@@ -81,11 +84,13 @@ export class ViewDayComponent implements OnInit {
   addOrEditDay(value: { data: DayData; submit: boolean }) {
     if (value.submit) {
       if (this.mode == Mode.ADD) {
-        this.dayService.addDayData(value.data).pipe(take(1)).subscribe((x) => {
-          if(x == 1){
-            
-          }
-        });
+        this.dayService
+          .addDayData(value.data)
+          .pipe(take(1))
+          .subscribe((x) => {
+            if (x == 1) {
+            }
+          });
       }
     } else {
       this.mode = Mode.VIEW;
@@ -110,5 +115,10 @@ export class ViewDayComponent implements OnInit {
         console.log('Moonjakkam', err);
       }
     );
+  }
+
+  onFormSubmit(result: { data: DayData; submit: boolean }) {
+    // FIXME: On day data form submit
+    console.log(result);
   }
 }

@@ -3,10 +3,10 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Input,
-  Output,
   ViewChild,
   inject,
+  input,
+  output,
 } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -36,7 +36,7 @@ import { FormStatus } from 'src/app/shared/models/form-status.model';
 })
 export class WorkoutExerciseFormComponent implements AfterViewInit {
   // FIXME: Need to get Add or Edit input data
-  @Input() formGroup!: FormGroup<{
+  formGroup = input.required<FormGroup<{
     slNo: FormControl<number>;
     exId: FormControl<number>;
     weightsUsed: FormControl<number[]>;
@@ -47,13 +47,13 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
     superSetOf: FormControl<number>;
     exerciseExplainer: FormControl<string>;
     exerciseFormVideos: FormControl<VideoData[]>;
-  }>;
-  @Input() exerciseIndex!: number;
-  @Input() exercisesSelected!: ExerciseSelected[];
-  @Input() availableExercises!: Exercise[];
-  @Output() addNewExercise = new EventEmitter<Exercise>();
-  @Input() parentFormStatus = new EventEmitter<FormStatus>();
-  @Output() formStatus = new EventEmitter<FormStatus>();
+  }>>();
+  exerciseIndex = input.required<number>();
+  exercisesSelected = input.required<ExerciseSelected[]>();
+  availableExercises = input.required<Exercise[]>();
+  addNewExercise = output<Exercise>();
+  parentFormStatus = input.required<EventEmitter<FormStatus>>();
+  formStatus = output<FormStatus>();
 
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
@@ -74,7 +74,7 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.WorkoutExerciseSlNo) {
-      this.WorkoutExerciseSlNo.setValue(this.exerciseIndex);
+      this.WorkoutExerciseSlNo.setValue(this.exerciseIndex());
     }
 
     if (this.WorkoutExerciseExId) {
@@ -84,7 +84,7 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
             // new Selection
             this.store.dispatch(
               setExerciseSelection({
-                exerciseSlNo: this.exerciseIndex,
+                exerciseSlNo: this.exerciseIndex(),
                 exerciseName: this.getExerciseNameFromExId(value),
               })
             );
@@ -92,7 +92,7 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
             // Selection changed
             this.store.dispatch(
               changeExerciseSelection({
-                exerciseSlNo: this.exerciseIndex,
+                exerciseSlNo: this.exerciseIndex(),
                 exerciseName: this.getExerciseNameFromExId(value),
               })
             );
@@ -102,7 +102,7 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
           if (this.previousSelectedExId != 0) {
             // Selection removed
             this.store.dispatch(
-              removeExerciseSelection({ exerciseSlNo: this.exerciseIndex })
+              removeExerciseSelection({ exerciseSlNo: this.exerciseIndex() })
             );
             this.previousSelectedExId = 0;
           }
@@ -110,7 +110,7 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
       });
     }
 
-    this.parentFormStatus.subscribe((value) => {
+    this.parentFormStatus().subscribe((value) => {
       if (value == FormStatus.CANCEL) {
         // FIXME: Call the form cancellor in this component
         console.log('Form Cancelled in Parent Component:', value);
@@ -126,48 +126,48 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
   // getters for formGroup
 
   get WorkoutExerciseSlNo() {
-    return this.formGroup.get('slNo');
+    return this.formGroup().get('slNo');
   }
 
   get WorkoutExerciseExId() {
-    return this.formGroup.get('exId');
+    return this.formGroup().get('exId');
   }
 
   get WorkoutExerciseWeightsUsed() {
-    return this.formGroup.get('weightsUsed');
+    return this.formGroup().get('weightsUsed');
   }
 
   get WorkoutExerciseDropSets() {
-    return this.formGroup.get('dropSets');
+    return this.formGroup().get('dropSets');
   }
 
   get WorkoutExerciseRepRange() {
-    return this.formGroup.get('repRange');
+    return this.formGroup().get('repRange');
   }
 
   get WorkoutExerciseSets() {
-    return this.formGroup.get('sets');
+    return this.formGroup().get('sets');
   }
 
   get WorkoutExerciseRestTime() {
-    return this.formGroup.get('restTime');
+    return this.formGroup().get('restTime');
   }
 
   get WorkoutExerciseSuperSetOf() {
-    return this.formGroup.get('superSetOf');
+    return this.formGroup().get('superSetOf');
   }
 
   get WorkoutExerciseExerciseExplainer() {
-    return this.formGroup.get('exerciseExplainer');
+    return this.formGroup().get('exerciseExplainer');
   }
 
   get WorkoutExerciseExerciseFormVideos() {
-    return this.formGroup.get('exerciseFormVideos');
+    return this.formGroup().get('exerciseFormVideos');
   }
 
   getArrayWithoutCurrentIndex(): ExerciseSelected[] {
-    return this.exercisesSelected.filter(
-      (value) => value.exerciseSlNo != this.exerciseIndex
+    return this.exercisesSelected().filter(
+      (value) => value.exerciseSlNo != this.exerciseIndex()
     );
   }
 
@@ -227,7 +227,7 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
   }
 
   getExerciseNameFromExId(exId: number): string {
-    for (let ex of this.availableExercises) {
+    for (let ex of this.availableExercises()) {
       if (ex.exId == exId) {
         return ex.name;
       }

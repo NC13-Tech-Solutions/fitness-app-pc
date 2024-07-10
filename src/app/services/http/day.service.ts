@@ -46,7 +46,8 @@ export class DayService {
         { name: 'Authorization', value: `Bearer ${JwtToken}` },
       ],
       (value) => {
-        return value;
+        if (value) return value;
+        return [];
       }
     );
   }

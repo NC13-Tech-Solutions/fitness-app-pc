@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { Workout } from 'src/app/shared/models/workout.model';
 
 @Component({
@@ -7,6 +7,6 @@ import { Workout } from 'src/app/shared/models/workout.model';
   styleUrls: ['./view-workout.component.sass']
 })
 export class ViewWorkoutComponent {
-  @Input() workout!: Workout;
+  workout = input.required<Workout>();
 
 }

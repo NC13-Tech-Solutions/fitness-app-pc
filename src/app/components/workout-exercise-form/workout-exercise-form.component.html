@@ -1,155 +1,330 @@
 <div class="container">
   <h4 class="text-center pt-3">
-    Exercise <strong>#{{exerciseIndex + 1}}</strong>
+    Exercise <strong>#{{ exerciseIndex() + 1 }}</strong>
   </h4>
   <!-- FIXME: Workout Exercise form is not finished -->
-  <form class="w-100" #f="ngForm" [formGroup]="formGroup" (reset)="resetForm()">
+  <form
+    class="w-100"
+    #f="ngForm"
+    [formGroup]="formGroup()"
+    (reset)="resetForm()"
+  >
     <div class="mb-5">
-      <label for="workoutExerciseExId" class="form-label me-2">Select Exercise</label>
+      <label for="workoutExerciseExId" class="form-label me-2"
+        >Select Exercise</label
+      >
       <mat-form-field appearance="outline">
         <mat-label>Name</mat-label>
-        <input type="text" #workoutExInput id="workoutExerciseExId" matInput placeholder="Enter the exercise name" name="exId"
-          [matAutocomplete]="exerciseNameAC" formControlName="exId" required>
+        <input
+          type="text"
+          #workoutExInput
+          id="workoutExerciseExId"
+          matInput
+          placeholder="Enter the exercise name"
+          name="exId"
+          [matAutocomplete]="exerciseNameAC"
+          formControlName="exId"
+          required
+        />
         <mat-autocomplete #exerciseNameAC="matAutocomplete">
-          <ng-container *ngFor="let ex of getFilteredArray_E(availableExercises,workoutExInput.value); trackBy: trackBy_E">
-            <mat-option [value]="ex.exId">{{ex.name}}</mat-option>
-          </ng-container>
+          @for (ex of
+          getFilteredArray_E(availableExercises(),workoutExInput.value); track
+          ex.exId) {
+          <mat-option [value]="ex.exId">{{ ex.name }}</mat-option>
+          }
         </mat-autocomplete>
-        <mat-error *ngIf="WorkoutExerciseExId?.hasError('required')">Exercise is <strong>required</strong></mat-error>
-        <mat-hint *ngIf="previousSelectedExId!=0">Selected Exercise <span class="text-success">{{getExerciseNameFromExId(previousSelectedExId)}}</span></mat-hint>
+        @if (WorkoutExerciseExId?.hasError('required')) {
+        <mat-error>Exercise is <strong>required</strong></mat-error>
+        } @if (previousSelectedExId!=0) {
+        <mat-hint
+          >Selected Exercise
+          <span class="text-success">{{
+            getExerciseNameFromExId(previousSelectedExId)
+          }}</span></mat-hint
+        >
+        }
       </mat-form-field>
-      <button type="button" matTooltip="Add new Exercise" matTooltipPosition="right" class="ms-2 align-middle" mat-fab extended color="accent"
-        (click)="addExercise()"><mat-icon>add_task</mat-icon> Add new Exercise to Selection</button>
+      <button
+        type="button"
+        matTooltip="Add new Exercise"
+        matTooltipPosition="right"
+        class="ms-2 align-middle"
+        mat-fab
+        extended
+        color="accent"
+        (click)="addExercise()"
+      >
+        <mat-icon>add_task</mat-icon> Add new Exercise to Selection
+      </button>
     </div>
-    <ng-container *ngIf="getArrayWithoutCurrentIndex() as exSelection">
-      <div *ngIf="exSelection.length > 0" class="mb-3">
-        <label for="workoutExerciseSuperSetOf" class="form-label me-2">Select Super Set(if any)</label>
-        <mat-form-field appearance="outline">
-          <mat-label>Name</mat-label>
-          <input type="text" #workoutExSSInput id="workoutExerciseSuperSetOf" matInput placeholder="Enter the exercise name"
-            name="superSetOf" [matAutocomplete]="superSetNameAC" formControlName="superSetOf">
-          <mat-autocomplete #superSetNameAC="matAutocomplete">
-            <ng-container *ngFor="let ex of getFilteredArray_ES(exSelection,workoutExSSInput.value); trackBy: trackBy_ES">
-              <mat-option [value]="ex.exerciseSlNo">{{ex.exerciseName}}</mat-option>
-            </ng-container>
-          </mat-autocomplete>
-        </mat-form-field>
-      </div>
-    </ng-container>
+    @if (getArrayWithoutCurrentIndex(); as exSelection) { @if
+    (exSelection.length > 0) {
     <div class="mb-3">
-      <label for="workoutWeightsChipGrid" class="form-label me-2">Weights Used in the exercise(if any)</label>
+      <label for="workoutExerciseSuperSetOf" class="form-label me-2"
+        >Select Super Set(if any)</label
+      >
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input
+          type="text"
+          #workoutExSSInput
+          id="workoutExerciseSuperSetOf"
+          matInput
+          placeholder="Enter the exercise name"
+          name="superSetOf"
+          [matAutocomplete]="superSetNameAC"
+          formControlName="superSetOf"
+        />
+        <mat-autocomplete #superSetNameAC="matAutocomplete">
+          @for (ex of getFilteredArray_ES(exSelection,workoutExSSInput.value);
+          track ex.exerciseSlNo) {
+          <mat-option [value]="ex.exerciseSlNo">{{
+            ex.exerciseName
+          }}</mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+    </div>
+    } }
+    <div class="mb-3">
+      <label for="workoutWeightsChipGrid" class="form-label me-2"
+        >Weights Used in the exercise(if any)</label
+      >
       <mat-form-field appearance="outline">
         <mat-label>Weights Used in the exercise(if any)</mat-label>
-        <mat-chip-grid id="workoutWeightsChipGrid" #workoutWeights aria-label="Enter Weights used(in kg)">
-          <ng-container *ngFor="let weightUsed of WorkoutExerciseWeightsUsed?.value; let wIndex = index">
-
-            <mat-chip-row (removed)="removeWeight(wIndex)" [editable]="true" (edited)="editWeight(wIndex,$event)"
-              [aria-description]="'press enter to edit ' + weightUsed">
-              {{weightUsed}} kg
-              <button type="button" matChipRemove [attr.aria-label]="'remove ' + weightUsed">
-                <mat-icon>cancel</mat-icon>
-              </button>
-            </mat-chip-row>
-          </ng-container>
-          <input type="number" min="0" placeholder="Weight Used(in kg)..." [matChipInputFor]="workoutWeights"
-            [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addWeightOnBlur"
-            (matChipInputTokenEnd)="addWeight($event)" />
+        <mat-chip-grid
+          id="workoutWeightsChipGrid"
+          #workoutWeights
+          aria-label="Enter Weights used(in kg)"
+        >
+          @for (weightUsed of WorkoutExerciseWeightsUsed?.value; let wIndex =
+          $index;track $index) {
+          <mat-chip-row
+            (removed)="removeWeight(wIndex)"
+            [editable]="true"
+            (edited)="editWeight(wIndex, $event)"
+            [aria-description]="'press enter to edit ' + weightUsed"
+          >
+            {{ weightUsed }} kg
+            <button
+              type="button"
+              matChipRemove
+              [attr.aria-label]="'remove ' + weightUsed"
+            >
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+          }
+          <input
+            type="number"
+            min="0"
+            placeholder="Weight Used(in kg)..."
+            [matChipInputFor]="workoutWeights"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            [matChipInputAddOnBlur]="addWeightOnBlur"
+            (matChipInputTokenEnd)="addWeight($event)"
+          />
         </mat-chip-grid>
       </mat-form-field>
     </div>
     <div class="mb-3">
-      <label for="workoutExerciseDropSets" class="form-label me-2">Drop Sets done(if any)</label>
+      <label for="workoutExerciseDropSets" class="form-label me-2"
+        >Drop Sets done(if any)</label
+      >
       <mat-form-field appearance="outline">
         <mat-label>Drop Sets</mat-label>
-        <input type="number" min="0" id="workoutExerciseDropSets" matInput placeholder="No of Drop Sets done"
-          name="dropSets" formControlName="dropSets">
+        <input
+          type="number"
+          min="0"
+          id="workoutExerciseDropSets"
+          matInput
+          placeholder="No of Drop Sets done"
+          name="dropSets"
+          formControlName="dropSets"
+        />
       </mat-form-field>
     </div>
     <div class="mb-3">
-      <label for="workoutExerciseRepRange" class="form-label me-2">No of Reps performed, per set</label>
+      <label for="workoutExerciseRepRange" class="form-label me-2"
+        >No of Reps performed, per set</label
+      >
       <mat-form-field appearance="outline">
         <mat-label>Rep Range</mat-label>
-        <textarea matInput id="workoutExerciseRepRange" rows="3" placeholder="Rep Range" name="repRange"
-          formControlName="repRange" required></textarea>
-        <mat-error *ngIf="WorkoutExerciseRepRange?.hasError('required')">Rep range is
-          <strong>required</strong></mat-error>
+        <textarea
+          matInput
+          id="workoutExerciseRepRange"
+          rows="3"
+          placeholder="Rep Range"
+          name="repRange"
+          formControlName="repRange"
+          required
+        ></textarea>
+        @if (WorkoutExerciseRepRange?.hasError('required')) {
+        <mat-error>Rep range is <strong>required</strong></mat-error>
+        }
       </mat-form-field>
     </div>
     <div class="mb-3">
-      <label for="workoutExerciseSets" class="form-label me-2">Total no of Sets done.</label>
+      <label for="workoutExerciseSets" class="form-label me-2"
+        >Total no of Sets done.</label
+      >
       <mat-form-field appearance="outline">
         <mat-label>Sets Performed</mat-label>
-        <input type="number" min="1" id="workoutExerciseSets" matInput placeholder="No of Sets Performed" name="sets"
-          formControlName="sets" required>
-        <mat-error *ngIf="WorkoutExerciseSets?.hasError('required')">Sets Performed is
-          <strong>required</strong></mat-error>
+        <input
+          type="number"
+          min="1"
+          id="workoutExerciseSets"
+          matInput
+          placeholder="No of Sets Performed"
+          name="sets"
+          formControlName="sets"
+          required
+        />
+        @if (WorkoutExerciseSets?.hasError('required')) {
+        <mat-error>Sets Performed is <strong>required</strong></mat-error>
+        }
       </mat-form-field>
     </div>
     <div class="mb-3">
-      <label for="workoutExerciseRestTime" class="form-label me-2">Rest time taken(if any)</label>
+      <label for="workoutExerciseRestTime" class="form-label me-2"
+        >Rest time taken(if any)</label
+      >
       <mat-form-field appearance="outline">
         <mat-label>Rest Time</mat-label>
-        <textarea matInput id="workoutExerciseRestTime" rows="3" placeholder="Rest time taken per set" name="restTime"
-          formControlName="restTime"></textarea>
+        <textarea
+          matInput
+          id="workoutExerciseRestTime"
+          rows="3"
+          placeholder="Rest time taken per set"
+          name="restTime"
+          formControlName="restTime"
+        ></textarea>
       </mat-form-field>
     </div>
     <div class="mb-3">
-      <label for="workoutExerciseExerciseExplainer" class="form-label me-2">Exercise Explanation(if any)</label>
+      <label for="workoutExerciseExerciseExplainer" class="form-label me-2"
+        >Exercise Explanation(if any)</label
+      >
       <mat-form-field appearance="outline">
         <mat-label>Exercise Explanation</mat-label>
-        <textarea matInput id="workoutExerciseExerciseExplainer" rows="3"
-          placeholder="Describe anything about the exercise" name="exerciseExplainer"
-          formControlName="exerciseExplainer"></textarea>
+        <textarea
+          matInput
+          id="workoutExerciseExerciseExplainer"
+          rows="3"
+          placeholder="Describe anything about the exercise"
+          name="exerciseExplainer"
+          formControlName="exerciseExplainer"
+        ></textarea>
       </mat-form-field>
     </div>
     <div class="mb-3">
-      <label for="exerciseMiscDataType" class="form-label me-2">Exercise Form Videos(if any)</label>
+      <label for="exerciseMiscDataType" class="form-label me-2"
+        >Exercise Form Videos(if any)</label
+      >
       <mat-form-field appearance="outline">
-        <mat-select placeholder="Video Type" id="workoutVideoDataType" [(value)]="videoData">
+        <mat-select
+          placeholder="Video Type"
+          id="workoutVideoDataType"
+          [(value)]="videoData"
+        >
           <mat-option [value]="dataType.VIDEO">Local Video</mat-option>
           <mat-option [value]="dataType.EMBEDDED">Embedded Video</mat-option>
         </mat-select>
       </mat-form-field>
-      <button class="ms-3" mat-raised-button type="button" color="primary" (click)="addVideo()">Add Video</button>
+      <button
+        class="ms-3"
+        mat-raised-button
+        type="button"
+        color="primary"
+        (click)="addVideo()"
+      >
+        Add Video
+      </button>
     </div>
-    <div class="mb-3" *ngIf="allowVideoUpload">
-      <label for="workoutVideoLink" class="form-label me-2">Add Workout Video</label>
+    @if (allowVideoUpload) {
+    <div class="mb-3">
+      <label for="workoutVideoLink" class="form-label me-2"
+        >Add Workout Video</label
+      >
       <mat-form-field appearance="outline">
         <mat-label>Embedded Video Link</mat-label>
-        <textarea #embeddedVideoLinkTA id="embeddedVideoLinkTA" matInput [placeholder]="'Embedded Video Link'"
-          [disabled]="videoData == dataType.VIDEO"></textarea>
+        <textarea
+          #embeddedVideoLinkTA
+          id="embeddedVideoLinkTA"
+          matInput
+          [placeholder]="'Embedded Video Link'"
+          [disabled]="videoData == dataType.VIDEO"
+        ></textarea>
       </mat-form-field>
-      <input type="file" name="video-file-mock-input" id="video-file-mock-input" style="display: none;"
-        #video_file_mock_input (change)="video_file_mock_input_changeEvent($event)" [accept]="'video/mp4'">
-      <button *ngIf="videoData == dataType.EMBEDDED" class="ms-3" mat-raised-button type="button" color="accent"
-        [disabled]="embeddedVideoLinkTA.value.trim() == ''" (click)="addEmbeddedVideo(embeddedVideoLinkTA.value)">Add
-        Embedded Video</button>
-      <button *ngIf="videoData == dataType.VIDEO" class="ms-3" mat-raised-button type="button" color="accent"
-        (click)="openVideoFileDialog()">Open and
-        Upload Local Video</button>
+      <input
+        type="file"
+        name="video-file-mock-input"
+        id="video-file-mock-input"
+        style="display: none"
+        #video_file_mock_input
+        (change)="video_file_mock_input_changeEvent($event)"
+        [accept]="'video/mp4'"
+      />
+      @switch (videoData) { @case (dataType.EMBEDDED) {
+      <button
+        class="ms-3"
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="embeddedVideoLinkTA.value.trim() == ''"
+        (click)="addEmbeddedVideo(embeddedVideoLinkTA.value)"
+      >
+        Add Embedded Video
+      </button>
+      } @case (dataType.VIDEO) {
+      <button
+        class="ms-3"
+        mat-raised-button
+        type="button"
+        color="accent"
+        (click)="openVideoFileDialog()"
+      >
+        Open and Upload Local Video
+      </button>
+      } }
     </div>
-    <ng-container *ngIf="WorkoutExerciseExerciseFormVideos != null">
-      <ng-container *ngFor="let workoutVid of WorkoutExerciseExerciseFormVideos.value; let vidIndex = index">
-        <div class="mb-3">
-          <ng-container *ngIf="workoutVid.type == dataType.VIDEO">
-            <video height="auto" width="480px" autoplay loop controls>
-              <source [src]="getSanitizedUrl(workoutVid.data)" type="video/mp4">
-              Your browser doesn't support this video format.
-            </video>
-            <button class="ms-3" mat-raised-button type="button" color="accent"
-              (click)="deleteLocalFile(workoutVid.data, vidIndex)">Delete
-              Local Video File</button>
-          </ng-container>
-
-          <ng-container *ngIf="workoutVid.type == dataType.EMBEDDED">
-            <div [innerHTML]="getSanitizedHtml(workoutVid.data)" class="container">
-            </div>
-            <button class="ms-3" mat-raised-button type="button" color="accent" (click)="removeItem(vidIndex)">Remove
-              Emebedded Video</button>
-          </ng-container>
-        </div>
-      </ng-container>
-    </ng-container>
-    <button class="me-3" mat-raised-button type="reset" color="warn">Reset</button>
+    } @if (WorkoutExerciseExerciseFormVideos != null) { @for (workoutVid of
+    WorkoutExerciseExerciseFormVideos.value; let vidIndex = $index; track
+    $index) {
+    <div class="mb-3">
+      @switch (workoutVid.type) { @case (dataType.VIDEO) {
+      <video height="auto" width="480px" autoplay loop controls>
+        <source [src]="getSanitizedUrl(workoutVid.data)" type="video/mp4" />
+        Your browser doesn't support this video format.
+      </video>
+      <button
+        class="ms-3"
+        mat-raised-button
+        type="button"
+        color="accent"
+        (click)="deleteLocalFile(workoutVid.data, vidIndex)"
+      >
+        Delete Local Video File
+      </button>
+      } @case (dataType.EMBEDDED) {
+      <div
+        [innerHTML]="getSanitizedHtml(workoutVid.data)"
+        class="container"
+      ></div>
+      <button
+        class="ms-3"
+        mat-raised-button
+        type="button"
+        color="accent"
+        (click)="removeItem(vidIndex)"
+      >
+        Remove Emebedded Video
+      </button>
+      } }
+    </div>
+    } }
+    <button class="me-3" mat-raised-button type="reset" color="warn">
+      Reset
+    </button>
   </form>
 </div>

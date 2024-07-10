@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
-import { Observable } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -58,59 +58,33 @@ export class FileSharingService {
   }
 
   /**
-   * Allows to view the file from the server with Jwt Authentication
-   * @remarks Retrieves the file from the server as a {@link Blob} and uses {@link FileReader.readAsDataURL} to read the file
-   * @param fileName
-   * @param type is either `images` or `videos`
-   * @returns Observable of `Observable<string>` which contains the url of the file read from the server, if it is successful
-   *  or the observable will produce errors accordingly
+   * Allows to stream the video file from the server with Jwt Authentication
+   * @remarks Retrieves the file from the server as a {@link Blob} and uses {@link URL.createObjectURL} to read the file
+   * @param fileUrl url of the video file in the server
+   * @returns Observable of string, where the blob data will be converted into string URL, if it is available or else empty string will be returned
    */
-  public viewFileWithFileName(
-    fileName: string,
-    type: 'images' | 'videos'
-  ): Observable<Observable<string>> {
+  public viewVideoFile(fileUrl: string): Observable<string> {
     const JwtToken = localStorage.getItem('JwtToken');
-    return this.api.getRequest<Observable<string>, Blob>(
-      environment.api_url + 'files/' + type + '/view/' + fileName,
+    return this.api.getRequest<string, Blob>(
+      fileUrl,
       'blob',
       [{ name: 'Authorization', value: `Bearer ${JwtToken}` }],
       (value) => {
         console.log('Moonjakkam', value);
-
-        return new Observable<string>((observer) => {
-          const reader = new FileReader();
-
-          reader.onloadend = () => {
-            if (reader.result != null) {
-              if (typeof reader.result === 'string') {
-                observer.next(reader.result);
-                observer.complete();
-              } else {
-                observer.error('Result is an ArrayBuffer');
-              }
-            } else {
-              observer.error('Result is null');
-            }
-          };
-
-          reader.onerror = (err) => {
-            observer.error(err);
-          };
-
-          reader.readAsDataURL(value);
-        });
+        if (value) return URL.createObjectURL(value);
+        return '';
       }
     );
   }
 
   /**
-   * Allows to view the file from the server with Jwt Authentication
-   * @remarks Retrieves the file from the server as a {@link Blob} and uses {@link FileReader.readAsDataURL} to read the file
-   * @param fileUrl
-   * @returns Observable of `Observable<string>` which contains the url of the file read from the server, if it is successful
+   * Allows to view the image files from the server with Jwt Authentication
+   * @remarks Retrieves the image file from the server as a {@link Blob} and uses {@link FileReader.readAsDataURL} to read the file
+   * @param fileUrl url of the image file in the server
+   * @returns Observable of `Observable<string>` which contains the url of the image file read from the server, if it is successful
    *  or the observable will produce errors accordingly
    */
-  public viewFileWithUrl(fileUrl: string): Observable<Observable<string>> {
+  public viewImageFile(fileUrl: string): Observable<Observable<string>> {
     const JwtToken = localStorage.getItem('JwtToken');
     return this.api.getRequest<Observable<string>, Blob>(
       fileUrl,

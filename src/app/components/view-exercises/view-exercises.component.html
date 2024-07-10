@@ -1,77 +1,103 @@
-<ng-container *ngIf="exercises | async as exercisesData; else elseTemplate">
-  <ng-container *ngIf="exercisesData.length > 0; else elseTemplate">
-    <mat-accordion class="space-between-header-desc-items">
-      <ng-container *ngFor="let exercise of exercisesData; index as i; trackBy: exerciseTrackingFn">
-        <mat-expansion-panel (opened)="panelOpened(i)" (closed)="panelClosed(i)" [expanded]="stepIndex == i" (opened)="setStep(i)" hideToggle>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              {{exercise.name}}
-              <button class="ms-2" mat-icon-button color="primary" (click)="editExercise(exercise)">
-                <mat-icon>edit</mat-icon>
-              </button>
-            </mat-panel-title>
-            <mat-panel-description>
-              <ng-container *ngIf="exercise.description; else defaultDescription">
-                {{shortDescription(exercise.description,i)}}
-              </ng-container>
-              <ng-template #defaultDescription>
-                No description found!
-              </ng-template>
-              <ng-container *ngIf="exercise.disabled; else exerciseEnabledTemplate">
-                <span class="fw-lighter align-icon-and-text-vertically">Disabled <mat-icon>visibility_off</mat-icon></span>
-              </ng-container>
-              <ng-template #exerciseEnabledTemplate>
-                <span class="fw-medium align-icon-and-text-vertically">Enabled <mat-icon>visibility</mat-icon></span>
-              </ng-template>
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <div class="mb-3">
-            <ng-container *ngIf="exercise.description">
-              <p class="lead">{{exercise.description}}</p>
-            </ng-container>
-          </div>
-          <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.IMAGE">
-            <div class="normal-content">
-              <ng-container *ngIf="loadFile(exercise.miscData, exercise.exId) | async as imgSrc">
-                <img [src]="getSanitizedUrl(imgSrc)" alt="Welp. I guess image didn't render" width="480px">
-              </ng-container>
-            </div>
-          </ng-container>
-          <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.VIDEO">
-            <div class="normal-content">
-              <ng-container *ngIf="loadFile(exercise.miscData, exercise.exId) | async as vidSrc">
-                <video height="auto" width="480px" autoplay loop controls>
-                  <source [src]="getSanitizedUrl(vidSrc)" type="video/mp4">
-                  Your browser doesn't support this video format.
-                </video>
-              </ng-container>
-            </div>
-          </ng-container>
-          <ng-container *ngIf="sToMDT(exercise.miscDataType) == extraDataType.EMBEDDED">
-            <div class="normal-content">
-              <div [innerHTML]="getSanitizedHtml(exercise.miscData)" class="container">
-              </div>
-            </div>
-          </ng-container>
-          <mat-action-row *ngIf="exercisesData.length > 1">
-            <button *ngIf="stepIndex > 0" mat-button color="warn" (click)="prevStep()">Previous</button>
-            <button *ngIf="stepIndex < (exercisesData.length-1)" mat-button color="primary"
-              (click)="nextStep()">Next</button>
-            <button *ngIf="stepIndex == (exercisesData.length-1)" mat-button color="primary"
-              (click)="setStep(-1)">End</button>
-          </mat-action-row>
-          <mat-action-row *ngIf="exercisesData.length == 1">
-            <button mat-button color="primary" (click)="setStep(-1)">End</button>
-          </mat-action-row>
-        </mat-expansion-panel>
+@if (exercises() | async; as exercisesData) { @if (exercisesData.length > 0) {
+<mat-accordion class="space-between-header-desc-items">
+  @for (exercise of exercisesData;let i = $index; track exercise.exId) {
+  <mat-expansion-panel
+    (opened)="panelOpened(i)"
+    (closed)="panelClosed(i)"
+    [expanded]="stepIndex == i"
+    (opened)="setStep(i)"
+    hideToggle
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{ exercise.name }}
+        <button
+          class="ms-2"
+          mat-icon-button
+          color="primary"
+          (click)="editExercise(exercise)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+      </mat-panel-title>
+      <mat-panel-description>
+        @if (exercise.description) {
+        {{ shortDescription(exercise.description, i) }}
+        } @else { No description found! } @if (exercise.disabled) {
+        <span class="fw-lighter align-icon-and-text-vertically"
+          >Disabled <mat-icon>visibility_off</mat-icon></span
+        >
+        } @else {
+        <span class="fw-medium align-icon-and-text-vertically"
+          >Enabled <mat-icon>visibility</mat-icon></span
+        >
+        }
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <div class="mb-3">
+      @if (exercise.description) {
+      <p class="lead">{{ exercise.description }}</p>
+      }
+    </div>
+    @switch (sToMDT(exercise.miscDataType)) { @case (extraDataType.IMAGE) {
+    <div class="normal-content">
+      <ng-container
+        *ngIf="
+          loadFile(exercise.miscData, 'img', exercise.exId) | async as imgSrc
+        "
+      >
+        <img
+          [src]="getSanitizedUrl(imgSrc)"
+          alt="Welp. I guess image didn't render"
+          width="480px"
+        />
       </ng-container>
-
-    </mat-accordion>
-  </ng-container>
-  <ng-template #elseTemplate>
-    <h2>No exercises found</h2>
-  </ng-template>
-</ng-container>
-<ng-template #elseTemplate>
-  <h2>No exercises found</h2>
-</ng-template>
+    </div>
+    } @case (extraDataType.VIDEO) {
+    <div class="normal-content">
+      @if (loadFile(exercise.miscData,'video', exercise.exId) | async; as
+      vidSrc) {
+      <video
+        height="auto"
+        width="480px"
+        autoplay
+        controls
+        loop
+        [playsInline]="true"
+        preload="metadata"
+        [src]="getSanitizedUrl(vidSrc)"
+      >
+        Your browser doesn't support this video format.
+      </video>
+      }
+    </div>
+    } @case (extraDataType.EMBEDDED) {
+    <div class="normal-content">
+      <div
+        [innerHTML]="getSanitizedHtml(exercise.miscData)"
+        class="container"
+      ></div>
+    </div>
+    } } @if (exercisesData.length > 1) {
+    <mat-action-row>
+      @if (stepIndex > 0) {
+      <button mat-button color="warn" (click)="prevStep()">Previous</button>
+      } @if (stepIndex < (exercisesData.length-1)) {
+      <button mat-button color="primary" (click)="nextStep()">Next</button>
+      } @else if (stepIndex == (exercisesData.length-1)) {
+      <button mat-button color="primary" (click)="setStep(-1)">End</button>
+      }
+    </mat-action-row>
+    } @else if (exercisesData.length == 1) {
+    <mat-action-row>
+      <button mat-button color="primary" (click)="setStep(-1)">End</button>
+    </mat-action-row>
+    }
+  </mat-expansion-panel>
+  }
+</mat-accordion>
+} @else {
+<h2>No exercises found</h2>
+} } @else {
+<h2>No exercises found</h2>
+}

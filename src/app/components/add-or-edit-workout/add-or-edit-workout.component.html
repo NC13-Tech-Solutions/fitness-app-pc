@@ -1,132 +1,316 @@
 <ng-container [formGroup]="formGroup">
   <h4 class="text-center pt-3">
-    Workout <strong>#{{workoutIndex + 1}}</strong>
+    Workout <strong>#{{ workoutIndex + 1 }}</strong>
   </h4>
   <div class="mb-5">
     <label for="time" class="form-label me-2">Workout time</label>
     <mat-form-field appearance="outline">
       <mat-label>Time</mat-label>
-      <input type="text" id="time" matInput placeholder="Choose the workout time" name="time" formControlName="time"
-        required>
-      <mat-error *ngIf="WorkoutTime?.hasError('required')">Workout Time is <strong>required</strong></mat-error>
-      <mat-error *ngIf="WorkoutTime?.invalid">Incorrect Workout Time! Correct format is <strong>HH:MM
-          AM/PM</strong></mat-error>
+      <input
+        type="text"
+        id="time"
+        matInput
+        placeholder="Choose the workout time"
+        name="time"
+        formControlName="time"
+        required
+      />
+      @if (WorkoutTime?.hasError('required')) {
+      <mat-error>Workout Time is <strong>required</strong></mat-error>
+      } @if (WorkoutTime?.invalid) {
+      <mat-error
+        >Incorrect Workout Time! Correct format is
+        <strong>HH:MM AM/PM</strong></mat-error
+      >
+      }
     </mat-form-field>
   </div>
   <div class="mb-5">
     <div class="mb-2">
-      <h2>Exercises <span class="text-bg-danger">*</span>
-        <button matTooltip="Add new Exercise" type="button" matTooltipPosition="right" class="ms-2" mat-icon-button
-          color="basic" (click)="addExercise()"><mat-icon>add_task</mat-icon></button>
+      <h2>
+        Exercises <span class="text-bg-danger">*</span>
+        <button
+          matTooltip="Add new Exercise"
+          type="button"
+          matTooltipPosition="right"
+          class="ms-2"
+          mat-icon-button
+          color="basic"
+          (click)="addExercise()"
+        >
+          <mat-icon>add_task</mat-icon>
+        </button>
       </h2>
     </div>
     <div formArrayName="exercises">
-      <ng-container *ngFor="let workEx of WorkoutExercises.controls; let i = index">
-        <app-workout-exercise-form [formGroup]="workEx" [exerciseIndex]="i" [exercisesSelected]="hydratedStoreData"
-          [availableExercises]="availableExercises" (addNewExercise)="addNewExercise.emit($event)"
-          [parentFormStatus]="formStatusInfoForChild" (formStatus)="childFormStatus(i,$event)" class="ms-2"></app-workout-exercise-form>
-        <div class="mt-3 mb-3">
-          <button *ngIf="WorkoutExercises.controls.length == (i+1)" class="me-3" mat-raised-button type="button"
-            color="primary" (click)="addExercise()">Add Exercise #{{i+2}}</button>
-          <button *ngIf="WorkoutExercises.controls.length > 1" mat-raised-button type="button" color="basic"
-            (click)="removeExercise(i)">Remove Exercise #{{i+1}}</button>
-        </div>
-      </ng-container>
+      @for (workEx of WorkoutExercises.controls; track $index;let i = $index) {
+      <app-workout-exercise-form
+        [formGroup]="workEx"
+        [exerciseIndex]="i"
+        [exercisesSelected]="hydratedStoreData"
+        [availableExercises]="availableExercises"
+        (addNewExercise)="addNewExercise.emit($event)"
+        [parentFormStatus]="formStatusInfoForChild"
+        (formStatus)="childFormStatus(i, $event)"
+        class="ms-2"
+      ></app-workout-exercise-form>
+      <div class="mt-3 mb-3">
+        @if (WorkoutExercises.controls.length == (i+1)) {
+        <button
+          class="me-3"
+          mat-raised-button
+          type="button"
+          color="primary"
+          (click)="addExercise()"
+        >
+          Add Exercise #{{ i + 2 }}
+        </button>
+        } @if (WorkoutExercises.controls.length > 1) {
+        <button
+          mat-raised-button
+          type="button"
+          color="basic"
+          (click)="removeExercise(i)"
+        >
+          Remove Exercise #{{ i + 1 }}
+        </button>
+        }
+      </div>
+      }
     </div>
   </div>
   <div class="mb-3">
-    <label for="workoutText" class="form-label me-2">Text Description(if any)</label>
+    <label for="workoutText" class="form-label me-2"
+      >Text Description(if any)</label
+    >
     <mat-form-field appearance="outline">
       <mat-label>Description</mat-label>
-      <textarea matInput id="workoutText" rows="3" placeholder="Anything to add about the workout" name="workoutText"
-        formControlName="text"></textarea>
+      <textarea
+        matInput
+        id="workoutText"
+        rows="3"
+        placeholder="Anything to add about the workout"
+        name="workoutText"
+        formControlName="text"
+      ></textarea>
     </mat-form-field>
   </div>
   <div class="mb-3">
-    <label for="workoutImageDataType" class="form-label me-2">Workout Photos(if any)</label>
+    <label for="workoutImageDataType" class="form-label me-2"
+      >Workout Photos(if any)</label
+    >
     <mat-form-field appearance="outline">
-      <mat-select placeholder="Image Type" id="workoutImageDataType" [(value)]="imageData">
+      <mat-select
+        placeholder="Image Type"
+        id="workoutImageDataType"
+        [(value)]="imageData"
+      >
         <mat-option [value]="dataType.IMAGE">Local Image</mat-option>
         <mat-option [value]="dataType.URL">Image Url</mat-option>
       </mat-select>
     </mat-form-field>
-    <button class="ms-3" mat-raised-button type="button" color="primary" (click)="addWorkoutImage()">Add Photo</button>
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="primary"
+      (click)="addWorkoutImage()"
+    >
+      Add Photo
+    </button>
   </div>
-  <div class="mb-3" *ngIf="allowWorkoutImageUpload">
-    <label for="workoutImageUrl" class="form-label me-2">Add Workout Photo</label>
+  @if (allowWorkoutImageUpload) {
+  <div class="mb-3">
+    <label for="workoutImageUrl" class="form-label me-2"
+      >Add Workout Photo</label
+    >
     <mat-form-field appearance="outline">
       <mat-label>Image Url</mat-label>
-      <textarea id="workoutImageUrl" #workoutImageUrlTA matInput [placeholder]="'Image Url'"
-        [disabled]="imageData == dataType.IMAGE"></textarea>
+      <textarea
+        id="workoutImageUrl"
+        #workoutImageUrlTA
+        matInput
+        [placeholder]="'Image Url'"
+        [disabled]="imageData == dataType.IMAGE"
+      ></textarea>
     </mat-form-field>
-    <input type="file" name="image-file-mock-input" id="image-file-mock-input" style="display: none;"
-      #image_file_mock_input (change)="image_file_mock_input_changeEvent($event)" [accept]="'image/*'">
-    <button *ngIf="imageData == dataType.URL" class="ms-3" mat-raised-button type="button" color="accent"
-      [disabled]="!workoutImageUrlTA.value" (click)="addImageUrl(workoutImageUrlTA.value)">Add Image</button>
-    <button *ngIf="imageData == dataType.IMAGE" class="ms-3" mat-raised-button type="button" color="accent"
-      (click)="openImageFileDialog()">Open and Upload Local Image</button>
+    <input
+      type="file"
+      name="image-file-mock-input"
+      id="image-file-mock-input"
+      style="display: none"
+      #image_file_mock_input
+      (change)="image_file_mock_input_changeEvent($event)"
+      [accept]="'image/*'"
+    />
+    @switch (imageData) { @case (dataType.URL) {
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="accent"
+      [disabled]="!workoutImageUrlTA.value"
+      (click)="addImageUrl(workoutImageUrlTA.value)"
+    >
+      Add Image
+    </button>
+    } @case (dataType.IMAGE) {
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="accent"
+      (click)="openImageFileDialog()"
+    >
+      Open and Upload Local Image
+    </button>
+    } }
   </div>
-  <ng-container *ngIf="WorkoutPhotos != null">
-    <ng-container *ngFor="let workoutPic of WorkoutPhotos.value; let picIndex = index">
-      <div class="mb-3">
-        <img [src]="getSanitizedUrl(workoutPic)" alt="Welp. I guess image didn't render" width="480px">
-        <button *ngIf="checkIfLocalFile(workoutPic) else webImage" class="ms-3" mat-raised-button type="button"
-          color="accent" (click)="deleteLocalFile(workoutPic, picIndex,dataType.IMAGE)">Delete
-          Local Image File</button>
-        <ng-template #webImage>
-          <button class="ms-3" mat-raised-button type="button" color="accent"
-            (click)="removeItem(picIndex,dataType.IMAGE)">Remove
-            Image</button>
-        </ng-template>
-      </div>
-    </ng-container>
-  </ng-container>
+  } @if (WorkoutPhotos != null) { @for (workoutPic of WorkoutPhotos.value; let
+  picIndex = $index; track $index) {
   <div class="mb-3">
-    <label for="exerciseMiscDataType" class="form-label me-2">Workout Videos(if any)</label>
+    <img
+      [src]="getSanitizedUrl(workoutPic)"
+      alt="Welp. I guess image didn't render"
+      width="480px"
+    />
+    @if (checkIfLocalFile(workoutPic)) {
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="accent"
+      (click)="deleteLocalFile(workoutPic, picIndex, dataType.IMAGE)"
+    >
+      Delete Local Image File
+    </button>
+    } @else {
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="accent"
+      (click)="removeItem(picIndex, dataType.IMAGE)"
+    >
+      Remove Image
+    </button>
+    }
+  </div>
+  } }
+  <div class="mb-3">
+    <label for="exerciseMiscDataType" class="form-label me-2"
+      >Workout Videos(if any)</label
+    >
     <mat-form-field appearance="outline">
-      <mat-select placeholder="Video Type" id="workoutVideoDataType" [(value)]="videoData">
+      <mat-select
+        placeholder="Video Type"
+        id="workoutVideoDataType"
+        [(value)]="videoData"
+      >
         <mat-option [value]="dataType.VIDEO">Local Video</mat-option>
         <mat-option [value]="dataType.EMBEDDED">Embedded Video</mat-option>
       </mat-select>
     </mat-form-field>
-    <button class="ms-3" mat-raised-button type="button" color="primary" (click)="addWorkoutVideo()">Add Video</button>
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="primary"
+      (click)="addWorkoutVideo()"
+    >
+      Add Video
+    </button>
   </div>
-  <div class="mb-3" *ngIf="allowWorkoutVideoUpload">
-    <label for="workoutVideoLink" class="form-label me-2">Add Workout Video</label>
+  @if (allowWorkoutVideoUpload) {
+  <div class="mb-3">
+    <label for="workoutVideoLink" class="form-label me-2"
+      >Add Workout Video</label
+    >
     <mat-form-field appearance="outline">
       <mat-label>Embedded Video Link</mat-label>
-      <textarea #workoutVideoLinkTA id="workoutVideoLink" matInput [placeholder]="'Embedded Video Link'"
-        [disabled]="videoData == dataType.VIDEO"></textarea>
+      <textarea
+        #workoutVideoLinkTA
+        id="workoutVideoLink"
+        matInput
+        [placeholder]="'Embedded Video Link'"
+        [disabled]="videoData == dataType.VIDEO"
+      ></textarea>
     </mat-form-field>
-    <input type="file" name="video-file-mock-input" id="video-file-mock-input" style="display: none;"
-      #video_file_mock_input (change)="video_file_mock_input_changeEvent($event)" [accept]="'video/mp4'">
-    <button *ngIf="videoData == dataType.EMBEDDED" class="ms-3" mat-raised-button type="button" color="accent"
-      [disabled]="!workoutVideoLinkTA.value" (click)="addEmbeddedVideo(workoutVideoLinkTA.value)">Add
-      Embedded Video</button>
-    <button *ngIf="videoData == dataType.VIDEO" class="ms-3" mat-raised-button type="button" color="accent"
-      (click)="openVideoFileDialog()">Open and
-      Upload Local Video</button>
+    <input
+      type="file"
+      name="video-file-mock-input"
+      id="video-file-mock-input"
+      style="display: none"
+      #video_file_mock_input
+      (change)="video_file_mock_input_changeEvent($event)"
+      [accept]="'video/mp4'"
+    />
+    @switch (videoData) { @case (dataType.EMBEDDED) {
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="accent"
+      [disabled]="!workoutVideoLinkTA.value"
+      (click)="addEmbeddedVideo(workoutVideoLinkTA.value)"
+    >
+      Add Embedded Video
+    </button>
+    } @case (dataType.VIDEO) {
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="accent"
+      (click)="openVideoFileDialog()"
+    >
+      Open and Upload Local Video
+    </button>
+    } }
   </div>
-  <ng-container *ngIf="WorkoutVideos != null">
-    <ng-container *ngFor="let workoutVid of WorkoutVideos.value; let vidIndex = index">
-      <div class="mb-3">
-        <ng-container *ngIf="workoutVid.type == dataType.VIDEO">
-          <video height="auto" width="480px" autoplay loop controls>
-            <source [src]="getSanitizedUrl(workoutVid.data)" type="video/mp4">
-            Your browser doesn't support this video format.
-          </video>
-          <button class="ms-3" mat-raised-button type="button" color="accent"
-            (click)="deleteLocalFile(workoutVid.data, vidIndex,dataType.VIDEO)">Delete
-            Local Video File</button>
-        </ng-container>
-
-        <ng-container *ngIf="workoutVid.type == dataType.EMBEDDED">
-          <div [innerHTML]="getSanitizedHtml(workoutVid.data)" class="container">
-          </div>
-          <button class="ms-3" mat-raised-button type="button" color="accent"
-            (click)="removeItem(vidIndex,dataType.VIDEO)">Remove Emebedded Video</button>
-        </ng-container>
-      </div>
-    </ng-container>
-  </ng-container>
+  } @if (WorkoutVideos != null) { @for (workoutVid of WorkoutVideos.value; let
+  vidIndex = $index; track $index) {
+  <div class="mb-3">
+    @switch (workoutVid.type) { @case (dataType.VIDEO) {
+    <video
+      height="auto"
+      width="480px"
+      autoplay
+      loop
+      controls
+      autoplay
+      controls
+      loop
+      [playsInline]="true"
+      preload="metadata"
+      [src]="getSanitizedUrl(workoutVid.data)"
+    >
+      Your browser doesn't support this video format.
+    </video>
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="accent"
+      (click)="deleteLocalFile(workoutVid.data, vidIndex, dataType.VIDEO)"
+    >
+      Delete Local Video File
+    </button>
+    } @case (dataType.EMBEDDED) {
+    <div
+      [innerHTML]="getSanitizedHtml(workoutVid.data)"
+      class="container"
+    ></div>
+    <button
+      class="ms-3"
+      mat-raised-button
+      type="button"
+      color="accent"
+      (click)="removeItem(vidIndex, dataType.VIDEO)"
+    >
+      Remove Emebedded Video
+    </button>
+    } }
+  </div>
+  } }
 </ng-container>

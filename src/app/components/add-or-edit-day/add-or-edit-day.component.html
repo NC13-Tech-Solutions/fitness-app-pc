@@ -1,48 +1,114 @@
 <div class="container">
   <h4 class="text-center pt-3">
-    <ng-container *ngIf="mode == dayOperationMode.ADD; else elseTemplate">
-      Add new Day
-    </ng-container>
-    <ng-template #elseTemplate>
-      Edit Day <strong>{{dayData?.postedOn}}</strong>
-    </ng-template>
+    @if (mode() == dayOperationMode.ADD) { Add new Day } @else { Edit Day
+    <strong>{{ dayData()?.postedOn }}</strong>
+    }
   </h4>
-  <form class="w-100" #f="ngForm" [formGroup]="formGroup" (ngSubmit)="onSubmit()" (reset)="resetForm()">
+  <form
+    class="w-100"
+    #f="ngForm"
+    [formGroup]="formGroup"
+    (ngSubmit)="onSubmit()"
+    (reset)="resetForm()"
+  >
     <div class="mb-5">
-      <label for="userWeight" class="form-label me-2">Enter your weight(kg)</label>
+      <label for="userWeight" class="form-label me-2"
+        >Enter your weight(kg)</label
+      >
       <mat-form-field appearance="outline">
         <mat-label>Weight</mat-label>
-        <input type="number" min="5" id="userWeight" matInput placeholder="Enter the user's weight" name="userWeight"
-          formControlName="userWeight" required>
-        <mat-error *ngIf="UserWeight?.hasError('required')">Weight is <strong>required</strong></mat-error>
+        <input
+          type="number"
+          min="5"
+          id="userWeight"
+          matInput
+          placeholder="Enter the user's weight"
+          name="userWeight"
+          formControlName="userWeight"
+          required
+        />
+        @if (UserWeight?.hasError('required')) {
+        <mat-error>Weight is <strong>required</strong></mat-error>
+        }
       </mat-form-field>
     </div>
     <div class="mb-5">
       <div class="mb-2">
-        <h2>Workouts <span class="text-bg-danger">*</span>
-          <button matTooltip="Add new Workout" matTooltipPosition="right" class="ms-2" mat-icon-button color="basic"
-            (click)="addWorkout()"><mat-icon>add_task</mat-icon></button>
+        <h2>
+          Workouts <span class="text-bg-danger">*</span>
+          <button
+            matTooltip="Add new Workout"
+            matTooltipPosition="right"
+            class="ms-2"
+            mat-icon-button
+            color="basic"
+            (click)="addWorkout()"
+          >
+            <mat-icon>add_task</mat-icon>
+          </button>
         </h2>
       </div>
       <div formArrayName="workouts">
-        <ng-container *ngFor="let dayWorkoutsForm of DayWorkouts.controls; let i = index">
-          <app-add-or-edit-workout [formGroup]="dayWorkoutsForm" [workoutIndex]="i"
-            [availableExercises]="availableExercises" (addNewExercise)="addNewExercise($event)"
-            [parentFormStatus]="formStatusInfoForChild" (formStatus)="childFormStatus(i,$event)" class="mb-5 ms-2"></app-add-or-edit-workout>
-          <div class="mb-3">
-            <button *ngIf="DayWorkouts.controls.length == (i+1)" class="me-3" mat-raised-button type="button"
-              color="primary" (click)="addWorkout()">Add Workout #{{i+2}}</button>
-            <button *ngIf="DayWorkouts.controls.length > 1" mat-raised-button type="button" color="basic"
-              (click)="removeWorkout(i)">Remove Workout #{{i+1}}</button>
-          </div>
-        </ng-container>
+        @for (dayWorkoutsForm of DayWorkouts.controls; track $index; let i =
+        $index) {
+        <app-add-or-edit-workout
+          [formGroup]="dayWorkoutsForm"
+          [workoutIndex]="i"
+          [availableExercises]="availableExercises"
+          (addNewExercise)="addNewExercise($event)"
+          [parentFormStatus]="formStatusInfoForChild"
+          (formStatus)="childFormStatus(i, $event)"
+          class="mb-5 ms-2"
+        ></app-add-or-edit-workout>
+        <div class="mb-3">
+          @if (DayWorkouts.controls.length == (i+1)) {
+          <button
+            class="me-3"
+            mat-raised-button
+            type="button"
+            color="primary"
+            (click)="addWorkout()"
+          >
+            Add Workout #{{ i + 2 }}
+          </button>
+          } @if (DayWorkouts.controls.length > 1) {
+          <button
+            mat-raised-button
+            type="button"
+            color="basic"
+            (click)="removeWorkout(i)"
+          >
+            Remove Workout #{{ i + 1 }}
+          </button>
+          }
+        </div>
+        }
       </div>
     </div>
-    <button class="me-3" mat-raised-button type="submit" color="primary"
-      [disabled]="f.invalid">{{submitButtonText}}</button>
-    <button class="me-3" mat-raised-button type="reset" color="warn">Reset</button>
-    <button class="me-3" mat-raised-button type="button" color="basic" (click)="cancelForm()">Cancel</button>
+    <button
+      class="me-3"
+      mat-raised-button
+      type="submit"
+      color="primary"
+      [disabled]="f.invalid"
+    >
+      {{ submitButtonText }}
+    </button>
+    <button class="me-3" mat-raised-button type="reset" color="warn">
+      Reset
+    </button>
+    <button
+      class="me-3"
+      mat-raised-button
+      type="button"
+      color="basic"
+      (click)="cancelForm()"
+    >
+      Cancel
+    </button>
   </form>
   <!-- TODO: For Testing Purposes. Remove when done. -->
-  <pre class="mt-5 text-bg-danger border-4 p-5 border-success">{{formGroup.value | json}}</pre>
+  <pre class="mt-5 text-bg-danger border-4 p-5 border-success">{{
+    formGroup.value | json
+  }}</pre>
 </div>

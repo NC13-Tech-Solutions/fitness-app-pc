@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -57,17 +58,23 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
 
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
-  store = inject(Store<{ exercisesSelected: ExerciseSelected[] }>);
+  private changeDetection = inject(ChangeDetectorRef);
+  private store = inject(Store<{ exerciseSelections: ExerciseSelected[] }>);
 
   allowWorkoutImageUpload = false;
   allowWorkoutVideoUpload = false;
   dataType = MiscDataType;
   imageData: MiscDataType.IMAGE | MiscDataType.URL = MiscDataType.IMAGE;
   videoData: MiscDataType.VIDEO | MiscDataType.EMBEDDED = MiscDataType.VIDEO;
-  uploadedFileInfo: {
-    url: string;
-    type: MiscDataType.IMAGE | MiscDataType.VIDEO;
-  }[] = [];
+  uploadedFileInfo: Record<
+    string,
+    {
+      fileName: string;
+      type: MiscDataType.IMAGE | MiscDataType.VIDEO;
+      data: string;
+      processing: boolean;
+    }
+  > = {};
 
   hydratedStoreData: ExerciseSelected[] = [];
 
@@ -243,10 +250,12 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
           if (value) {
             console.log('Jimbarlakka', value);
             let file_url = environment.api_url + 'files/images/view/' + value;
-            this.uploadedFileInfo.push({
-              url: file_url,
+            this.uploadedFileInfo[file_url] = {
+              fileName: value,
               type: MiscDataType.IMAGE,
-            });
+              data: '',
+              processing: false,
+            };
             this.WorkoutPhotos?.value.push(file_url);
             this.allowWorkoutImageUpload = false;
           }
@@ -259,10 +268,12 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
           if (value) {
             console.log('Jimbarlakka', value);
             let file_url = environment.api_url + 'files/videos/view/' + value;
-            this.uploadedFileInfo.push({
-              url: file_url,
+            this.uploadedFileInfo[file_url] = {
+              fileName: value,
               type: MiscDataType.VIDEO,
-            });
+              data: '',
+              processing: false,
+            };
             this.WorkoutVideos?.value.push({
               data: file_url,
               type: MiscDataType.VIDEO,
@@ -284,6 +295,22 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
   }
 
   getSanitizedUrl(url: string) {
+    if (this.checkIfLocalFile(url)) {
+      console.log(`Image url: ${url}`);
+
+      // Checking to see if we have the entry in the record
+      if (this.uploadedFileInfo[url]) {
+        // Checking to see if we have the blob url
+        if (this.uploadedFileInfo[url].data === '') {
+          this.viewLocalFile(url);
+          return '';
+        }
+        return this.sanitizer.bypassSecurityTrustUrl(
+          this.uploadedFileInfo[url].data
+        );
+      }
+      return '';
+    }
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }
 
@@ -309,6 +336,7 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
           if (value == 1) {
             console.log('Jimbarlakka', value);
             this.WorkoutPhotos?.value.splice(index, 1);
+            this.deleteRecord(fileUrl);
           }
         });
     } else if (type == MiscDataType.VIDEO) {
@@ -321,6 +349,7 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
           if (value == 1) {
             console.log('Jimbarlakka', value);
             this.WorkoutVideos?.value.splice(index, 1);
+            this.deleteRecord(fileUrl);
           }
         });
     }
@@ -334,16 +363,59 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
     }
   }
 
+  deleteRecord(key: string) {
+    const temp = { ...this.uploadedFileInfo };
+
+    delete temp[key];
+
+    this.uploadedFileInfo = temp;
+  }
+
   checkIfLocalFile(url: string): boolean {
     return url.startsWith(environment.api_url);
   }
 
   resetForm() {
-   // FIXME: Form Reset. So do any deletion here, if necessary
+    // FIXME: Form Reset. So do any deletion here, if necessary
     this.formStatus.emit(FormStatus.RESET);
   }
 
   childFormStatus(index: number, status: FormStatus) {
     console.log(`Work Exercise Form #${index} reset status=${status}`);
+  }
+
+  viewLocalFile(fileUrl: string) {
+    if (
+      this.uploadedFileInfo[fileUrl] &&
+      this.uploadedFileInfo[fileUrl].data === '' &&
+      !this.uploadedFileInfo[fileUrl].processing
+    ) {
+      this.uploadedFileInfo[fileUrl].processing = true;
+      if (this.uploadedFileInfo[fileUrl].type == MiscDataType.IMAGE) {
+        this.fileSharingService
+          .viewImageFile(fileUrl)
+          .pipe(take(1))
+          .subscribe({
+            next: (result) =>
+              result.pipe(take(1)).subscribe((imgSrc) => {
+                this.uploadedFileInfo[fileUrl].processing = false;
+                this.uploadedFileInfo[fileUrl].data = imgSrc;
+                console.log(`loaded image ${imgSrc}`);
+                this.changeDetection.detectChanges();
+              }),
+            error: (err) => console.log(err),
+          });
+      } else if (this.uploadedFileInfo[fileUrl].type == MiscDataType.VIDEO) {
+        this.fileSharingService
+          .viewVideoFile(fileUrl)
+          .pipe(take(1))
+          .subscribe((vidSrc) => {
+            this.uploadedFileInfo[fileUrl].processing = false;
+            this.uploadedFileInfo[fileUrl].data = vidSrc;
+            console.log(`loaded image ${vidSrc}`);
+            this.changeDetection.detectChanges();
+          });
+      }
+    }
   }
 }

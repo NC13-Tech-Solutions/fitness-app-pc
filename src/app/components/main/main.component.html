@@ -42,12 +42,12 @@
       <div class="day fw-bolder text-grey">Sat</div>
     </div>
     <div class="row">
-      <ng-container *ngIf="weeksArray | async as weeksMDA">
-        <ng-container *ngFor="let weeks of weeksMDA">
+        @if (weeksArray | async; as weeksMDA) {
+          @for (weeks of weeksMDA; track $index) {
           <div class="week mb-3">
-            <ng-container *ngFor="let d of weeks">
-              <ng-container *ngIf="d==1 && weeks.length < 7">
-                <ng-container *ngFor="let filler of fillerDays(7- weeks.length)">
+              @for (d of weeks; track $index) {
+                @if (d==1 && weeks.length < 7) {
+                  @for (filler of fillerDays(7- weeks.length); track $index) {
                   <div class="day"> <!--Filler days-->
                     <mat-card>
                       <mat-card-content>
@@ -56,14 +56,14 @@
                       <mat-card-footer></mat-card-footer>
                     </mat-card>
                   </div>
-                </ng-container>
-              </ng-container>
+                  }
+                }
               <div class="day"> <!--Main days-->
                 <app-day-card [dayValue]="d" [workoutsDoneToday]="howManyWorkoutsThatDay(d)"
                   (callback)="dayClicked(d)"></app-day-card>
               </div>
-              <ng-container *ngIf="d==weeksMDA[weeksMDA.length-1][weeks.length-1] && weeks.length < 7">
-                <ng-container *ngFor="let filler of fillerDays(7- weeks.length)">
+                @if (d==weeksMDA[weeksMDA.length-1][weeks.length-1] && weeks.length < 7) {
+                  @for (filler of fillerDays(7- weeks.length); track $index) {
                   <div class="day"> <!--Filler days-->
                     <mat-card>
                       <mat-card-content>
@@ -72,12 +72,12 @@
                       <mat-card-footer></mat-card-footer>
                     </mat-card>
                   </div>
-                </ng-container>
-              </ng-container>
-            </ng-container>
+                  }
+                }
+              }
           </div>
-        </ng-container>
-      </ng-container>
+          }
+        }
     </div>
   </div>
 </div>

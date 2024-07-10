@@ -1,10 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  Input,
-  Output,
   inject,
+  input,
+  output,
 } from '@angular/core';
 import { Observable, take } from 'rxjs';
 import { Exercise } from '../../shared/models/exercise.model';
@@ -22,12 +21,12 @@ import { environment } from 'src/environments/environment';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewExercisesComponent {
-  @Input() exercises: Observable<Exercise[]> | undefined;
-  @Output() callback = new EventEmitter<Exercise>();
+  exercises = input<Observable<Exercise[]>>();
+  callback = output<Exercise>();
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
 
-  private data$: {obs: Observable<string>, exId: number}[] = [];
+  private data$: { obs: Observable<string>; exId: number }[] = [];
 
   extraDataType = MiscDataType;
   panelOpenData: { openedIndex: number; state: boolean } = {
@@ -38,10 +37,6 @@ export class ViewExercisesComponent {
   public editDialog = inject(MatDialog);
 
   public stepIndex = -1;
-
-  public exerciseTrackingFn(index: number, value: Exercise): number {
-    return value.exId;
-  }
 
   public setStep(x: number) {
     this.stepIndex = x;
@@ -68,22 +63,40 @@ export class ViewExercisesComponent {
       });
   }
 
-  loadFile(fileUrl: string, exerciseId: number): Observable<string>{
+  loadFile(
+    fileUrl: string,
+    type: 'img' | 'video',
+    exerciseId: number
+  ): Observable<string> {
     const x = this.checkIfDataStreamIsAvailable(exerciseId);
-    if(x == undefined){
+    if (x == undefined) {
       const newData = new Observable<string>((observer) => {
         if (this.checkIfLocalFile(fileUrl)) {
-          this.fileSharingService
-            .viewFileWithUrl(fileUrl)
-            .pipe(take(1))
-            .subscribe({
-              next: (value) =>
-                value.pipe(take(1)).subscribe((result) => {
+          if (type == 'img') {
+            this.fileSharingService
+              .viewImageFile(fileUrl)
+              .pipe(take(1))
+              .subscribe({
+                next: (value) =>
+                  value.pipe(take(1)).subscribe((result) => {
+                    observer.next(result);
+                    observer.complete();
+                  }),
+                error: (err) => console.log(err),
+              });
+          } else if (type == 'video') {
+            this.fileSharingService
+              .viewVideoFile(fileUrl)
+              .pipe(take(1))
+              .subscribe((result) => {
+                if (result) {
                   observer.next(result);
                   observer.complete();
-                }),
-              error: (err) => console.log(err),
-            });
+                } else {
+                  observer.error('Error retrieving video data');
+                }
+              });
+          }
         } else {
           observer.next(fileUrl);
           observer.complete();
@@ -91,13 +104,12 @@ export class ViewExercisesComponent {
       });
       this.data$.push({ obs: newData, exId: exerciseId });
       return newData;
-    }else
-    return x;
+    } else return x;
   }
 
-  checkIfDataStreamIsAvailable(exId: number): Observable<string> | undefined{
-    for(let x of this.data$){
-      if(x.exId == exId){
+  checkIfDataStreamIsAvailable(exId: number): Observable<string> | undefined {
+    for (let x of this.data$) {
+      if (x.exId == exId) {
         return x.obs;
       }
     }

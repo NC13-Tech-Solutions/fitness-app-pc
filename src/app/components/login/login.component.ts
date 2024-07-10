@@ -93,6 +93,7 @@ export class LoginComponent {
           console.log(`User Id is ${value}`);
           localStorage.setItem('UserId', `${value}`);
           success();
+          return;
         }
         rejected();
       });

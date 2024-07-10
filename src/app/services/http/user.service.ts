@@ -10,7 +10,7 @@ import { User } from 'src/app/shared/models/user.model';
 export class UserService {
   private api = inject(ApiService);
   private datePipe = inject(DatePipe);
-  private justDateTime: string = 'yyyy-MM-ddThh:mm:ss';
+  private DATETIMEFORMAT: string = 'yyyy-MM-ddThh:mm:ss';
   private entryPoint = 'api/user';
 
   /**
@@ -27,7 +27,7 @@ export class UserService {
     if (localStorage.getItem('JwtToken') != null) {
       const cur_date = this.datePipe.transform(
         Date.now(),
-        this.justDateTime
+        this.DATETIMEFORMAT
       ) as string;
       if (sessionStorage.getItem('User Registered Time') != null) {
         const registered_date = sessionStorage.getItem(
@@ -102,7 +102,7 @@ export class UserService {
         if (value.startsWith('JwtToken:')) {
           const cur_date = this.datePipe.transform(
             Date.now(),
-            this.justDateTime
+            this.DATETIMEFORMAT
           ) as string;
           localStorage.setItem('JwtToken', value.substring('JwtToken:'.length));
           sessionStorage.setItem('User Registered Time', cur_date);
