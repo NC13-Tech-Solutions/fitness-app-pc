@@ -73,11 +73,11 @@
         >Extra Data Link</label
       >
       <mat-form-field appearance="outline">
-        <mat-label>{{ extraDataText }}</mat-label>
+        <mat-label>{{ extraDataText() }}</mat-label>
         <textarea
           id="exerciseMiscData"
           matInput
-          [placeholder]="extraDataText"
+          [placeholder]="extraDataText()"
           name="miscData"
           formControlName="miscData"
         ></textarea>
@@ -89,7 +89,7 @@
         style="display: none"
         #file_mock_input
         (change)="file_mock_input_changeEvent($event)"
-        [accept]="acceptText"
+        [accept]="acceptText()"
       />
       <button
         class="ms-3"
@@ -103,22 +103,23 @@
         "
         (click)="openFileDialog()"
       >
-        Open Local {{ localDataText }}
+        Open Local {{ localDataText() }}
       </button>
-      <button
-        *ngIf="openedFile"
-        class="ms-3"
-        mat-raised-button
-        type="button"
-        color="accent"
-        [disabled]="
-          ExerciseMiscDataType?.value == extraDataType.NONE ||
-          ExerciseMiscDataType?.value == extraDataType.EMBEDDED
-        "
-        (click)="uploadOrDeleteLocalFile()"
-      >
-        {{ fileStatus }} Local {{ localDataText }}
-      </button>
+      @if (openedFile()) {
+        <button
+          class="ms-3"
+          mat-raised-button
+          type="button"
+          color="accent"
+          [disabled]="
+            ExerciseMiscDataType?.value == extraDataType.NONE ||
+            ExerciseMiscDataType?.value == extraDataType.EMBEDDED
+          "
+          (click)="uploadOrDeleteLocalFile()"
+        >
+          {{ fileStatus() }} Local {{ localDataText() }}
+        </button>
+      }
       <button
         class="ms-3"
         mat-raised-button
@@ -127,14 +128,14 @@
         [disabled]="!ExerciseMiscData?.value"
         (click)="openPreview()"
       >
-        {{ togglePreview }} Preview
+        {{ togglePreview() }} Preview
       </button>
     </div>
-    @if (enablePreview) {
+    @if (enablePreview()) {
     <div class="mb-3">
       @switch (ExerciseMiscDataType?.value) { @case (extraDataType.IMAGE) {
       <img
-        [src]="getSanitizedUrl()"
+        [src]="sanitizedSrc()"
         alt="Welp. I guess image didn't render"
         width="480px"
       />
@@ -147,7 +148,7 @@
         loop
         [playsInline]="true"
         preload="metadata"
-        [src]="getSanitizedUrl()"
+        [src]="sanitizedSrc()"
       >
         Your browser doesn't support this video format.
       </video>
@@ -155,7 +156,7 @@
       <div
         #embeddedVideoAdditionDiv
         id="embeddedVideoAdditionDiv"
-        [innerHTML]="getSanitizedHtml()"
+        [innerHTML]="sanitizedSafeHtml()"
         class="container"
       ></div>
       } }
@@ -167,7 +168,7 @@
         >Enable or Disable Exercise</label
       >
       <mat-slide-toggle formControlName="disabled" id="exerciseDisableToggle">{{
-        toggleText
+        toggleText()
       }}</mat-slide-toggle>
     </div>
     }
@@ -178,7 +179,7 @@
       color="primary"
       [disabled]="f.invalid"
     >
-      {{ submitButtonText }}
+      {{ submitButtonText() }}
     </button>
     <button class="me-3" mat-raised-button type="reset" color="accent">
       Reset

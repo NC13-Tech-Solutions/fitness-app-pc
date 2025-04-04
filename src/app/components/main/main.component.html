@@ -60,7 +60,7 @@
                 }
               <div class="day"> <!--Main days-->
                 <app-day-card [dayValue]="d" [workoutsDoneToday]="howManyWorkoutsThatDay(d)"
-                  (callback)="dayClicked(d)"></app-day-card>
+                  (callback)="dayClicked(d)" [isToday]="dayValueData() == d"></app-day-card>
               </div>
                 @if (d==weeksMDA[weeksMDA.length-1][weeks.length-1] && weeks.length < 7) {
                   @for (filler of fillerDays(7- weeks.length); track $index) {

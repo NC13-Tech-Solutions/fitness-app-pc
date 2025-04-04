@@ -2,13 +2,17 @@ import {
   Component,
   EventEmitter,
   OnInit,
+  Signal,
+  WritableSignal,
+  computed,
   inject,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, Observable, take } from 'rxjs';
+import { take } from 'rxjs';
 import { DateDataService } from 'src/app/services/ctrl/date-data.service';
 import { ExerciseService } from 'src/app/services/http/exercise.service';
 import { DateData } from 'src/app/shared/models/date-data.model';
@@ -35,10 +39,8 @@ export class AddOrEditDayComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private dateService = inject(DateDataService);
 
-  private exerciseDataSubject = new BehaviorSubject<Exercise[]>([]);
-
   dayOperationMode = Mode;
-  submitButtonText: 'Add' | 'Edit' = 'Add';
+  submitButtonText: 'Submit' | 'Edit' = 'Submit';
 
   formGroup = new FormGroup({
     userWeight: new FormControl(50, {
@@ -106,21 +108,18 @@ export class AddOrEditDayComponent implements OnInit {
     ]),
   });
 
-  allExercises: Observable<Exercise[]> | undefined;
-  availableExercises: Exercise[] = [];
+  allExercises: WritableSignal<Exercise[] | undefined> = signal(undefined);
+  availableExercises: Signal<Exercise[]> = computed(() => {
+    const exercises = this.allExercises();
+    if(exercises)
+      return exercises.filter(value => !value.disabled);
+    return [];
+  });
 
   formStatusInfoForChild = new EventEmitter<FormStatus>();
 
   ngOnInit(): void {
     this.refreshExerciseData();
-    this.allExercises = this.exerciseDataSubject.asObservable();
-
-    this.allExercises.subscribe((value) => {
-      this.availableExercises = [];
-      value.forEach((ex) => {
-        if (!ex.disabled) this.availableExercises.push(ex);
-      });
-    });
   }
 
   // getters for formGroup
@@ -303,7 +302,7 @@ export class AddOrEditDayComponent implements OnInit {
     this.exerciseService
       .getAllExercises()
       .pipe(take(1))
-      .subscribe((result) => this.exerciseDataSubject.next(result));
+      .subscribe((result) => this.allExercises.set(result));
   }
   /**
    * Converts the Workout FormArray's {@link Partial} Workout[] value to Full {@link Workout}[] object

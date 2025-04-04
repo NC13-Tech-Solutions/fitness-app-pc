@@ -1,9 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  Input,
-  Output,
+  input,
+  output,
 } from '@angular/core';
 
 @Component({
@@ -12,10 +11,11 @@ import {
   styleUrls: ['./day-card.component.sass'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DayCardComponent {
-  @Input() dayValue = 1;
-  @Input() workoutsDoneToday = 0;
-  @Output() callback = new EventEmitter<void>();
+export class DayCardComponent{
+  dayValue = input<number>(1);
+  isToday = input<boolean>(false);
+  workoutsDoneToday = input<number>(0);
+  callback = output();
 
   dayClicked() {
     this.callback.emit();

@@ -1,0 +1,63 @@
+<h2 mat-dialog-title>Pick a time <mat-icon>schedule</mat-icon></h2>
+<mat-dialog-content>
+  <h2 class="mb-3">
+  {{HoursValue}}:{{MinutesValue}} {{AmOrPMValue}}
+  <button mat-mini-fab aria-label="Form Reset" (click)="resetForm()">
+    <mat-icon>settings_backup_restore</mat-icon>
+  </button>
+</h2>
+<div class="ms-2 me-2">
+  <form
+    class="w-100"
+    #f="ngForm"
+    [formGroup]="formGroup"
+    (submit)="submit()"
+    (reset)="resetForm()"
+  >
+    <div class="mb-5">
+      <label for="hoursSlider" class="form-label me-2">Hours</label>
+        <mat-slider
+          min="1"
+          max="12"
+          step="1"
+          class="w-100"
+        >
+          <input matSliderThumb
+          formControlName="hours"
+          id="hoursSlider"/>
+        </mat-slider>
+    </div>
+    <div class="mb-3">
+      <label for="minutesSlider" class="form-label me-2">Minutes</label>
+        <mat-slider
+          min="0"
+          max="59"
+          step="1"
+          class="w-100"
+        >
+          <input matSliderThumb
+          formControlName="minutes"
+          id="minutesSlider" />
+        </mat-slider>
+    </div>
+    <div class="mb-0">
+      <label for="radioGroup" class="form-label me-2">AM/PM</label>
+      <mat-radio-group formControlName="amOrPM" id="radioGroup">
+        <mat-radio-button value="AM">AM</mat-radio-button>
+        <mat-radio-button value="PM">PM</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </form>
+</div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button
+    mat-button
+    (click)="submit()"
+    cdkFocusInitial
+    [disabled]="formGroup.invalid"
+  >
+    Yes
+  </button>
+  <button mat-button (click)="close(false, '')">No</button>
+</mat-dialog-actions>

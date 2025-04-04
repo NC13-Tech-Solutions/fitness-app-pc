@@ -1,1 +1,38 @@
-<p>view-workout-exercises works!</p>
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Exercise #{{ exercise().slNo }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <!-- FIXME: We need to fetch the exercise details using the Exercise ID -->
+    <p><strong>Exercise Id:</strong> {{ exercise().exId }}</p>
+    @if (exercise().weightsUsed.length > 0) {
+    <p>
+      <strong>Weights Used:</strong>
+      <mat-chip-set aria-label="Weights used">
+        @for (wu of exercise().weightsUsed; track $index) {
+        <mat-chip>{{ wu }}</mat-chip>
+        }
+      </mat-chip-set>
+    </p>
+    }
+    <p>
+      <strong>Drop Sets(if any):</strong> @if (exercise().dropSets >0) {
+      {{ exercise().dropSets }}
+      } @else {None}
+    </p>
+    <p><strong>Rep Range or Workout Method:</strong> {{exercise().repRange}}</p>
+    <p><strong>Sets:</strong> {{exercise().sets}}</p>
+    <p><strong>Rest Time:</strong> {{exercise().restTime}}</p>
+    @if (exercise().superSetOf != -1) {
+      <!-- FIXME: Superset Data need to be displayed here, if available -->
+      <p><strong>Super Set Of:</strong> {{exercise().superSetOf}}</p>
+    }
+    @if (exercise().exerciseExplainer != "") {
+      <p><strong>Exercise Explainer:</strong> {{exercise().exerciseExplainer}}</p>
+    }
+    @if (exercise().exerciseFormVideos.length>0) {
+      <!-- FIXME: Workout Videos need to be rendered here -->
+      <p>Workout videos will be shown here</p>
+    }
+  </mat-card-content>
+</mat-card>

@@ -6,9 +6,11 @@ import {
   ElementRef,
   OnInit,
   ViewChild,
+  WritableSignal,
   inject,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { Mode } from '../../shared/models/mode.model';
 import { Exercise } from '../../shared/models/exercise.model';
@@ -21,7 +23,7 @@ import {
 } from '@angular/forms';
 import { MiscDataType } from '../../shared/models/misc-data-type.model';
 import { Observable, of, take } from 'rxjs';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
 import { FileSharingService } from '../../services/http/file-sharing.service';
 import { environment } from 'src/environments/environment';
 
@@ -34,33 +36,32 @@ import { environment } from 'src/environments/environment';
 export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   mode = input<Mode>(Mode.ADD);
   exercise = input<Exercise>();
-  allExercisesData =  input.required<Exercise[]>();
+  allExercisesData = input.required<Exercise[]>();
   callback = output<{ data: Exercise; submit: boolean }>();
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
   private changeDetection = inject(ChangeDetectorRef);
 
-  toggleText: 'Enabled' | 'Disabled' = 'Enabled';
-  togglePreview: 'See' | 'Close' = 'See';
-  submitButtonText: 'Add' | 'Edit' = 'Add';
-  acceptText: 'image/*' | 'video/mp4' = 'image/*';
-  extraDataText:
-    | 'No Extra Data'
-    | 'Image link'
-    | 'Video link'
-    | 'Embedded Video link' = 'No Extra Data';
-  localDataText: 'Image' | 'Video' = 'Image';
-  fileStatus: 'Upload' | 'Delete' = 'Upload';
+  toggleText: WritableSignal<'Enabled' | 'Disabled'> = signal('Enabled');
+  togglePreview: WritableSignal<'See' | 'Close'> = signal('See');
+  submitButtonText: WritableSignal<'Add' | 'Edit'> = signal('Add');
+  acceptText: WritableSignal<'image/*' | 'video/mp4'> = signal('image/*');
+  extraDataText: WritableSignal<
+    'No Extra Data' | 'Image link' | 'Video link' | 'Embedded Video link'
+  > = signal('No Extra Data');
+  localDataText: WritableSignal<'Image' | 'Video'> = signal('Image');
+  fileStatus: WritableSignal<'Upload' | 'Delete'> = signal('Upload');
   exerciseMode = Mode;
   extraDataType = MiscDataType;
-  enablePreview = false;
+  enablePreview: WritableSignal<boolean> = signal(false);
   @ViewChild('file_mock_input') file_mock_input:
     | ElementRef<HTMLInputElement>
     | undefined;
-  previewData = '';
-  sanitizedSafeHtml: SafeHtml = '';
-  openedFile: File | undefined;
-  uploadedFileName = '';
+  previewData: WritableSignal<string | undefined> = signal(undefined);
+  sanitizedSafeHtml: WritableSignal<SafeHtml> = signal('');
+  sanitizedSrc: WritableSignal<SafeUrl> = signal('');
+  openedFile: WritableSignal<File | undefined> = signal(undefined);
+  uploadedFileName:WritableSignal<string|undefined> = signal(undefined);
 
   formGroup = new FormGroup({
     name: new FormControl('', {
@@ -88,48 +89,48 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   ngOnInit(): void {
     this.resetForm();
     if (this.mode() == Mode.ADD) {
-      this.submitButtonText = 'Add';
+      this.submitButtonText.set('Add');
     } else if (this.mode() == Mode.EDIT) {
-      this.submitButtonText = 'Edit';
+      this.submitButtonText.set('Edit');
     }
   }
 
   ngAfterViewInit(): void {
     this.ExerciseDisabled?.valueChanges.subscribe((value) => {
       if (value) {
-        this.toggleText = 'Disabled';
+        this.toggleText.set('Disabled');
       } else {
-        this.toggleText = 'Enabled';
+        this.toggleText.set('Enabled');
       }
     });
 
     this.ExerciseMiscDataType?.valueChanges.subscribe((value) => {
-      this.enablePreview = false;
-      this.togglePreview = 'See';
+      this.enablePreview.set(false);
+      this.togglePreview.set('See');
       this.ExerciseMiscData?.setValue('');
-      this.openedFile = undefined;
-      if (this.fileStatus == 'Delete') {
+      this.openedFile.set(undefined);
+      if (this.fileStatus() == 'Delete') {
         this.uploadOrDeleteLocalFile();
       }
       switch (value) {
         case MiscDataType.NONE:
-          this.extraDataText = 'No Extra Data';
+          this.extraDataText.set('No Extra Data');
           this.ExerciseMiscData?.disable();
           break;
         case MiscDataType.IMAGE:
-          this.extraDataText = 'Image link';
-          this.localDataText = 'Image';
-          this.acceptText = 'image/*';
+          this.extraDataText.set('Image link');
+          this.localDataText.set('Image');
+          this.acceptText.set('image/*');
           this.ExerciseMiscData?.enable();
           break;
         case MiscDataType.VIDEO:
-          this.extraDataText = 'Video link';
-          this.localDataText = 'Video';
-          this.acceptText = 'video/mp4';
+          this.extraDataText.set('Video link');
+          this.localDataText.set('Video');
+          this.acceptText.set('video/mp4');
           this.ExerciseMiscData?.disable();
           break;
         case MiscDataType.EMBEDDED:
-          this.extraDataText = 'Embedded Video link';
+          this.extraDataText.set('Embedded Video link');
           this.ExerciseMiscData?.enable();
           break;
       }
@@ -137,8 +138,8 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
 
     this.ExerciseMiscData?.valueChanges.subscribe((miscValue) => {
       if (miscValue == null || miscValue == '') {
-        this.enablePreview = false;
-        this.togglePreview = 'See';
+        this.enablePreview.set(false);
+        this.togglePreview.set('See');
       }
     });
   }
@@ -268,7 +269,7 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   file_mock_input_changeEvent(event: Event) {
     if (this.file_mock_input?.nativeElement.files?.length == 1) {
       let temp = this.file_mock_input.nativeElement.files.item(0);
-      if (temp) this.openedFile = temp;
+      if (temp) this.openedFile.set(temp);
     }
   }
 
@@ -279,69 +280,71 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   }
 
   uploadOrDeleteLocalFile() {
-    if (this.openedFile && this.uploadedFileName == '') {
-      if (this.fileStatus == 'Upload') {
-        if (this.localDataText == 'Image') {
+    const oF = this.openedFile();
+    const oFName = this.uploadedFileName();
+    if (oF && oFName == undefined) {
+      if (this.fileStatus() == 'Upload') {
+        if (this.localDataText() == 'Image') {
           this.fileSharingService
-            .uploadFile(this.openedFile, 'images')
+            .uploadFile(oF, 'images')
             .pipe(take(1))
             .subscribe((value) => {
               if (value) {
                 console.log('Jimbarlakka', value);
-                this.uploadedFileName = value;
+                this.uploadedFileName.set( value);
 
                 this.ExerciseMiscData?.setValue(
                   environment.api_url + 'files/images/view/' + value
                 );
-                this.fileStatus = 'Delete';
+                this.fileStatus.set('Delete');
               }
             });
-        } else if (this.localDataText == 'Video') {
+        } else if (this.localDataText() == 'Video') {
           this.fileSharingService
-            .uploadFile(this.openedFile, 'videos')
+            .uploadFile(oF, 'videos')
             .pipe(take(1))
             .subscribe((value) => {
               if (value) {
                 console.log('Jimbarlakka', value);
-                this.uploadedFileName = value;
+                this.uploadedFileName.set( value);
 
                 this.ExerciseMiscData?.setValue(
                   environment.api_url + 'files/videos/view/' + value
                 );
-                this.fileStatus = 'Delete';
+                this.fileStatus.set('Delete');
               }
             });
         }
       }
-    } else {
-      if (this.fileStatus == 'Delete') {
-        if (this.enablePreview) {
+    } else if(oFName){
+      if (this.fileStatus() == 'Delete') {
+        if (this.enablePreview()) {
           this.openPreview();
         }
-        if (this.localDataText == 'Image') {
+        if (this.localDataText() == 'Image') {
           this.fileSharingService
-            .deleteFile(this.uploadedFileName, 'images')
+            .deleteFile(oFName, 'images')
             .pipe(take(1))
             .subscribe((value) => {
               if (value == 1) {
                 console.log('Jimbarlakka', value);
 
                 this.ExerciseMiscData?.setValue('');
-                this.uploadedFileName = '';
-                this.fileStatus = 'Upload';
+                this.uploadedFileName.set(undefined);
+                this.fileStatus.set('Upload');
               }
             });
-        } else if (this.localDataText == 'Video') {
+        } else if (this.localDataText() == 'Video') {
           this.fileSharingService
-            .deleteFile(this.uploadedFileName, 'videos')
+            .deleteFile(oFName, 'videos')
             .pipe(take(1))
             .subscribe((value) => {
               if (value == 1) {
                 console.log('Jimbarlakka', value);
 
                 this.ExerciseMiscData?.setValue('');
-                this.uploadedFileName = '';
-                this.fileStatus = 'Upload';
+                this.uploadedFileName.set(undefined);
+                this.fileStatus.set('Upload');
               }
             });
         }
@@ -350,10 +353,10 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   }
 
   openPreview() {
-    if (this.enablePreview) {
-      this.previewData = '';
-      this.enablePreview = false;
-      this.togglePreview = 'See';
+    if (this.enablePreview()) {
+      this.previewData.set(undefined);
+      this.enablePreview.set(false);
+      this.togglePreview.set('See');
       return;
     }
     const dt = this.valueOfMDT(this.ExerciseMiscDataType);
@@ -368,56 +371,54 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
               .subscribe({
                 next: (result) =>
                   result.pipe(take(1)).subscribe((imgSrc) => {
-                    this.previewData = imgSrc;
-                    this.enablePreview = true;
-                    this.togglePreview = 'Close';
-                    this.changeDetection.detectChanges();
+                    this.previewData.set(imgSrc);
+                    this.enablePreview.set(true);
+                    this.togglePreview.set('Close');
+                    // this.changeDetection.detectChanges();
                   }),
                 error: (err) => console.log(err),
               });
           } else {
-            this.previewData = value;
-            this.enablePreview = true;
-            this.togglePreview = 'Close';
+            this.previewData.set(value);
+            this.enablePreview.set(true);
+            this.togglePreview.set('Close');
           }
           break;
         case MiscDataType.VIDEO:
           if (this.checkIfLocalFile(value)) {
-              this.fileSharingService
-                .viewVideoFile(value)
-                .pipe(take(1))
-                .subscribe((vidSrc) => {
-                  if (vidSrc) {
-                    this.previewData = vidSrc;
-                    this.enablePreview = true;
-                    this.togglePreview = 'Close';
-                    this.changeDetection.detectChanges();
-                  }
-                });
+            this.fileSharingService
+              .viewVideoFile(value)
+              .pipe(take(1))
+              .subscribe((vidSrc) => {
+                if (vidSrc) {
+                  this.previewData.set(vidSrc);
+                  this.enablePreview.set(true);
+                  this.togglePreview.set('Close');
+                  // this.changeDetection.detectChanges();
+                }
+              });
           } else {
-            this.previewData = value;
-            this.enablePreview = true;
-            this.togglePreview = 'Close';
+            this.previewData.set(value);
+            this.enablePreview.set(true);
+            this.togglePreview.set('Close');
           }
           break;
         case MiscDataType.EMBEDDED:
-          this.previewData = value;
-          this.sanitizedSafeHtml = this.sanitizer.bypassSecurityTrustHtml(
-            this.previewData
-          );
-          this.enablePreview = true;
-          this.togglePreview = 'Close';
+          this.previewData.set(value);
+          const pd = this.previewData();
+          if (pd)
+            this.sanitizedSafeHtml.set(
+              this.sanitizer.bypassSecurityTrustHtml(pd)
+            );
+          this.enablePreview.set(true);
+          this.togglePreview.set('Close');
           break;
       }
     }
   }
 
-  getSanitizedHtml() {
-    return this.sanitizedSafeHtml;
-  }
-
-  getSanitizedUrl() {
-    return this.sanitizer.bypassSecurityTrustUrl(this.previewData);
+  setSanitizedUrl(pd: string) {
+    this.sanitizedSrc.set(this.sanitizer.bypassSecurityTrustUrl(pd));
   }
 
   exerciseNameAlreadyExists(name: string): boolean {

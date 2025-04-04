@@ -1,10 +1,10 @@
-@if (exercises() | async; as exercisesData) { @if (exercisesData.length > 0) {
+@if (exercises(); as exercisesData) { @if (exercisesData.length > 0) {
 <mat-accordion class="space-between-header-desc-items">
   @for (exercise of exercisesData;let i = $index; track exercise.exId) {
   <mat-expansion-panel
     (opened)="panelOpened(i)"
     (closed)="panelClosed(i)"
-    [expanded]="stepIndex == i"
+    [expanded]="stepIndex() == i"
     (opened)="setStep(i)"
     hideToggle
   >
@@ -41,17 +41,14 @@
     </div>
     @switch (sToMDT(exercise.miscDataType)) { @case (extraDataType.IMAGE) {
     <div class="normal-content">
-      <ng-container
-        *ngIf="
-          loadFile(exercise.miscData, 'img', exercise.exId) | async as imgSrc
-        "
-      >
-        <img
-          [src]="getSanitizedUrl(imgSrc)"
-          alt="Welp. I guess image didn't render"
-          width="480px"
-        />
-      </ng-container>
+      @if (loadFile(exercise.miscData, 'img', exercise.exId) | async; as imgSrc)
+      {
+      <img
+        [src]="getSanitizedUrl(imgSrc)"
+        alt="Welp. I guess image didn't render"
+        width="480px"
+      />
+      }
     </div>
     } @case (extraDataType.VIDEO) {
     <div class="normal-content">
@@ -80,11 +77,11 @@
     </div>
     } } @if (exercisesData.length > 1) {
     <mat-action-row>
-      @if (stepIndex > 0) {
+      @if (stepIndex() > 0) {
       <button mat-button color="warn" (click)="prevStep()">Previous</button>
-      } @if (stepIndex < (exercisesData.length-1)) {
+      } @if (stepIndex() < (exercisesData.length-1)) {
       <button mat-button color="primary" (click)="nextStep()">Next</button>
-      } @else if (stepIndex == (exercisesData.length-1)) {
+      } @else if (stepIndex() == (exercisesData.length-1)) {
       <button mat-button color="primary" (click)="setStep(-1)">End</button>
       }
     </mat-action-row>

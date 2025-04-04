@@ -4,17 +4,18 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Input,
-  OnInit,
-  Output,
   ViewChild,
   inject,
+  input,
+  output,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import { take } from 'rxjs';
 import { FileSharingService } from 'src/app/services/http/file-sharing.service';
+import { TimePickerDialogComponent } from 'src/app/shared/dialogs/time-picker-dialog/time-picker-dialog.component';
 import { ExerciseSelected } from 'src/app/shared/models/exercise-selected.model';
 import { Exercise } from 'src/app/shared/models/exercise.model';
 import { FormStatus } from 'src/app/shared/models/form-status.model';
@@ -29,37 +30,40 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./add-or-edit-workout.component.sass'],
 })
 export class AddOrEditWorkoutComponent implements AfterViewInit {
-  @Input() mode: Mode = Mode.ADD;
-  @Input() workoutIndex!: number;
-  @Input() availableExercises!: Exercise[];
-  @Input() formGroup!: FormGroup<{
-    time: FormControl<string>;
-    exercises: FormArray<
-      FormGroup<{
-        slNo: FormControl<number>;
-        exId: FormControl<number>;
-        weightsUsed: FormControl<number[]>;
-        dropSets: FormControl<number>;
-        repRange: FormControl<string>;
-        sets: FormControl<number>;
-        restTime: FormControl<string>;
-        superSetOf: FormControl<number>;
-        exerciseExplainer: FormControl<string>;
-        exerciseFormVideos: FormControl<VideoData[]>;
-      }>
-    >;
-    text: FormControl<string>;
-    photos: FormControl<string[]>;
-    videos: FormControl<VideoData[]>;
-  }>;
-  @Output() addNewExercise = new EventEmitter<Exercise>();
-  @Input() parentFormStatus = new EventEmitter<FormStatus>();
-  @Output() formStatus = new EventEmitter<FormStatus>();
+  mode = input<Mode>(Mode.ADD);
+  workoutIndex = input.required<number>();
+  availableExercises = input.required<Exercise[]>();
+  formGroup = input.required<
+    FormGroup<{
+      time: FormControl<string>;
+      exercises: FormArray<
+        FormGroup<{
+          slNo: FormControl<number>;
+          exId: FormControl<number>;
+          weightsUsed: FormControl<number[]>;
+          dropSets: FormControl<number>;
+          repRange: FormControl<string>;
+          sets: FormControl<number>;
+          restTime: FormControl<string>;
+          superSetOf: FormControl<number>;
+          exerciseExplainer: FormControl<string>;
+          exerciseFormVideos: FormControl<VideoData[]>;
+        }>
+      >;
+      text: FormControl<string>;
+      photos: FormControl<string[]>;
+      videos: FormControl<VideoData[]>;
+    }>
+  >();
+  addNewExercise = output<Exercise>();
+  parentFormStatus = input.required<EventEmitter<FormStatus>>();
+  formStatus = output<FormStatus>();
 
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
   private changeDetection = inject(ChangeDetectorRef);
   private store = inject(Store<{ exerciseSelections: ExerciseSelected[] }>);
+  private timePicker = inject(MatDialog);
 
   allowWorkoutImageUpload = false;
   allowWorkoutVideoUpload = false;
@@ -92,13 +96,14 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
       this.hydratedStoreData = value;
     });
 
-    this.parentFormStatus.subscribe((value) => {
+    this.parentFormStatus().subscribe((value) => {
       if (value == FormStatus.CANCEL) {
         // FIXME: Call the form cancellor in this component
         console.log('Form Cancelled in Parent Component:', value);
       } else if (value == FormStatus.RESET) {
         // FIXME: Call the form resetter in this component
         console.log('Form Reset in Parent Component:', value);
+        this.resetForm();
       }
       this.formStatusInfoForChild.emit(value);
     });
@@ -107,11 +112,11 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
   // getters for formGroup
 
   get WorkoutTime() {
-    return this.formGroup.get('time');
+    return this.formGroup().get('time');
   }
 
   get WorkoutExercises() {
-    return this.formGroup.get('exercises') as FormArray<
+    return this.formGroup().get('exercises') as FormArray<
       FormGroup<{
         slNo: FormControl<number>;
         exId: FormControl<number>;
@@ -128,15 +133,35 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
   }
 
   get WorkoutText() {
-    return this.formGroup.get('text');
+    return this.formGroup().get('text');
   }
 
   get WorkoutPhotos() {
-    return this.formGroup.get('photos');
+    return this.formGroup().get('photos');
   }
 
   get WorkoutVideos() {
-    return this.formGroup.get('videos');
+    return this.formGroup().get('videos');
+  }
+
+  openTimerPicker() {
+    let time = '';
+    if(this.WorkoutTime && !this.WorkoutTime.hasError('required')){
+      if(this.WorkoutTime.valid){
+        time = this.WorkoutTime.value;
+      }
+    }
+    const dialogRef = this.timePicker.open(TimePickerDialogComponent, {
+      data: time,
+    });
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((result: { data: string; submit: boolean }) => {
+        if (result.submit) {
+          this.WorkoutTime?.setValue(result.data);
+        }
+      });
   }
 
   addExercise(): void {

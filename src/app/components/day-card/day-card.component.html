@@ -1,6 +1,6 @@
-<mat-card [matBadge]="workoutsDoneToday" [matBadgeHidden]="workoutsDoneToday>0? false : true">
+<mat-card [matBadge]="workoutsDoneToday()" [matBadgeHidden]="workoutsDoneToday()>0? false : true">
   <mat-card-content>
-    <h2 (click)="dayClicked()">{{dayValue}}</h2>
+    <h2 (click)="dayClicked()" [ngClass]="{'today': isToday()}">{{dayValue()}}</h2>
   </mat-card-content>
   <mat-card-footer></mat-card-footer>
 </mat-card>

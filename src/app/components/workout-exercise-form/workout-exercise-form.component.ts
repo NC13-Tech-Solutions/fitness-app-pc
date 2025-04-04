@@ -28,6 +28,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { AddExerciseDialogComponent } from 'src/app/shared/dialogs/add-exercise-dialog/add-exercise-dialog.component';
 import { FormStatus } from 'src/app/shared/models/form-status.model';
+import { MatAutocomplete } from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-workout-exercise-form',
@@ -36,18 +37,20 @@ import { FormStatus } from 'src/app/shared/models/form-status.model';
 })
 export class WorkoutExerciseFormComponent implements AfterViewInit {
   // FIXME: Need to get Add or Edit input data
-  formGroup = input.required<FormGroup<{
-    slNo: FormControl<number>;
-    exId: FormControl<number>;
-    weightsUsed: FormControl<number[]>;
-    dropSets: FormControl<number>;
-    repRange: FormControl<string>;
-    sets: FormControl<number>;
-    restTime: FormControl<string>;
-    superSetOf: FormControl<number>;
-    exerciseExplainer: FormControl<string>;
-    exerciseFormVideos: FormControl<VideoData[]>;
-  }>>();
+  formGroup = input.required<
+    FormGroup<{
+      slNo: FormControl<number>;
+      exId: FormControl<number>;
+      weightsUsed: FormControl<number[]>;
+      dropSets: FormControl<number>;
+      repRange: FormControl<string>;
+      sets: FormControl<number>;
+      restTime: FormControl<string>;
+      superSetOf: FormControl<number>;
+      exerciseExplainer: FormControl<string>;
+      exerciseFormVideos: FormControl<VideoData[]>;
+    }>
+  >();
   exerciseIndex = input.required<number>();
   exercisesSelected = input.required<ExerciseSelected[]>();
   availableExercises = input.required<Exercise[]>();
@@ -71,7 +74,8 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
   @ViewChild('video_file_mock_input') video_file_mock_input:
     | ElementRef<HTMLInputElement>
     | undefined;
-
+  @ViewChild('exerciseNameAC') exerciseNameAC: MatAutocomplete | undefined;
+  @ViewChild('superSetNameAC') superSetNameAC: MatAutocomplete | undefined;
   ngAfterViewInit(): void {
     if (this.WorkoutExerciseSlNo) {
       this.WorkoutExerciseSlNo.setValue(this.exerciseIndex());
@@ -216,14 +220,6 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
     }
     // If filter is undefined
     return input;
-  }
-
-  trackBy_ES(index: number, item: ExerciseSelected) {
-    return item.exerciseSlNo;
-  }
-
-  trackBy_E(index: number, item: Exercise) {
-    return item.exId;
   }
 
   getExerciseNameFromExId(exId: number): string {
@@ -374,11 +370,33 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
 
   resetForm() {
     // FIXME: On Form Reset
+    if(this.exerciseNameAC){
+      this.exerciseNameAC.options.forEach(item => item.deselect());
+    }
+    if (this.superSetNameAC) {
+      this.superSetNameAC.options.forEach((item) => item.deselect());
+    }
+    this.formGroup().reset(
+      {
+        slNo: 0,
+        dropSets: 0,
+        exerciseExplainer: '',
+        exerciseFormVideos: [],
+        exId: 0,
+        repRange: '',
+        restTime: '',
+        sets: 0,
+        superSetOf: 0,
+        weightsUsed: [],
+      },
+      { onlySelf: false, emitEvent: true }
+    );
     console.log('Jimbarlakka', 'Workout Exercise Form Reset');
   }
 
   parentFormReset() {
     // FIXME: Form Reset. So do any deletion here, if necessary
+    this.resetForm();
     this.formStatus.emit(FormStatus.RESET);
   }
 
@@ -388,7 +406,9 @@ export class WorkoutExerciseFormComponent implements AfterViewInit {
   }
 
   addExercise() {
-    const dialogRef = this.addExerciseDialog.open(AddExerciseDialogComponent, {data: this.availableExercises});
+    const dialogRef = this.addExerciseDialog.open(AddExerciseDialogComponent, {
+      data: this.availableExercises,
+    });
     dialogRef
       .afterClosed()
       .pipe(take(1))

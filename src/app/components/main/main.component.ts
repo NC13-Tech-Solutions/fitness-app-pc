@@ -1,8 +1,11 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   OnInit,
+  WritableSignal,
   inject,
+  signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -30,8 +33,14 @@ export class MainComponent implements OnInit {
   store = inject(Store<{ months: DayWeeksMonthYear }>);
   userService = inject(UserService);
   dayService = inject(DayService);
+  private changeDetection = inject(ChangeDetectorRef);
 
   dmy: Observable<DayWeeksMonthYear> = this.store.select('months');
+  dayValueData$: Observable<number> = this.dmy.pipe(
+    map((snaps) => {
+      return snaps.Day;
+    })
+  );
   monthData$: Observable<string> = this.dmy.pipe(
     map((snaps) => {
       return snaps.Month;
@@ -48,23 +57,28 @@ export class MainComponent implements OnInit {
     })
   );
 
-  dayDataArray: DayData[] = [];
-  dayDataArray$: Observable<DayData[]> | undefined;
+  dayDataArraySignal:WritableSignal<DayData[]> = signal<DayData[]>([]);
+
   monthData: string | undefined;
   yearData: number | undefined;
+  dayValueData:WritableSignal<number> = signal(0);
 
   ngOnInit(): void {
     this.monthData$.subscribe((x) => {
+      console.log(x);
       this.monthData = x;
-      this.getDayDataOfMonth();
     });
     this.yearData$.subscribe((y) => {
+      console.log(y);
       this.yearData = y;
-      this.getDayDataOfMonth();
     });
 
-    this.dayDataArray$?.subscribe((dd) => {
-      this.dayDataArray = dd;
+    this.dayValueData$.subscribe((z) => {
+      console.log(z);
+      console.log('===============', new Date());
+
+      this.dayValueData.set(z == -1 ? 0 : z);
+      this.getDayDataOfMonth();
     });
   }
 
@@ -127,11 +141,19 @@ export class MainComponent implements OnInit {
 
   getDayDataOfMonth() {
     if (this.monthData != undefined && this.yearData != undefined) {
-      this.dayDataArray$ = this.dayService.getDayDataForMonth({
-        day: 1,
-        month: this.monthData,
-        year: this.yearData,
-      });
+      this.dayService
+        .getDayDataForMonth({
+          day: 1,
+          month: this.monthData,
+          year: this.yearData,
+        })
+        .pipe(take(1))
+        .subscribe((x) => {
+          if (x != null) {
+            console.log(x);
+            this.dayDataArraySignal.set(x);
+          }
+        });
     }
   }
 
@@ -140,7 +162,7 @@ export class MainComponent implements OnInit {
     month: string,
     year: number
   ): DayData | undefined {
-    for (let x of this.dayDataArray) {
+    for (let x of this.dayDataArraySignal()) {
       if (
         x.postedOn.day == day &&
         x.postedOn.month === month &&

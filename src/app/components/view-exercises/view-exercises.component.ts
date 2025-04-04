@@ -4,6 +4,8 @@ import {
   inject,
   input,
   output,
+  signal,
+  WritableSignal,
 } from '@angular/core';
 import { Observable, take } from 'rxjs';
 import { Exercise } from '../../shared/models/exercise.model';
@@ -21,7 +23,7 @@ import { environment } from 'src/environments/environment';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewExercisesComponent {
-  exercises = input<Observable<Exercise[]>>();
+  exercises = input.required<Exercise[]>();
   callback = output<Exercise>();
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
@@ -29,24 +31,22 @@ export class ViewExercisesComponent {
   private data$: { obs: Observable<string>; exId: number }[] = [];
 
   extraDataType = MiscDataType;
-  panelOpenData: { openedIndex: number; state: boolean } = {
-    openedIndex: 0,
-    state: false,
-  };
+  panelOpenData: WritableSignal<{ openedIndex: number; state: boolean }> =
+    signal({ openedIndex: 0, state: false });
 
   public editDialog = inject(MatDialog);
 
-  public stepIndex = -1;
+  public stepIndex:WritableSignal<number> = signal(-1)
 
   public setStep(x: number) {
-    this.stepIndex = x;
+    this.stepIndex.set(x);
   }
 
   nextStep() {
-    this.stepIndex++;
+    this.setStep(this.stepIndex()+1);
   }
   prevStep() {
-    this.stepIndex--;
+    this.setStep(this.stepIndex() - 1);
   }
 
   editExercise(value: Exercise) {
@@ -148,7 +148,7 @@ export class ViewExercisesComponent {
   }
 
   shortDescription(inputText: string, index: number): string {
-    if (this.panelOpenData.openedIndex == index && this.panelOpenData.state)
+    if (this.panelOpenData().openedIndex == index && this.panelOpenData().state)
       return 'Description';
     if (inputText.length < 50) {
       return inputText;
@@ -157,13 +157,11 @@ export class ViewExercisesComponent {
   }
 
   panelOpened(index: number) {
-    this.panelOpenData.openedIndex = index;
-    this.panelOpenData.state = true;
+    this.panelOpenData.set({openedIndex: index, state: true});
   }
 
   panelClosed(index: number) {
-    if (this.stepIndex != -1 && this.stepIndex != index) return; //This code is needed as other accordions closing will also trigger this function
-    this.panelOpenData.openedIndex = index;
-    this.panelOpenData.state = false;
+    if (this.stepIndex() != -1 && this.stepIndex() != index) return; //This code is needed as other accordions closing will also trigger this function
+    this.panelOpenData.set({ openedIndex: index, state: false });
   }
 }

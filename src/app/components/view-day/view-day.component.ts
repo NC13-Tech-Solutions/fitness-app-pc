@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, firstValueFrom, map, take } from 'rxjs';
 import { resetSelection } from 'src/app/services/ctrl/exercise-selections.actions';
+import { resetDayValue } from 'src/app/services/ctrl/months.actions';
 import { DayService } from 'src/app/services/http/day.service';
 import { DateData } from 'src/app/shared/models/date-data.model';
 import { DayData } from 'src/app/shared/models/day-data.model';
@@ -78,6 +79,7 @@ export class ViewDayComponent implements OnInit {
   }
 
   close_nav() {
+    this.store.dispatch(resetDayValue());
     this.router.navigateByUrl('/main');
   }
 
@@ -89,13 +91,30 @@ export class ViewDayComponent implements OnInit {
           .pipe(take(1))
           .subscribe((x) => {
             if (x == 1) {
+              this.snackbar.open('Day data added successfully', 'Dismiss', {
+                duration: 5000,
+              });
+              this.goToViewMode();
+            } else if (x == -1) {
+              this.snackbar.open('Unable to add Day data', 'Got it', {
+                duration: 5000,
+              });
+            } else {
+              this.snackbar.open(
+                'Sorry! Day data already exists for this day',
+                'Got it',
+                {
+                  duration: 5000,
+                }
+              );
+              this.goToViewMode();
             }
           });
+      } else if (this.mode == Mode.EDIT) {
+        // FIXME: Edit day data function call should be implemented here
       }
     } else {
-      this.mode = Mode.VIEW;
-      this.editDayData = undefined;
-      this.exStore.dispatch(resetSelection());
+      this.goToViewMode();
     }
   }
 
@@ -120,5 +139,12 @@ export class ViewDayComponent implements OnInit {
   onFormSubmit(result: { data: DayData; submit: boolean }) {
     // FIXME: On day data form submit
     console.log(result);
+    this.addOrEditDay({ data: result.data, submit: result.submit });
+  }
+
+  goToViewMode() {
+    this.mode = Mode.VIEW;
+    this.editDayData = undefined;
+    this.exStore.dispatch(resetSelection());
   }
 }

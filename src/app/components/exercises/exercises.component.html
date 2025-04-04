@@ -3,15 +3,13 @@
   <span class="space-inBetween"></span>
   <span>Exercises</span>
   <span class="space-inBetween"></span>
-  <button mat-icon-button color="basic" (click)="addExercise()" [disabled]="mode == exerciseMode.ADD || mode == exerciseMode.EDIT"><mat-icon>add_task</mat-icon></button>
+  <button mat-icon-button color="basic" (click)="addExercise()" [disabled]="mode() == exerciseMode.ADD || mode() == exerciseMode.EDIT"><mat-icon>add_task</mat-icon></button>
 </mat-toolbar>
-@switch (mode) {
+@switch (mode()) {
   @case (exerciseMode.VIEW) {
-    <app-view-exercises [exercises]="exercises" (callback)="editExercise($event)"></app-view-exercises>
+    <app-view-exercises [exercises]="exercises()" (callback)="editExercise($event)"></app-view-exercises>
   }
   @default {
-    @if (exercises | async; as allExercises) {
-    <app-add-or-edit-exercise [exercise]="editExerciseData" [mode]="mode" [allExercisesData]="allExercises" (callback)="addOrEditExercise($event)"></app-add-or-edit-exercise>
-    }
+    <app-add-or-edit-exercise [exercise]="editExerciseData()" [mode]="mode()" [allExercisesData]="exercises()" (callback)="addOrEditExercise($event)"></app-add-or-edit-exercise>
   }
 }

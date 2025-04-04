@@ -38,7 +38,7 @@ export class DayService {
   public getDayDataForMonth(datePostedOn: DateData): Observable<DayData[]> {
     const JwtToken = localStorage.getItem('JwtToken');
     return this.api.postRequest<DayData[], DayData[]>(
-      `${this.entryPoint}/day`,
+      `${this.entryPoint}/month`,
       'json',
       datePostedOn,
       [

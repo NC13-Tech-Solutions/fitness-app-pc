@@ -54,7 +54,7 @@
         <app-add-or-edit-workout
           [formGroup]="dayWorkoutsForm"
           [workoutIndex]="i"
-          [availableExercises]="availableExercises"
+          [availableExercises]="availableExercises()"
           (addNewExercise)="addNewExercise($event)"
           [parentFormStatus]="formStatusInfoForChild"
           (formStatus)="childFormStatus(i, $event)"

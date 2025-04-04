@@ -1,6 +1,6 @@
-<ng-container [formGroup]="formGroup">
+<ng-container [formGroup]="formGroup()">
   <h4 class="text-center pt-3">
-    Workout <strong>#{{ workoutIndex + 1 }}</strong>
+    Workout <strong>#{{ workoutIndex() + 1 }}</strong>
   </h4>
   <div class="mb-5">
     <label for="time" class="form-label me-2">Workout time</label>
@@ -15,6 +15,9 @@
         formControlName="time"
         required
       />
+      <button matSuffix mat-icon-button aria-label="Open time picker" (click)="openTimerPicker()" type="button">
+      <mat-icon>schedule</mat-icon>
+    </button>
       @if (WorkoutTime?.hasError('required')) {
       <mat-error>Workout Time is <strong>required</strong></mat-error>
       } @if (WorkoutTime?.invalid) {
@@ -48,7 +51,7 @@
         [formGroup]="workEx"
         [exerciseIndex]="i"
         [exercisesSelected]="hydratedStoreData"
-        [availableExercises]="availableExercises"
+        [availableExercises]="availableExercises()"
         (addNewExercise)="addNewExercise.emit($event)"
         [parentFormStatus]="formStatusInfoForChild"
         (formStatus)="childFormStatus(i, $event)"

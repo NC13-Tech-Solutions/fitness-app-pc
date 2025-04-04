@@ -8,5 +8,6 @@ import { Workout } from 'src/app/shared/models/workout.model';
 })
 export class ViewWorkoutComponent {
   workout = input.required<Workout>();
+  workNo = input.required<number>();
 
 }

@@ -1,5 +1,4 @@
-import { createReducer, on } from '@ngrx/store';
-import { incrementMonth, decrementMonth, reset, setDay, resetDayValue } from './months.actions';
+import { on } from '@ngrx/store';
 import { DayWeeksMonthYear } from 'src/app/shared/models/day-weeks-month-year.model';
 
 export const months = [
@@ -140,12 +139,12 @@ export const initialState = (): DayWeeksMonthYear => {
   };
 };
 
-export const monthsReducer = createReducer(
+/* export const MonthStore = (
   initialState(),
   on(incrementMonth, (state) => changeMonth(state, 1)),
   on(setDay, (state, prop) => setDayMonthYear(state, prop.day)),
   on(decrementMonth, (state) => changeMonth(state, -1)),
   on(reset, (state) => (state = initialState())),
   on(resetDayValue, (state) => resetBasedOnMonth(state))
-);
+); */
 

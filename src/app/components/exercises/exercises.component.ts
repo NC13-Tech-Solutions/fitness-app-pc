@@ -2,9 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  WritableSignal,
   inject,
+  signal,
 } from '@angular/core';
-import { BehaviorSubject, Observable, take } from 'rxjs';
+import { take } from 'rxjs';
 import { ExerciseService } from '../../services/http/exercise.service';
 import { Exercise } from '../../shared/models/exercise.model';
 import { Mode } from '../../shared/models/mode.model';
@@ -23,16 +25,14 @@ export class ExercisesComponent implements OnInit {
 
   private exerciseService = inject(ExerciseService);
 
-  private exerciseDataSubject = new BehaviorSubject<Exercise[]>([]);
-  public exercises: Observable<Exercise[]> | undefined;
+  public exercises: WritableSignal<Exercise[]> = signal([]);
 
-  public mode: Mode = Mode.VIEW;
+  public mode:WritableSignal< Mode> = signal(Mode.VIEW);
   exerciseMode = Mode;
-  editExerciseData: Exercise | undefined;
+  editExerciseData:WritableSignal<Exercise | undefined> = signal(undefined);
 
   ngOnInit(): void {
     this.refreshExerciseData();
-    this.exercises = this.exerciseDataSubject.asObservable();
   }
 
   close_nav() {
@@ -40,25 +40,25 @@ export class ExercisesComponent implements OnInit {
   }
 
   addExercise() {
-    this.editExerciseData = undefined;
-    this.mode = Mode.ADD;
+    this.editExerciseData.set(undefined);
+    this.mode.set(Mode.ADD);
   }
 
   editExercise(value: Exercise) {
-    this.editExerciseData = value;
-    this.mode = Mode.EDIT;
+    this.editExerciseData.set(value);
+    this.mode.set(Mode.EDIT);
   }
 
   addOrEditExercise(value: { data: Exercise; submit: boolean }) {
     if (value.submit) {
-      if (this.mode == Mode.ADD) {
+      if (this.mode() == Mode.ADD) {
         this.exerciseService
           .addExercise(value.data)
           .pipe(take(1))
           .subscribe((result) => {
             if (result == 1) {
-              this.editExerciseData = undefined;
-              this.mode = Mode.VIEW;
+              this.editExerciseData.set(undefined);
+              this.mode.set(Mode.VIEW);
               this.refreshExerciseData();
               this.snackbar.open('Exercise Added', 'Dismiss', {
                 duration: 5000,
@@ -69,14 +69,14 @@ export class ExercisesComponent implements OnInit {
               });
             }
           });
-      } else if (this.mode == Mode.EDIT) {
+      } else if (this.mode() == Mode.EDIT) {
         this.exerciseService
           .editExercise(value.data)
           .pipe(take(1))
           .subscribe((result) => {
             if (result == 1) {
-              this.editExerciseData = undefined;
-              this.mode = Mode.VIEW;
+              this.editExerciseData.set(undefined);
+              this.mode.set(Mode.VIEW);
               this.refreshExerciseData();
               this.snackbar.open('Exercise Edit Successful', 'Dismiss', {
                 duration: 5000,
@@ -89,8 +89,8 @@ export class ExercisesComponent implements OnInit {
           });
       }
     } else {
-      this.editExerciseData = undefined;
-      this.mode = Mode.VIEW;
+              this.editExerciseData.set(undefined);
+              this.mode.set(Mode.VIEW);
     }
   }
 
@@ -98,6 +98,6 @@ export class ExercisesComponent implements OnInit {
     this.exerciseService
       .getAllExercises()
       .pipe(take(1))
-      .subscribe((result) => this.exerciseDataSubject.next(result));
+      .subscribe((result) => this.exercises.set(result));
   }
 }

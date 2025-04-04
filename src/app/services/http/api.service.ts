@@ -8,7 +8,15 @@ import { environment } from 'src/environments/environment';
 })
 export class ApiService {
   private http = inject(HttpClient);
-
+  /**
+   * Creates a post request to the `url` end point, where `T` is the type of data that you want to return and `V` is the type of data returned by the api endpoint
+   * @param url
+   * @param responseType
+   * @param body
+   * @param additionalHeaders
+   * @param callback The function used to convert the `V` type data returned from the api call into `T` type
+   * @returns `Observable<T>`
+   */
   public postRequest<T, V>(
     url: string,
     responseType: 'text',
@@ -16,7 +24,15 @@ export class ApiService {
     additionalHeaders: { name: string; value: string }[],
     callback: (x: V) => T
   ): Observable<T>;
-
+  /**
+   * Creates a post request to the `url` end point, where `T` is the type of data that you want to return and `V` is the type of data returned by the api endpoint
+   * @param url
+   * @param responseType
+   * @param body
+   * @param additionalHeaders
+   * @param callback The function used to convert the `V` type data returned from the api call into `T` type
+   * @returns `Observable<T>` where `T` is the type of data that you want to return
+   */
   public postRequest<T, V>(
     url: string,
     responseType: 'json',
@@ -62,20 +78,42 @@ export class ApiService {
       );
   }
 
+  /**
+   *Creates a get request to the `url` end point, where `T` is the type of data that you want to return and `V` is the type of data returned by the api endpoint
+   * @param url
+   * @param responseType
+   * @param additionalHeaders
+   * @param callback The function used to convert the `V` type data returned from the api call into `T` type
+   * @returns `Observable<T>` where `T` is the type of data that you want to return
+   */
   public getRequest<T, V>(
     url: string,
     responseType: 'text',
     additionalHeaders: { name: string; value: string }[],
     callback: (x: V) => T
   ): Observable<T>;
-
+  /**
+   *Creates a get request to the `url` end point, where `T` is the type of data that you want to return and `V` is the type of data returned by the api endpoint
+   * @param url
+   * @param responseType
+   * @param additionalHeaders
+   * @param callback The function used to convert the `V` type data returned from the api call into `T` type
+   * @returns `Observable<T>` where `T` is the type of data that you want to return
+   */
   public getRequest<T, V>(
     url: string,
     responseType: 'json',
     additionalHeaders: { name: string; value: string }[],
     callback: (x: V) => T
   ): Observable<T>;
-
+  /**
+   *Creates a get request to the `url` end point, where `T` is the type of data that you want to return and `V` is the type of data returned by the api endpoint
+   * @param url
+   * @param responseType
+   * @param additionalHeaders
+   * @param callback The function used to convert the `V` type data returned from the api call into `T` type
+   * @returns `Observable<T>` where `T` is the type of data that you want to return
+   */
   public getRequest<T, V>(
     url: string,
     responseType: 'blob',
@@ -132,7 +170,15 @@ export class ApiService {
         })
       );
   }
-
+  /**
+   *Creates a get request to the `url` end point, where `T` is the type of data that you want to return and `V` is the type of data returned by the api endpoint
+   * @param url
+   * @param responseType
+   * @param body
+   * @param additionalHeaders
+   * @param callback The function used to convert the `V` type data returned from the api call into `T` type
+   * @returns `Observable<T>` where `T` is the type of data that you want to return
+   */
   public putRequest<T, V>(
     url: string,
     responseType: 'text',
@@ -141,6 +187,15 @@ export class ApiService {
     callback: (x: V) => T
   ): Observable<T>;
 
+  /**
+   *Creates a get request to the `url` end point, where `T` is the type of data that you want to return and `V` is the type of data returned by the api endpoint
+   * @param url
+   * @param responseType
+   * @param body
+   * @param additionalHeaders
+   * @param callback The function used to convert the `V` type data returned from the api call into `T` type
+   * @returns `Observable<T>` where `T` is the type of data that you want to return
+   */
   public putRequest<T, V>(
     url: string,
     responseType: 'json',
@@ -186,6 +241,14 @@ export class ApiService {
       );
   }
 
+  /**
+   *Creates a delete request to the `url` end point, where `T` is the type of data that you want to return and `V` is the type of data returned by the api endpoint
+   * @param url
+   * @param responseType
+   * @param additionalHeaders
+   * @param callback The function used to convert the `V` type data returned from the api call into `T` type
+   * @returns `Observable<T>` where `T` is the type of data that you want to return
+   */
   public deleteRequest<T, V>(
     url: string,
     responseType: 'text',
@@ -193,6 +256,14 @@ export class ApiService {
     callback: (x: V) => T
   ): Observable<T>;
 
+  /**
+   *Creates a delete request to the `url` end point, where `T` is the type of data that you want to return and `V` is the type of data returned by the api endpoint
+   * @param url
+   * @param responseType
+   * @param additionalHeaders
+   * @param callback The function used to convert the `V` type data returned from the api call into `T` type
+   * @returns `Observable<T>` where `T` is the type of data that you want to return
+   */
   public deleteRequest<T, V>(
     url: string,
     responseType: 'json',
