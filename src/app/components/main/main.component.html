@@ -2,12 +2,33 @@
   <mat-toolbar>
     <span class="fw-medium text-dark">Fitness Tracking App</span>
     <span class="space-inBetween"></span>
-    <button class="me-2" mat-icon-button matTooltip="Click here to see your workouts" color="accent"
-      (click)="showWorkouts()"><mat-icon>fitness_center</mat-icon></button>
-    <button class="me-2" mat-icon-button matTooltip="Click here to see exercises list" color="primary"
-      (click)="showExercises()"><mat-icon>sports_martial_arts</mat-icon></button>
-    <button class="me-2" mat-icon-button matTooltip="Log Out" color="basic"
-      (click)="logOut()"><mat-icon>logout</mat-icon></button>
+    <button
+      class="me-2"
+      mat-icon-button
+      matTooltip="Click here to see your workouts"
+      color="accent"
+      (click)="showWorkouts()"
+    >
+      <mat-icon>fitness_center</mat-icon>
+    </button>
+    <button
+      class="me-2"
+      mat-icon-button
+      matTooltip="Click here to see exercises list"
+      color="primary"
+      (click)="showExercises()"
+    >
+      <mat-icon>sports_martial_arts</mat-icon>
+    </button>
+    <button
+      class="me-2"
+      mat-icon-button
+      matTooltip="Log Out"
+      color="basic"
+      (click)="logOut()"
+    >
+      <mat-icon>logout</mat-icon>
+    </button>
   </mat-toolbar>
 </header>
 
@@ -15,19 +36,32 @@
   <div class="row container-fluid text-center">
     <div class="row g-3 mb-3">
       <div class="mobile-hide col-sm-2 col-6">
-        <button mat-icon-button (click)="goToPrevMonth()"><mat-icon>navigate_before</mat-icon></button>
+        <button mat-icon-button (click)="goToPrevMonth()">
+          <mat-icon>navigate_before</mat-icon>
+        </button>
       </div>
       <div class="col-sm-8 col-12">
-        <h3>{{monthData ? monthData : ""}}, {{yearData ? yearData : ""}}
-          <button class="ms-2" mat-icon-button matTooltip="Go to Current Month"
-            (click)="goToCurrentMonth()"><mat-icon>today</mat-icon></button>
+        <h3>
+          {{ monthSignal() }}, {{ yearSignal() }}
+          <button
+            class="ms-2"
+            mat-icon-button
+            matTooltip="Go to Current Month"
+            (click)="goToCurrentMonth()"
+          >
+            <mat-icon>today</mat-icon>
+          </button>
         </h3>
       </div>
       <div class="mobile-view col-6">
-        <button mat-icon-button (click)="goToPrevMonth()"><mat-icon>navigate_before</mat-icon></button>
+        <button mat-icon-button (click)="goToPrevMonth()">
+          <mat-icon>navigate_before</mat-icon>
+        </button>
       </div>
       <div class="col-sm-2 col-6">
-        <button mat-icon-button (click)="goToNextMonth()"><mat-icon>navigate_next</mat-icon></button>
+        <button mat-icon-button (click)="goToNextMonth()">
+          <mat-icon>navigate_next</mat-icon>
+        </button>
       </div>
     </div>
   </div>
@@ -42,13 +76,14 @@
       <div class="day fw-bolder text-grey">Sat</div>
     </div>
     <div class="row">
-        @if (weeksArray | async; as weeksMDA) {
-          @for (weeks of weeksMDA; track $index) {
+      @if (weeksArraySignal(); as weeksMDA) {
+        @for (weeks of weeksMDA; track $index) {
           <div class="week mb-3">
-              @for (d of weeks; track $index) {
-                @if (d==1 && weeks.length < 7) {
-                  @for (filler of fillerDays(7- weeks.length); track $index) {
-                  <div class="day"> <!--Filler days-->
+            @for (d of weeks; track $index) {
+              @if (d == 1 && weeks.length < 7) {
+                @for (filler of fillerDays(7 - weeks.length); track $index) {
+                  <div class="day">
+                    <!--Filler days-->
                     <mat-card>
                       <mat-card-content>
                         <h2 class="text-light-grey">--</h2>
@@ -56,28 +91,37 @@
                       <mat-card-footer></mat-card-footer>
                     </mat-card>
                   </div>
-                  }
-                }
-              <div class="day"> <!--Main days-->
-                <app-day-card [dayValue]="d" [workoutsDoneToday]="howManyWorkoutsThatDay(d)"
-                  (callback)="dayClicked(d)" [isToday]="dayValueData() == d"></app-day-card>
-              </div>
-                @if (d==weeksMDA[weeksMDA.length-1][weeks.length-1] && weeks.length < 7) {
-                  @for (filler of fillerDays(7- weeks.length); track $index) {
-                  <div class="day"> <!--Filler days-->
-                    <mat-card>
-                      <mat-card-content>
-                        <h2 class="text-light-grey">--</h2>
-                      </mat-card-content>
-                      <mat-card-footer></mat-card-footer>
-                    </mat-card>
-                  </div>
-                  }
                 }
               }
+              <div class="day">
+                <!--Main days-->
+                <app-day-card
+                  [dayValue]="d"
+                  [workoutsDoneToday]="howManyWorkoutsThatDay(d)"
+                  (callback)="dayClicked(d)"
+                  [isToday]="daySignal() == d"
+                ></app-day-card>
+              </div>
+              @if (
+                d == weeksMDA[weeksMDA.length - 1][weeks.length - 1] &&
+                weeks.length < 7
+              ) {
+                @for (filler of fillerDays(7 - weeks.length); track $index) {
+                  <div class="day">
+                    <!--Filler days-->
+                    <mat-card>
+                      <mat-card-content>
+                        <h2 class="text-light-grey">--</h2>
+                      </mat-card-content>
+                      <mat-card-footer></mat-card-footer>
+                    </mat-card>
+                  </div>
+                }
+              }
+            }
           </div>
-          }
         }
+      }
     </div>
   </div>
 </div>

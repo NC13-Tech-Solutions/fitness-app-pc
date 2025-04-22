@@ -1,4 +1,4 @@
-import { on } from '@ngrx/store';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { DayWeeksMonthYear } from 'src/app/shared/models/day-weeks-month-year.model';
 
 export const months = [
@@ -22,7 +22,7 @@ export const months = [
  * @param action +1 to increment month and -1 to decrement month
  * @returns the month, year and the number of days in that month, year.
  */
-export function changeMonth(
+function changeMonth(
   currentMonth: DayWeeksMonthYear,
   action: number
 ): DayWeeksMonthYear {
@@ -50,12 +50,12 @@ export function changeMonth(
     }
   }
 
-  if(months.indexOf(cur_date.Month) === m && cur_date.Year === y){
+  if (months.indexOf(cur_date.Month) === m && cur_date.Year === y) {
     return cur_date;
   }
 
   return {
-    Day:-1,
+    Day: -1,
     Weeks: findNoOfWeeks(months[m], y),
     Month: months[m],
     Year: y,
@@ -68,7 +68,7 @@ export function changeMonth(
  * @param year in number. eg: 2023
  * @returns the number of days in that month and year
  */
-export function findNoOfDays(month: string, year: number): number {
+function findNoOfDays(month: string, year: number): number {
   switch (month) {
     case 'September':
     case 'April':
@@ -91,17 +91,19 @@ export function findNoOfDays(month: string, year: number): number {
  * @param y in number. eg: 2023
  * @returns Multidimensional array with each array having the days in that week
  */
-export function findNoOfWeeks(m: string, y: number): number[][] {
+function findNoOfWeeks(m: string, y: number): number[][] {
   const result: number[][] = [];
-  const daysInTheMonth = findNoOfDays(m,y);
+  const daysInTheMonth = findNoOfDays(m, y);
   let temp: number[] = [];
-  let day = new Date(y,months.indexOf(m),1).getDay(); //Gets the day of the first day of the month [0-6]
-  for(let i=1;i<=daysInTheMonth;i++){
-    if(day == 0){ //Sunday
+  let day = new Date(y, months.indexOf(m), 1).getDay(); //Gets the day of the first day of the month [0-6]
+  for (let i = 1; i <= daysInTheMonth; i++) {
+    if (day == 0) {
+      //Sunday
       temp = []; //Clear array
     }
     temp.push(i);
-    if(day == 6 || i == daysInTheMonth){ //Saturday or last day of the month
+    if (day == 6 || i == daysInTheMonth) {
+      //Saturday or last day of the month
       result.push(temp); //Add week to main array
       day = -1; //Reset day for next week
     }
@@ -110,24 +112,30 @@ export function findNoOfWeeks(m: string, y: number): number[][] {
   return result;
 }
 
-function setDayMonthYear(state: DayWeeksMonthYear, day: number): DayWeeksMonthYear {
+function setDayMonthYear(
+  state: DayWeeksMonthYear,
+  day: number
+): DayWeeksMonthYear {
   return {
     Day: day,
     Month: state.Month,
     Weeks: state.Weeks,
-    Year: state.Year
-  }
+    Year: state.Year,
+  };
 }
 
 function resetBasedOnMonth(state: DayWeeksMonthYear): DayWeeksMonthYear {
   const cur_date = initialState();
-  if(months.indexOf(state.Month) === months.indexOf(cur_date.Month) && state.Year === cur_date.Year){
+  if (
+    months.indexOf(state.Month) === months.indexOf(cur_date.Month) &&
+    state.Year === cur_date.Year
+  ) {
     return cur_date;
   }
   return setDayMonthYear(state, -1);
 }
 
-export const initialState = (): DayWeeksMonthYear => {
+const initialState = (): DayWeeksMonthYear => {
   const d = new Date();
   const m = months[d.getMonth()];
   const y = d.getFullYear();
@@ -139,12 +147,24 @@ export const initialState = (): DayWeeksMonthYear => {
   };
 };
 
-/* export const MonthStore = (
-  initialState(),
-  on(incrementMonth, (state) => changeMonth(state, 1)),
-  on(setDay, (state, prop) => setDayMonthYear(state, prop.day)),
-  on(decrementMonth, (state) => changeMonth(state, -1)),
-  on(reset, (state) => (state = initialState())),
-  on(resetDayValue, (state) => resetBasedOnMonth(state))
-); */
-
+export const MonthStore = signalStore(
+  { providedIn: 'root' },
+  withState(initialState()),
+  withMethods((store) => ({
+    incrementMonth() {
+      patchState(store, (state) => (state = changeMonth(state, 1)));
+    },
+    setDay(day: number) {
+      patchState(store, (state) => (state = setDayMonthYear(state, day)));
+    },
+    decrementMonth() {
+      patchState(store, (state) => (state = changeMonth(state, -1)));
+    },
+    reset() {
+      patchState(store, (state) => (state = initialState()));
+    },
+    resetDayValue() {
+      patchState(store, (state) => (state = resetBasedOnMonth(state)));
+    },
+  }))
+);

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DateData } from 'src/app/shared/models/date-data.model';
-import { months } from './months.reducer';
+import { months } from './months.store';
 
 @Injectable({
   providedIn: 'root'
