@@ -12,6 +12,8 @@ import { Exercise } from '../../shared/models/exercise.model';
 import { Mode } from '../../shared/models/mode.model';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
+import { FormStatus } from 'src/app/shared/models/form-status.model';
 
 @Component({
   selector: 'app-exercises',
@@ -22,6 +24,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class ExercisesComponent implements OnInit {
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
+  private store = inject(SelectionsStore);
 
   private exerciseService = inject(ExerciseService);
 
@@ -31,12 +34,17 @@ export class ExercisesComponent implements OnInit {
   exerciseMode = Mode;
   editExerciseData:WritableSignal<Exercise | undefined> = signal(undefined);
 
+
   ngOnInit(): void {
     this.refreshExerciseData();
   }
 
   close_nav() {
-    this.router.navigateByUrl('/main');
+    if(this.mode() == Mode.VIEW){
+      this.router.navigateByUrl('/main');
+    } else{
+      this.store.changeMainFormStatus(FormStatus.CANCEL);
+    }
   }
 
   addExercise() {

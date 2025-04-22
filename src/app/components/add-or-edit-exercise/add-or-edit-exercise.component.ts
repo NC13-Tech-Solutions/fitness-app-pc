@@ -1,12 +1,13 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   ElementRef,
   OnInit,
   ViewChild,
   WritableSignal,
+  computed,
+  effect,
   inject,
   input,
   output,
@@ -22,10 +23,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { MiscDataType } from '../../shared/models/misc-data-type.model';
-import { Observable, of, take } from 'rxjs';
+import { BehaviorSubject, Observable, of, take } from 'rxjs';
 import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
 import { FileSharingService } from '../../services/http/file-sharing.service';
 import { environment } from 'src/environments/environment';
+import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
+import { FormStatus } from 'src/app/shared/models/form-status.model';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-add-or-edit-exercise',
@@ -40,7 +44,8 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   callback = output<{ data: Exercise; submit: boolean }>();
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
-  private changeDetection = inject(ChangeDetectorRef);
+  private store = inject(SelectionsStore);
+  private snackbar = inject(MatSnackBar);
 
   toggleText: WritableSignal<'Enabled' | 'Disabled'> = signal('Enabled');
   togglePreview: WritableSignal<'See' | 'Close'> = signal('See');
@@ -60,8 +65,13 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   previewData: WritableSignal<string | undefined> = signal(undefined);
   sanitizedSafeHtml: WritableSignal<SafeHtml> = signal('');
   sanitizedSrc: WritableSignal<SafeUrl> = signal('');
-  openedFile: WritableSignal<File | undefined> = signal(undefined);
-  uploadedFileName:WritableSignal<string|undefined> = signal(undefined);
+  openedFile: WritableSignal<File | string | undefined> = signal(undefined);
+  uploadedFileName: WritableSignal<string | undefined> = signal(undefined);
+
+  formStatus = computed(() => this.store.mainFormStatus());
+
+  formStatusBS = new BehaviorSubject<FormStatus>(FormStatus.OKAY);
+  formStatus$ = this.formStatusBS.asObservable();
 
   formGroup = new FormGroup({
     name: new FormControl('', {
@@ -78,13 +88,27 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
     }),
     miscData: new FormControl(
       { value: '', disabled: true },
-      { nonNullable: true }
+      { nonNullable: true },
     ),
     disabled: new FormControl(false, {
       nonNullable: true,
       validators: [Validators.required],
     }),
   });
+
+  constructor() {
+    this.store.resetSelection();
+    effect(
+      () => {
+        const fs = this.formStatus();
+        const fsbs = this.formStatusBS.getValue();
+        if (fs != fsbs) {
+          this.formStatusBS.next(fs);
+        }
+      },
+      { allowSignalWrites: true },
+    );
+  }
 
   ngOnInit(): void {
     this.resetForm();
@@ -93,6 +117,36 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
     } else if (this.mode() == Mode.EDIT) {
       this.submitButtonText.set('Edit');
     }
+
+    this.formStatus$.subscribe((value) => {
+      console.log('====================================');
+      switch (value) {
+        case FormStatus.CANCEL:
+          // Form is being cancelled. So delete files, if necessary
+          console.log('Form Cancelled');
+          this.cancelFormFR(() => this.deleteData());
+          break;
+        case FormStatus.RESET:
+          // Form is being reset. So restore edit data and delete files, if necessary
+          console.log('Form Reset');
+          this.resetFormFR(() => this.deleteData()).then(() => {
+            setTimeout(() => {
+              this.store.changeMainFormStatus(FormStatus.OKAY);
+            }, 200);
+          });
+          break;
+        case FormStatus.SUBMIT:
+          console.log('Form Submitted');
+          this.submitForm(() => this.deletePrevData());
+          break;
+        case FormStatus.OKAY:
+        // Form is okay. Do anything, if necessary
+        default:
+          // Default is OKAY
+          console.log('Form Okay aanu');
+      }
+      console.log('====================================');
+    });
   }
 
   ngAfterViewInit(): void {
@@ -107,9 +161,13 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
     this.ExerciseMiscDataType?.valueChanges.subscribe((value) => {
       this.enablePreview.set(false);
       this.togglePreview.set('See');
+      this.ExerciseMiscData?.clearValidators();
       this.ExerciseMiscData?.setValue('');
       this.openedFile.set(undefined);
-      if (this.fileStatus() == 'Delete') {
+      if (
+        this.formStatus() == FormStatus.OKAY &&
+        this.fileStatus() == 'Delete'
+      ) {
         this.uploadOrDeleteLocalFile();
       }
       switch (value) {
@@ -122,18 +180,24 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
           this.localDataText.set('Image');
           this.acceptText.set('image/*');
           this.ExerciseMiscData?.enable();
+          this.ExerciseMiscData?.addValidators([Validators.required]);
           break;
         case MiscDataType.VIDEO:
           this.extraDataText.set('Video link');
           this.localDataText.set('Video');
           this.acceptText.set('video/mp4');
           this.ExerciseMiscData?.disable();
+          this.ExerciseMiscData?.addValidators([Validators.required]);
           break;
         case MiscDataType.EMBEDDED:
           this.extraDataText.set('Embedded Video link');
           this.ExerciseMiscData?.enable();
+          this.ExerciseMiscData?.addValidators([Validators.required]);
           break;
       }
+      setTimeout(() => {
+        this.ExerciseMiscData?.updateValueAndValidity();
+      }, 100);
     });
 
     this.ExerciseMiscData?.valueChanges.subscribe((miscValue) => {
@@ -197,7 +261,7 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
 
   // Async validators
   exerciseNameValidator(
-    control: AbstractControl
+    control: AbstractControl,
   ): Observable<ValidationErrors | null> {
     const name: string = control.value;
 
@@ -208,62 +272,107 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   }
 
   onSubmit() {
-    this.callback.emit({
-      data: {
-        exId: this.exercise()?.exId ?? 0,
-        name: this.valueOfS(this.ExerciseName),
-        description: this.valueOfS(this.ExerciseDescription),
-        miscDataType: this.valueOfMDT(this.ExerciseMiscDataType),
-        miscData: this.valueOfS(this.ExerciseMiscData),
-        disabled: this.valueOfB(this.ExerciseDisabled),
-      },
-      submit: true,
-    });
+    this.store.changeMainFormStatus(FormStatus.SUBMIT);
+  }
+
+  submitForm(callback: () => Promise<void>) {
+    callback()
+      .then(() => {
+        this.store.changeMainFormStatus(FormStatus.OKAY);
+        this.callback.emit({
+          data: {
+            exId: this.exercise()?.exId ?? 0,
+            name: this.valueOfS(this.ExerciseName),
+            description: this.valueOfS(this.ExerciseDescription),
+            miscDataType: this.valueOfMDT(this.ExerciseMiscDataType),
+            miscData: this.valueOfS(this.ExerciseMiscData),
+            disabled: this.valueOfB(this.ExerciseDisabled),
+          },
+          submit: true,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   resetForm() {
-    type ExerciseWithoutID = Omit<Exercise, 'exId'>;
-    let resetValues: ExerciseWithoutID;
-    resetValues = {
-      name: '',
-      description: '',
-      miscDataType: MiscDataType.NONE,
-      miscData: '',
-      disabled: false,
-    };
-    this.formGroup.reset(resetValues);
-    if (this.mode() == Mode.EDIT) {
-      setTimeout(() => {
-        let ex = this.exercise();
-        if (ex != undefined) {
-          this.ExerciseName?.setValue(ex.name);
-          this.ExerciseDescription?.setValue(ex.description);
-          const eMDT = this.sToMDT(ex.miscDataType);
-          this.ExerciseMiscDataType?.setValue(eMDT);
-          this.ExerciseMiscData?.setValue(ex.miscData);
-          if (eMDT == MiscDataType.IMAGE || eMDT == MiscDataType.EMBEDDED) {
-            this.ExerciseMiscData?.enable();
-          } else {
-            this.ExerciseMiscData?.disable();
+    console.log('Reset koduthu');
+
+    this.store.changeMainFormStatus(FormStatus.RESET);
+  }
+
+  resetFormFR(callback: () => Promise<void>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      callback()
+        .then(() => {
+          type ExerciseWithoutID = Omit<Exercise, 'exId'>;
+          let resetValues: ExerciseWithoutID;
+          resetValues = {
+            name: '',
+            description: '',
+            miscDataType: MiscDataType.NONE,
+            miscData: '',
+            disabled: false,
+          };
+          this.formGroup.reset(resetValues);
+          if (this.mode() == Mode.EDIT) {
+            setTimeout(() => {
+              let ex = this.exercise();
+              if (ex != undefined) {
+                this.ExerciseName?.setValue(ex.name);
+                this.ExerciseDescription?.setValue(ex.description);
+                const eMDT = this.sToMDT(ex.miscDataType);
+                this.ExerciseMiscDataType?.setValue(eMDT);
+                this.ExerciseMiscData?.setValue(ex.miscData);
+                if (this.checkIfLocalFile(ex.miscData)) {
+                  this.afterFileUpload();
+                  this.uploadedFileName.set(ex.miscData);
+                }
+                if (
+                  eMDT == MiscDataType.IMAGE ||
+                  eMDT == MiscDataType.EMBEDDED
+                ) {
+                  this.ExerciseMiscData?.enable();
+                } else {
+                  this.ExerciseMiscData?.disable();
+                }
+                this.ExerciseDisabled?.setValue(ex.disabled);
+              }
+              resolve();
+            }, 100);
           }
-          this.ExerciseDisabled?.setValue(ex.disabled);
-        }
-      }, 100);
-    }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
   }
 
   cancelForm() {
-    this.callback.emit({
-      data: {
-        name: '',
-        description: '',
-        disabled: false,
-        exId: 0,
-        miscData: '',
-        miscDataType: MiscDataType.NONE,
-      },
-      submit: false,
-    });
+    console.log('Cancel cheythu');
+    this.store.changeMainFormStatus(FormStatus.CANCEL);
+  }
+
+  cancelFormFR(callback: () => Promise<void>) {
+    callback()
+      .then(() => {
+        this.store.changeMainFormStatus(FormStatus.OKAY);
+        this.callback.emit({
+          data: {
+            name: '',
+            description: '',
+            disabled: false,
+            exId: 0,
+            miscData: '',
+            miscDataType: MiscDataType.NONE,
+          },
+          submit: false,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   file_mock_input_changeEvent(event: Event) {
@@ -282,7 +391,7 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   uploadOrDeleteLocalFile() {
     const oF = this.openedFile();
     const oFName = this.uploadedFileName();
-    if (oF && oFName == undefined) {
+    if (oF && oFName == undefined && typeof oF != 'string') {
       if (this.fileStatus() == 'Upload') {
         if (this.localDataText() == 'Image') {
           this.fileSharingService
@@ -291,12 +400,12 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
             .subscribe((value) => {
               if (value) {
                 console.log('Jimbarlakka', value);
-                this.uploadedFileName.set( value);
+                this.uploadedFileName.set(value);
 
                 this.ExerciseMiscData?.setValue(
-                  environment.api_url + 'files/images/view/' + value
+                  environment.api_url + 'files/images/view/' + value,
                 );
-                this.fileStatus.set('Delete');
+                this.afterFileUpload();
               }
             });
         } else if (this.localDataText() == 'Video') {
@@ -306,50 +415,62 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
             .subscribe((value) => {
               if (value) {
                 console.log('Jimbarlakka', value);
-                this.uploadedFileName.set( value);
+                this.uploadedFileName.set(value);
 
                 this.ExerciseMiscData?.setValue(
-                  environment.api_url + 'files/videos/view/' + value
+                  environment.api_url + 'files/videos/view/' + value,
                 );
-                this.fileStatus.set('Delete');
+                this.afterFileUpload();
               }
             });
         }
       }
-    } else if(oFName){
+    } else if (oFName) {
       if (this.fileStatus() == 'Delete') {
         if (this.enablePreview()) {
           this.openPreview();
         }
-        if (this.localDataText() == 'Image') {
-          this.fileSharingService
-            .deleteFile(oFName, 'images')
-            .pipe(take(1))
-            .subscribe((value) => {
-              if (value == 1) {
-                console.log('Jimbarlakka', value);
-
-                this.ExerciseMiscData?.setValue('');
-                this.uploadedFileName.set(undefined);
-                this.fileStatus.set('Upload');
-              }
-            });
-        } else if (this.localDataText() == 'Video') {
-          this.fileSharingService
-            .deleteFile(oFName, 'videos')
-            .pipe(take(1))
-            .subscribe((value) => {
-              if (value == 1) {
-                console.log('Jimbarlakka', value);
-
-                this.ExerciseMiscData?.setValue('');
-                this.uploadedFileName.set(undefined);
-                this.fileStatus.set('Upload');
-              }
-            });
+        if (this.checkIfInEditData(oFName)) {
+          // Since its in Edit Data, we should wait till form is submitted, to delete the file
+          this.afterFileDelete();
+        } else {
+          // Not in Edit Data, so we can delete without any worries
+          if (this.localDataText() == 'Image') {
+            this.fileSharingService
+              .deleteFile(oFName, 'images')
+              .pipe(take(1))
+              .subscribe((value) => {
+                if (value == 1) {
+                  console.log('Jimbarlakka', value);
+                  this.afterFileDelete();
+                }
+              });
+          } else if (this.localDataText() == 'Video') {
+            this.fileSharingService
+              .deleteFile(oFName, 'videos')
+              .pipe(take(1))
+              .subscribe((value) => {
+                if (value == 1) {
+                  console.log('Jimbarlakka', value);
+                  this.afterFileDelete();
+                }
+              });
+          }
         }
       }
     }
+  }
+
+  afterFileDelete() {
+    this.ExerciseMiscData?.setValue('');
+    this.uploadedFileName.set(undefined);
+    this.openedFile.set(undefined);
+    this.fileStatus.set('Upload');
+  }
+
+  afterFileUpload() {
+    this.openedFile.set('Uploaded');
+    this.fileStatus.set('Delete');
   }
 
   openPreview() {
@@ -372,16 +493,15 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
                 next: (result) =>
                   result.pipe(take(1)).subscribe((imgSrc) => {
                     this.previewData.set(imgSrc);
-                    this.enablePreview.set(true);
-                    this.togglePreview.set('Close');
-                    // this.changeDetection.detectChanges();
+                    this.setSanitizedUrl(imgSrc);
+                    this.afterOpenPreview();
                   }),
                 error: (err) => console.log(err),
               });
           } else {
             this.previewData.set(value);
-            this.enablePreview.set(true);
-            this.togglePreview.set('Close');
+            this.setSanitizedUrl(value);
+            this.afterOpenPreview();
           }
           break;
         case MiscDataType.VIDEO:
@@ -392,29 +512,29 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
               .subscribe((vidSrc) => {
                 if (vidSrc) {
                   this.previewData.set(vidSrc);
-                  this.enablePreview.set(true);
-                  this.togglePreview.set('Close');
-                  // this.changeDetection.detectChanges();
+                  this.setSanitizedUrl(vidSrc);
+                  this.afterOpenPreview();
                 }
               });
           } else {
             this.previewData.set(value);
-            this.enablePreview.set(true);
-            this.togglePreview.set('Close');
+            this.setSanitizedUrl(value);
+            this.afterOpenPreview();
           }
           break;
         case MiscDataType.EMBEDDED:
           this.previewData.set(value);
-          const pd = this.previewData();
-          if (pd)
-            this.sanitizedSafeHtml.set(
-              this.sanitizer.bypassSecurityTrustHtml(pd)
-            );
-          this.enablePreview.set(true);
-          this.togglePreview.set('Close');
+          this.sanitizedSafeHtml.set(
+            this.sanitizer.bypassSecurityTrustHtml(value),
+          );
           break;
       }
     }
+  }
+
+  afterOpenPreview() {
+    this.enablePreview.set(true);
+    this.togglePreview.set('Close');
   }
 
   setSanitizedUrl(pd: string) {
@@ -437,8 +557,148 @@ export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
     }
     return false;
   }
+  /**
+   * Checks if a given URL points to a local file.
+   *
+   * @param url The URL to check.
+   * @returns Returns `true` if the URL starts with the local API URL, otherwise `false`.
+   *
+   * @example
+   * checkIfLocalFile("http://localhost:9200/files/data.png"); // true
+   * checkIfLocalFile("https://example.com/files/data.png"); // false
+   */
 
   checkIfLocalFile(url: string): boolean {
     return url.startsWith(environment.api_url);
+  }
+
+  checkIfInEditData(url: string): boolean {
+    if (this.mode() == Mode.EDIT) {
+      //Current mode is Edit mode
+      const e = this.exercise();
+      // Checking if Edit Exercise data is available
+      if (e) {
+        // Checking if edit image or video url is same as url
+        if (e.miscData == url) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  deleteData(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const url = this.uploadedFileName();
+      if (url === undefined) {
+        // No urls needed to delete
+        resolve();
+      } else {
+        // Checking if url is in edit data. If so, then we don't need to delete it as data can be restored.
+        if (this.checkIfInEditData(url)) {
+          // Url is in Edit Data, so we can skip adding it to delete queue
+          resolve();
+        } else {
+          // Url is not in Edit Data and thus should be deleted
+          this.store.addItemToDeletionQueue(
+            url,
+            this.localDataText() === 'Image' ? 'images' : 'videos',
+          );
+          this.afterFileDelete();
+          this.store.deleteItemsFromDeletionQueue((data) => {
+            return new Promise<number>((success, failed) => {
+              if (data == null) {
+                // This is sent from the clearData(), when the queue is empty
+                this.snackbar.open('File Deleted', 'Dismiss', {
+                  duration: 1000,
+                });
+                resolve();
+              } else {
+                this.fileSharingService
+                  .deleteFile(data.fileName, data.type)
+                  .pipe(take(1))
+                  .subscribe((value) => {
+                    if (value == 1) {
+                      console.log('Jimbarlakka', value);
+                    }
+                    success(value);
+                  });
+              }
+            });
+          });
+        }
+      }
+    });
+  }
+
+  deletePrevData(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const url = this.uploadedFileName();
+      if (url !== undefined && this.checkIfInEditData(url)) {
+        // Url is available and is in edit data. So no need to delete this
+        resolve();
+      } else {
+        // Uploaded file is different from that in edit data. So we need to delete it.
+        const ex = this.exercise();
+        if (ex === undefined) {
+          // Edit data is unavailable, so returning
+          resolve();
+        } else {
+          const eMDT = this.sToMDT(ex.miscDataType);
+          // Edit Data is available. So checking if the file is of image or video data type.
+          if (eMDT == MiscDataType.IMAGE || eMDT == MiscDataType.VIDEO) {
+            // Checking if the file is local
+            if (this.checkIfLocalFile(ex.miscData)) {
+              // File is local so deleting it
+              this.store.addItemToDeletionQueue(
+                this.justFileName(ex.miscData, eMDT),
+                eMDT === MiscDataType.IMAGE ? 'images' : 'videos',
+              );
+              this.afterFileDelete();
+              this.store.deleteItemsFromDeletionQueue((data) => {
+                return new Promise<number>((success, failed) => {
+                  if (data == null) {
+                    // This is sent from the clearData(), when the queue is empty
+                    this.snackbar.open('File Deleted', 'Dismiss', {
+                      duration: 1000,
+                    });
+                    resolve();
+                  } else {
+                    this.fileSharingService
+                      .deleteFile(data.fileName, data.type)
+                      .pipe(take(1))
+                      .subscribe((value) => {
+                        if (value == 1) {
+                          console.log('Jimbarlakka', value);
+                        }
+                        success(value);
+                      });
+                  }
+                });
+              });
+            } else {
+              // File is not local, so no need to delete it. So returning
+              resolve();
+            }
+          } else {
+            // Previous data is not a video or image so returning
+            resolve();
+          }
+        }
+      }
+    });
+  }
+
+  justFileName(
+    url: string,
+    type: MiscDataType.IMAGE | MiscDataType.VIDEO,
+  ): string {
+    let subStr = environment.api_url + 'files/';
+    if (type == MiscDataType.IMAGE) {
+      subStr = subStr + 'images/view/';
+    } else {
+      subStr = subStr + 'videos/view/';
+    }
+    return url.substring(subStr.length);
   }
 }

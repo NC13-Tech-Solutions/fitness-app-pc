@@ -1,16 +1,13 @@
 <div class="container">
   <h4 class="text-center pt-3">
-    @if (mode() == exerciseMode.ADD) { Add new Exercise } @else { Edit Exercise
-    <strong>{{ exercise()?.name }}</strong>
+    @if (mode() == exerciseMode.ADD) {
+      Add new Exercise
+    } @else {
+      Edit Exercise
+      <strong>{{ exercise()?.name }}</strong>
     }
   </h4>
-  <form
-    class="w-100"
-    #f="ngForm"
-    [formGroup]="formGroup"
-    (ngSubmit)="onSubmit()"
-    (reset)="resetForm()"
-  >
+  <form class="w-100" #f="ngForm" [formGroup]="formGroup">
     <div class="mb-5">
       <label for="exerciseName" class="form-label me-2">Exercise Name</label>
       <mat-form-field appearance="outline">
@@ -25,11 +22,14 @@
           required
         />
         <mat-hint>Exercise name is unique!</mat-hint>
-        @if (ExerciseName?.hasError('notUnique') &&
-        !ExerciseName?.hasError('required')) {
-        <mat-error>This name already exists!</mat-error>
-        } @if (ExerciseName?.hasError('required')) {
-        <mat-error>Name is <strong>required</strong></mat-error>
+        @if (
+          ExerciseName?.hasError("notUnique") &&
+          !ExerciseName?.hasError("required")
+        ) {
+          <mat-error>This name already exists!</mat-error>
+        }
+        @if (ExerciseName?.hasError("required")) {
+          <mat-error>Name is <strong>required</strong></mat-error>
         }
       </mat-form-field>
     </div>
@@ -81,6 +81,11 @@
           name="miscData"
           formControlName="miscData"
         ></textarea>
+        @if (ExerciseMiscData?.hasError("required")) {
+          <mat-error
+            ><strong>{{ extraDataText() }}</strong> is required</mat-error
+          >
+        }
       </mat-form-field>
       <input
         type="file"
@@ -132,56 +137,69 @@
       </button>
     </div>
     @if (enablePreview()) {
-    <div class="mb-3">
-      @switch (ExerciseMiscDataType?.value) { @case (extraDataType.IMAGE) {
-      <img
-        [src]="sanitizedSrc()"
-        alt="Welp. I guess image didn't render"
-        width="480px"
-      />
-      } @case (extraDataType.VIDEO) {
-      <video
-        height="auto"
-        width="480px"
-        autoplay
-        controls
-        loop
-        [playsInline]="true"
-        preload="metadata"
-        [src]="sanitizedSrc()"
-      >
-        Your browser doesn't support this video format.
-      </video>
-      } @case (extraDataType.EMBEDDED) {
-      <div
-        #embeddedVideoAdditionDiv
-        id="embeddedVideoAdditionDiv"
-        [innerHTML]="sanitizedSafeHtml()"
-        class="container"
-      ></div>
-      } }
-    </div>
+      <div class="mb-3">
+        @switch (ExerciseMiscDataType?.value) {
+          @case (extraDataType.IMAGE) {
+            <img
+              [src]="sanitizedSrc()"
+              alt="Welp. I guess image didn't render"
+              width="480px"
+            />
+          }
+          @case (extraDataType.VIDEO) {
+            <video
+              height="auto"
+              width="480px"
+              autoplay
+              controls
+              loop
+              [playsInline]="true"
+              preload="metadata"
+              [src]="sanitizedSrc()"
+            >
+              Your browser doesn't support this video format.
+            </video>
+          }
+          @case (extraDataType.EMBEDDED) {
+            <div
+              #embeddedVideoAdditionDiv
+              id="embeddedVideoAdditionDiv"
+              [innerHTML]="sanitizedSafeHtml()"
+              class="container"
+            ></div>
+          }
+        }
+      </div>
     }
     @if (mode() == exerciseMode.EDIT) {
-    <div class="mb-3">
-      <label for="exerciseDisableToggle" class="form-label me-2"
-        >Enable or Disable Exercise</label
-      >
-      <mat-slide-toggle formControlName="disabled" id="exerciseDisableToggle">{{
-        toggleText()
-      }}</mat-slide-toggle>
-    </div>
+      <div class="mb-3">
+        <label for="exerciseDisableToggle" class="form-label me-2"
+          >Enable or Disable Exercise</label
+        >
+        <mat-slide-toggle
+          formControlName="disabled"
+          id="exerciseDisableToggle"
+          >{{ toggleText() }}</mat-slide-toggle
+        >
+      </div>
     }
     <button
       class="me-3"
       mat-raised-button
-      type="submit"
+      type="button"
       color="primary"
       [disabled]="f.invalid"
+      (click)="onSubmit()"
     >
       {{ submitButtonText() }}
     </button>
-    <button class="me-3" mat-raised-button type="reset" color="accent">
+    <button
+      class="me-3"
+      mat-raised-button
+      type="button"
+      color="accent"
+      (click)="resetForm()"
+    >
       Reset
     </button>
     <button
