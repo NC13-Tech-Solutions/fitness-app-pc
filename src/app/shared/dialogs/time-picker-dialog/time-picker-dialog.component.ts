@@ -112,4 +112,18 @@ export class TimePickerDialogComponent implements AfterViewInit {
   resetForm() {
     this.formGroup.reset({ hours: 12, minutes: 0, amOrPM: 'AM' });
   }
+
+  currentTime(){
+    const date = new Date();
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    let amOrPM = 'AM';
+    if(hours == 0){
+      hours = 12;
+    } else if(hours > 12){
+      hours -= 12;
+     amOrPM = 'PM';
+    }
+    this.formGroup.reset({hours,minutes,amOrPM});
+  }
 }
