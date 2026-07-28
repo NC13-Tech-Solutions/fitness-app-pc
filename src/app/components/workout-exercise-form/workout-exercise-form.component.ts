@@ -12,6 +12,7 @@ import {
   input,
   output,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -32,10 +33,11 @@ import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
 import { DayFormService } from 'src/app/services/ctrl/day-form.service';
 
 @Component({
-    selector: 'app-workout-exercise-form',
-    templateUrl: './workout-exercise-form.component.html',
-    styleUrls: ['./workout-exercise-form.component.sass'],
-    standalone: false
+  selector: 'app-workout-exercise-form',
+  templateUrl: './workout-exercise-form.component.html',
+  styleUrls: ['./workout-exercise-form.component.sass'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class WorkoutExerciseFormComponent implements OnInit {
   // FIXME: Need to get Add or Edit input data

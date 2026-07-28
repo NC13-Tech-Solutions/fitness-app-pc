@@ -6,6 +6,7 @@ import {
   computed,
   inject,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
@@ -18,10 +19,11 @@ import { DayData } from 'src/app/shared/models/day-data.model';
 import { Mode } from 'src/app/shared/models/mode.model';
 
 @Component({
-    selector: 'app-view-day',
-    templateUrl: './view-day.component.html',
-    styleUrls: ['./view-day.component.sass'],
-    standalone: false
+  selector: 'app-view-day',
+  templateUrl: './view-day.component.html',
+  styleUrls: ['./view-day.component.sass'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ViewDayComponent implements OnInit {
   private router = inject(Router);

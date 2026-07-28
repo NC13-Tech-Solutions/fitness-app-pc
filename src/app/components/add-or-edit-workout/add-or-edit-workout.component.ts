@@ -9,6 +9,7 @@ import {
   inject,
   input,
   output,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -25,10 +26,11 @@ import { VideoData } from 'src/app/shared/models/video-data.model';
 import { environment } from 'src/environments/environment';
 
 @Component({
-    selector: 'app-add-or-edit-workout',
-    templateUrl: './add-or-edit-workout.component.html',
-    styleUrls: ['./add-or-edit-workout.component.sass'],
-    standalone: false
+  selector: 'app-add-or-edit-workout',
+  templateUrl: './add-or-edit-workout.component.html',
+  styleUrls: ['./add-or-edit-workout.component.sass'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class AddOrEditWorkoutComponent implements OnInit {
   mode = input<Mode>(Mode.ADD);

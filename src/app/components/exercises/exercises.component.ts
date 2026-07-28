@@ -16,11 +16,11 @@ import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
 import { FormStatus } from 'src/app/shared/models/form-status.model';
 
 @Component({
-    selector: 'app-exercises',
-    templateUrl: './exercises.component.html',
-    styleUrls: ['./exercises.component.sass'],
-    changeDetection: ChangeDetectionStrategy.Default,
-    standalone: false
+  selector: 'app-exercises',
+  templateUrl: './exercises.component.html',
+  styleUrls: ['./exercises.component.sass'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ExercisesComponent implements OnInit {
   private router = inject(Router);
@@ -31,19 +31,18 @@ export class ExercisesComponent implements OnInit {
 
   public exercises: WritableSignal<Exercise[]> = signal([]);
 
-  public mode:WritableSignal< Mode> = signal(Mode.VIEW);
+  public mode: WritableSignal<Mode> = signal(Mode.VIEW);
   exerciseMode = Mode;
-  editExerciseData:WritableSignal<Exercise | undefined> = signal(undefined);
-
+  editExerciseData: WritableSignal<Exercise | undefined> = signal(undefined);
 
   ngOnInit(): void {
     this.refreshExerciseData();
   }
 
   close_nav() {
-    if(this.mode() == Mode.VIEW){
+    if (this.mode() == Mode.VIEW) {
       this.router.navigateByUrl('/main');
-    } else{
+    } else {
       this.store.changeMainFormStatus(FormStatus.CANCEL);
     }
   }
@@ -98,8 +97,8 @@ export class ExercisesComponent implements OnInit {
           });
       }
     } else {
-              this.editExerciseData.set(undefined);
-              this.mode.set(Mode.VIEW);
+      this.editExerciseData.set(undefined);
+      this.mode.set(Mode.VIEW);
     }
   }
 

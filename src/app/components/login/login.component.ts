@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/http/user.service';
 import {
@@ -10,10 +10,11 @@ import {
 import { take } from 'rxjs';
 
 @Component({
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.sass'],
-    standalone: false
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.sass'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class LoginComponent {
   router = inject(Router);
@@ -64,7 +65,7 @@ export class LoginComponent {
             },
             () => {
               console.log('Unable to retrieve user data');
-            }
+            },
           );
         } else {
           // User doesn't exist, so we should raise error.
@@ -73,18 +74,18 @@ export class LoginComponent {
         }
       });
   }
-/**
- * Tries to find the autheticated User data using username and password. Saves userId in localStorage and calls success() if userId is valid and calls rejected() otherwise
- * @param username
- * @param password
- * @param success callback function for if userId is successfully retrieved
- * @param rejected callback function for if userId is invalid
- */
+  /**
+   * Tries to find the autheticated User data using username and password. Saves userId in localStorage and calls success() if userId is valid and calls rejected() otherwise
+   * @param username
+   * @param password
+   * @param success callback function for if userId is successfully retrieved
+   * @param rejected callback function for if userId is invalid
+   */
   saveUserId(
     username: string,
     password: string,
     success: () => void,
-    rejected: () => void
+    rejected: () => void,
   ): void {
     this.userService
       .getUserId(username, password)

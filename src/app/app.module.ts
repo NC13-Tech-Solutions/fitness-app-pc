@@ -19,6 +19,7 @@ import { DayCardComponent } from './components/day-card/day-card.component';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
 import { ViewExercisesComponent } from './components/view-exercises/view-exercises.component';
 import { ExercisesComponent } from './components/exercises/exercises.component';
@@ -61,12 +62,12 @@ import { DateDatePipe } from './shared/pipes/date-date.pipe';
     FormsModule,
     ReactiveFormsModule,
     NgrxModule,
-    DateDatePipe
+    DateDatePipe,
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     DatePipe,
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
   ],
 })
 export class AppModule {}

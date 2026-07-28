@@ -1,4 +1,9 @@
-import { AfterViewInit, Component, Inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -13,22 +18,23 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
-    selector: 'app-time-picker-dialog',
-    imports: [
-        MatDialogModule,
-        ReactiveFormsModule,
-        MatSliderModule,
-        MatRadioModule,
-        MatButtonModule,
-        MatIconModule,
-    ],
-    templateUrl: './time-picker-dialog.component.html',
-    styleUrl: './time-picker-dialog.component.sass'
+  selector: 'app-time-picker-dialog',
+  imports: [
+    MatDialogModule,
+    ReactiveFormsModule,
+    MatSliderModule,
+    MatRadioModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
+  templateUrl: './time-picker-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './time-picker-dialog.component.sass',
 })
 export class TimePickerDialogComponent implements AfterViewInit {
   constructor(
     public dialogRef: MatDialogRef<TimePickerDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: string
+    @Inject(MAT_DIALOG_DATA) public data: string,
   ) {}
 
   formGroup = new FormGroup({
@@ -112,17 +118,17 @@ export class TimePickerDialogComponent implements AfterViewInit {
     this.formGroup.reset({ hours: 12, minutes: 0, amOrPM: 'AM' });
   }
 
-  currentTime(){
+  currentTime() {
     const date = new Date();
     let hours = date.getHours();
     const minutes = date.getMinutes();
     let amOrPM = 'AM';
-    if(hours == 0){
+    if (hours == 0) {
       hours = 12;
-    } else if(hours > 12){
+    } else if (hours > 12) {
       hours -= 12;
-     amOrPM = 'PM';
+      amOrPM = 'PM';
     }
-    this.formGroup.reset({hours,minutes,amOrPM});
+    this.formGroup.reset({ hours, minutes, amOrPM });
   }
 }

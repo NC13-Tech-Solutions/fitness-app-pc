@@ -138,7 +138,7 @@
     </div>
     @if (enablePreview()) {
       <div class="mb-3">
-        @switch (ExerciseMiscDataType?.value) {
+        @switch ($safeNavigationMigration(ExerciseMiscDataType?.value)) {
           @case (extraDataType.IMAGE) {
             <img
               [src]="sanitizedSrc()"

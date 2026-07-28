@@ -9,6 +9,7 @@ import {
   input,
   output,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { take } from 'rxjs';
@@ -22,10 +23,11 @@ import { FormStatus } from 'src/app/shared/models/form-status.model';
 import { Mode } from 'src/app/shared/models/mode.model';
 
 @Component({
-    selector: 'app-add-or-edit-day',
-    templateUrl: './add-or-edit-day.component.html',
-    styleUrls: ['./add-or-edit-day.component.sass'],
-    standalone: false
+  selector: 'app-add-or-edit-day',
+  templateUrl: './add-or-edit-day.component.html',
+  styleUrls: ['./add-or-edit-day.component.sass'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class AddOrEditDayComponent implements OnInit {
   mode = input<Mode>(Mode.ADD);
@@ -66,10 +68,9 @@ export class AddOrEditDayComponent implements OnInit {
     return this.dayFormService.UserWeight;
   }
 
-  get DayWorkouts(){
+  get DayWorkouts() {
     return this.dayFormService.DayWorkouts;
   }
-
 
   addWorkout() {
     this.dayFormService.addNewWorkout();
@@ -175,5 +176,4 @@ export class AddOrEditDayComponent implements OnInit {
       .pipe(take(1))
       .subscribe((result) => this.allExercises.set(result));
   }
-
 }
