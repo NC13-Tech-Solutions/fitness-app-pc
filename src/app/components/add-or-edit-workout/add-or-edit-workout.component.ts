@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  OnInit,
   ViewChild,
   inject,
   input,
@@ -12,11 +13,10 @@ import {
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Store } from '@ngrx/store';
 import { take } from 'rxjs';
+import { DayFormService } from 'src/app/services/ctrl/day-form.service';
 import { FileSharingService } from 'src/app/services/http/file-sharing.service';
 import { TimePickerDialogComponent } from 'src/app/shared/dialogs/time-picker-dialog/time-picker-dialog.component';
-import { ExerciseSelected } from 'src/app/shared/models/exercise-selected.model';
 import { Exercise } from 'src/app/shared/models/exercise.model';
 import { FormStatus } from 'src/app/shared/models/form-status.model';
 import { MiscDataType } from 'src/app/shared/models/misc-data-type.model';
@@ -29,32 +29,10 @@ import { environment } from 'src/environments/environment';
   templateUrl: './add-or-edit-workout.component.html',
   styleUrls: ['./add-or-edit-workout.component.sass'],
 })
-export class AddOrEditWorkoutComponent implements AfterViewInit {
+export class AddOrEditWorkoutComponent implements OnInit {
   mode = input<Mode>(Mode.ADD);
   workoutIndex = input.required<number>();
   availableExercises = input.required<Exercise[]>();
-  formGroup = input.required<
-    FormGroup<{
-      time: FormControl<string>;
-      exercises: FormArray<
-        FormGroup<{
-          slNo: FormControl<number>;
-          exId: FormControl<number>;
-          weightsUsed: FormControl<number[]>;
-          dropSets: FormControl<number>;
-          repRange: FormControl<string>;
-          sets: FormControl<number>;
-          restTime: FormControl<string>;
-          superSetOf: FormControl<number>;
-          exerciseExplainer: FormControl<string>;
-          exerciseFormVideos: FormControl<VideoData[]>;
-        }>
-      >;
-      text: FormControl<string>;
-      photos: FormControl<string[]>;
-      videos: FormControl<VideoData[]>;
-    }>
-  >();
   addNewExercise = output<Exercise>();
   parentFormStatus = input.required<EventEmitter<FormStatus>>();
   formStatus = output<FormStatus>();
@@ -62,9 +40,32 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
   private sanitizer = inject(DomSanitizer);
   private fileSharingService = inject(FileSharingService);
   private changeDetection = inject(ChangeDetectorRef);
-  private store = inject(Store<{ exerciseSelections: ExerciseSelected[] }>);
   private timePicker = inject(MatDialog);
 
+  dayFormService = inject(DayFormService);
+
+  formGroup:
+    | FormGroup<{
+        time: FormControl<string>;
+        exercises: FormArray<
+          FormGroup<{
+            slNo: FormControl<number>;
+            exId: FormControl<number>;
+            weightsUsed: FormControl<number[]>;
+            dropSets: FormControl<number>;
+            repRange: FormControl<string>;
+            sets: FormControl<number>;
+            restTime: FormControl<string>;
+            superSetOf: FormControl<number>;
+            exerciseExplainer: FormControl<string>;
+            exerciseFormVideos: FormControl<VideoData[]>;
+          }>
+        >;
+        text: FormControl<string>;
+        photos: FormControl<string[]>;
+        videos: FormControl<VideoData[]>;
+      }>
+    | undefined;
   allowWorkoutImageUpload = false;
   allowWorkoutVideoUpload = false;
   dataType = MiscDataType;
@@ -80,8 +81,6 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
     }
   > = {};
 
-  hydratedStoreData: ExerciseSelected[] = [];
-
   formStatusInfoForChild = new EventEmitter<FormStatus>();
 
   @ViewChild('image_file_mock_input') image_file_mock_input:
@@ -91,11 +90,8 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
     | ElementRef<HTMLInputElement>
     | undefined;
 
-  ngAfterViewInit(): void {
-    this.store.select('exerciseSelections').subscribe((value) => {
-      this.hydratedStoreData = value;
-    });
-
+  ngOnInit(): void {
+    this.formGroup = this.dayFormService.getWorkout(this.workoutIndex());
     this.parentFormStatus().subscribe((value) => {
       if (value == FormStatus.CANCEL) {
         // FIXME: Call the form cancellor in this component
@@ -112,42 +108,29 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
   // getters for formGroup
 
   get WorkoutTime() {
-    return this.formGroup().get('time');
+    return this.dayFormService.WorkoutTime(this.workoutIndex());
   }
 
   get WorkoutExercises() {
-    return this.formGroup().get('exercises') as FormArray<
-      FormGroup<{
-        slNo: FormControl<number>;
-        exId: FormControl<number>;
-        weightsUsed: FormControl<number[]>;
-        dropSets: FormControl<number>;
-        repRange: FormControl<string>;
-        sets: FormControl<number>;
-        restTime: FormControl<string>;
-        superSetOf: FormControl<number>;
-        exerciseExplainer: FormControl<string>;
-        exerciseFormVideos: FormControl<VideoData[]>;
-      }>
-    >;
+    return this.dayFormService.WorkoutExercises(this.workoutIndex());
   }
 
   get WorkoutText() {
-    return this.formGroup().get('text');
+    return this.dayFormService.WorkoutText(this.workoutIndex());
   }
 
   get WorkoutPhotos() {
-    return this.formGroup().get('photos');
+    return this.dayFormService.WorkoutPhotos(this.workoutIndex());
   }
 
   get WorkoutVideos() {
-    return this.formGroup().get('videos');
+    return this.dayFormService.WorkoutVideos(this.workoutIndex());
   }
 
   openTimerPicker() {
     let time = '';
-    if(this.WorkoutTime && !this.WorkoutTime.hasError('required')){
-      if(this.WorkoutTime.valid){
+    if (this.WorkoutTime && !this.WorkoutTime.hasError('required')) {
+      if (this.WorkoutTime.valid) {
         time = this.WorkoutTime.value;
       }
     }
@@ -214,7 +197,7 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
           exerciseFormVideos: new FormControl<VideoData[]>([], {
             nonNullable: true,
           }),
-        })
+        }),
       );
     }
   }
@@ -331,7 +314,7 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
           return '';
         }
         return this.sanitizer.bypassSecurityTrustUrl(
-          this.uploadedFileInfo[url].data
+          this.uploadedFileInfo[url].data,
         );
       }
       return '';
@@ -348,7 +331,7 @@ export class AddOrEditWorkoutComponent implements AfterViewInit {
   deleteLocalFile(
     fileUrl: string,
     index: number,
-    type: MiscDataType.IMAGE | MiscDataType.VIDEO
+    type: MiscDataType.IMAGE | MiscDataType.VIDEO,
   ) {
     // FIXME: Need to store items to be deleted, instead of deleting right away, while Editing
     if (type == MiscDataType.IMAGE) {

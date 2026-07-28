@@ -10,24 +10,26 @@
     </mat-card-title>
     <mat-card-subtitle>
       @if (workout().text) {
-      <p>
-        <mat-icon>description</mat-icon> Description:
-        <strong>{{ workout().text }}</strong>
-      </p>
+        <p>
+          <mat-icon>description</mat-icon> Description:
+          <strong>{{ workout().text }}</strong>
+        </p>
       }
     </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     @for (p of workout().photos; track $index) {
-    <!-- FIXME: Photos needs to be rendered here -->
-    } @for (v of workout().videos; track $index) {
-    <!-- FIXME: Videos needs to be rendered here -->
-    } @for (exercise of workout().exercises; track $index) {
-    <div class="mt-3">
-      <app-view-workout-exercises
-        [exercise]="exercise"
-      ></app-view-workout-exercises>
-    </div>
+      <!-- FIXME: Photos needs to be rendered here -->
+    }
+    @for (v of workout().videos; track $index) {
+      <!-- FIXME: Videos needs to be rendered here -->
+    }
+    @for (exercise of workout().exercises; track $index) {
+      <div class="mt-3">
+        <app-view-workout-exercises
+          [exercise]="exercise"
+        ></app-view-workout-exercises>
+      </div>
     }
   </mat-card-content>
 </mat-card>

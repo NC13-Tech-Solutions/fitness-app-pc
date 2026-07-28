@@ -1,7 +1,12 @@
 <div class="container">
   <h4 class="text-center pt-3">
-    @if (mode() == dayOperationMode.ADD) { Add new Day } @else { Edit Day
-    <strong>{{ dayData()?.postedOn }}</strong>
+    @if (mode() == dayOperationMode.ADD) {
+      Add new Day
+    } @else {
+      Edit Day
+      @if (dayData(); as dd) {
+        <strong>{{ dd.postedOn | dateDate }}</strong>
+      }
     }
   </h4>
   <form
@@ -27,8 +32,8 @@
           formControlName="userWeight"
           required
         />
-        @if (UserWeight?.hasError('required')) {
-        <mat-error>Weight is <strong>required</strong></mat-error>
+        @if (UserWeight?.hasError("required")) {
+          <mat-error>Weight is <strong>required</strong></mat-error>
         }
       </mat-form-field>
     </div>
@@ -49,39 +54,44 @@
         </h2>
       </div>
       <div formArrayName="workouts">
-        @for (dayWorkoutsForm of DayWorkouts.controls; track $index; let i =
-        $index) {
-        <app-add-or-edit-workout
-          [formGroup]="dayWorkoutsForm"
-          [workoutIndex]="i"
-          [availableExercises]="availableExercises()"
-          (addNewExercise)="addNewExercise($event)"
-          [parentFormStatus]="formStatusInfoForChild"
-          (formStatus)="childFormStatus(i, $event)"
-          class="mb-5 ms-2"
-        ></app-add-or-edit-workout>
-        <div class="mb-3">
-          @if (DayWorkouts.controls.length == (i+1)) {
-          <button
-            class="me-3"
-            mat-raised-button
-            type="button"
-            color="primary"
-            (click)="addWorkout()"
-          >
-            Add Workout #{{ i + 2 }}
-          </button>
-          } @if (DayWorkouts.controls.length > 1) {
-          <button
-            mat-raised-button
-            type="button"
-            color="basic"
-            (click)="removeWorkout(i)"
-          >
-            Remove Workout #{{ i + 1 }}
-          </button>
+        @if (DayWorkouts) {
+          @for (
+            dayWorkoutsForm of DayWorkouts.controls;
+            track $index;
+            let i = $index
+          ) {
+            <app-add-or-edit-workout
+              [workoutIndex]="i"
+              [availableExercises]="availableExercises()"
+              (addNewExercise)="addNewExercise($event)"
+              [parentFormStatus]="formStatusInfoForChild"
+              (formStatus)="childFormStatus(i, $event)"
+              class="mb-5 ms-2"
+            ></app-add-or-edit-workout>
+            <div class="mb-3">
+              @if (DayWorkouts.controls.length == i + 1) {
+                <button
+                  class="me-3"
+                  mat-raised-button
+                  type="button"
+                  color="primary"
+                  (click)="addWorkout()"
+                >
+                  Add Workout #{{ i + 2 }}
+                </button>
+              }
+              @if (DayWorkouts.controls.length > 1) {
+                <button
+                  mat-raised-button
+                  type="button"
+                  color="basic"
+                  (click)="removeWorkout(i)"
+                >
+                  Remove Workout #{{ i + 1 }}
+                </button>
+              }
+            </div>
           }
-        </div>
         }
       </div>
     </div>
@@ -94,9 +104,21 @@
     >
       {{ submitButtonText }}
     </button>
-    <button class="me-3" mat-raised-button type="reset" color="warn">
-      Reset
-    </button>
+    @if (mode() == dayOperationMode.ADD) {
+      <button class="me-3" mat-raised-button type="reset" color="warn">
+        Reset
+      </button>
+    } @else if (mode() == dayOperationMode.EDIT) {
+      <button
+        class="me-3"
+        mat-raised-button
+        type="button"
+        (click)="resetForm()"
+        color="warn"
+      >
+        Reset
+      </button>
+    }
     <button
       class="me-3"
       mat-raised-button
@@ -107,7 +129,7 @@
       Cancel
     </button>
   </form>
-  <!-- TODO: For Testing Purposes. Remove when done. -->
+  <!-- INFO: For Testing Purposes. Remove when done. -->
   <pre class="mt-5 text-bg-danger border-4 p-5 border-success">{{
     formGroup.value | json
   }}</pre>

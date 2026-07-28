@@ -31,29 +31,30 @@ export class FileSharingService {
           return value;
         }
         return '';
-      }
+      },
     );
   }
 
   /**
    * Deletes the file from the server
-   * @param fileName
-   * @param type is either `images` or `videos`
+   * @param fileName name or url of the file
+   * @param type is either `images`, `videos` or `url`. If it is `url`, then fileName is used to find the file.
    * @returns Observable of number which returns `1` if delete is successful; `-1` or `0` if otherwise
    */
   public deleteFile(
     fileName: string,
-    type: 'images' | 'videos'
+    type: 'images' | 'videos',
   ): Observable<number> {
     const JwtToken = localStorage.getItem('JwtToken');
-    return this.api.deleteRequest<number, number>(
+
+    return this.api.deleteRequest<number, string>(
       'files/' + type + '/' + fileName,
       'text',
       [{ name: 'Authorization', value: `Bearer ${JwtToken}` }],
       (value) => {
-        console.log('Moonjakkam', value);
-        return value;
-      }
+        console.log('files/' + type + '/' + fileName, value);
+        return parseInt(value);
+      },
     );
   }
 
@@ -73,7 +74,7 @@ export class FileSharingService {
         console.log('Moonjakkam', value);
         if (value) return URL.createObjectURL(value);
         return '';
-      }
+      },
     );
   }
 
@@ -115,7 +116,7 @@ export class FileSharingService {
 
           reader.readAsDataURL(value);
         });
-      }
+      },
     );
   }
 }

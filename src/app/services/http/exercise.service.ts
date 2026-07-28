@@ -53,7 +53,7 @@ export class ExerciseService {
    */
   public addExercise(exercise: Exercise): Observable<number> {
     const JwtToken = localStorage.getItem('JwtToken');
-    return this.api.postRequest<number, number>(
+    return this.api.postRequest<number, string>(
       `${this.entryPoint}/new`,
       'text',
       exercise,
@@ -62,7 +62,7 @@ export class ExerciseService {
         { name: 'Authorization', value: `Bearer ${JwtToken}` },
       ],
       (value) => {
-        return value;
+        return parseInt(value);
       }
     );
   }
@@ -76,7 +76,7 @@ export class ExerciseService {
    */
   public editExercise(exercise: Exercise): Observable<number> {
     const JwtToken = localStorage.getItem('JwtToken');
-    return this.api.putRequest<number, number>(
+    return this.api.putRequest<number, string>(
       `${this.entryPoint}/${exercise.exId}`,
       'text',
       exercise,
@@ -85,7 +85,7 @@ export class ExerciseService {
         { name: 'Authorization', value: `Bearer ${JwtToken}` },
       ],
       (value) => {
-        return value;
+        return parseInt(value);
       }
     );
   }

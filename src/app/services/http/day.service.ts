@@ -26,7 +26,7 @@ export class DayService {
           return value;
         }
         return [];
-      }
+      },
     );
   }
   /**
@@ -48,7 +48,7 @@ export class DayService {
       (value) => {
         if (value) return value;
         return [];
-      }
+      },
     );
   }
 
@@ -69,7 +69,7 @@ export class DayService {
       ],
       (value) => {
         return value;
-      }
+      },
     );
   }
 
@@ -81,7 +81,7 @@ export class DayService {
    */
   public addDayData(dayData: DayData): Observable<number> {
     const JwtToken = localStorage.getItem('JwtToken');
-    return this.api.postRequest<number, number>(
+    return this.api.postRequest<number, string>(
       `${this.entryPoint}/new`,
       'text',
       dayData,
@@ -90,8 +90,8 @@ export class DayService {
         { name: 'Authorization', value: `Bearer ${JwtToken}` },
       ],
       (value) => {
-        return value;
-      }
+        return parseInt(value);
+      },
     );
   }
 
@@ -104,7 +104,7 @@ export class DayService {
    */
   public editDayData(dayData: DayData): Observable<number> {
     const JwtToken = localStorage.getItem('JwtToken');
-    return this.api.putRequest<number, number>(
+    return this.api.putRequest<number, string>(
       `${this.entryPoint}/${dayData.ddId}`,
       'text',
       dayData,
@@ -113,8 +113,26 @@ export class DayService {
         { name: 'Authorization', value: `Bearer ${JwtToken}` },
       ],
       (value) => {
-        return value;
-      }
+        return parseInt(value);
+      },
+    );
+  }
+
+  /**
+   * Deletes the day data using `ddId`
+   * @param ddId Id of the existing day data
+   * @returns Observable of number which returns the following:
+   * `1` - if delete is successful; `0` - if day data was not found;
+   */
+  public removeDayData(ddId: number): Observable<number> {
+    const JwtToken = localStorage.getItem('JwtToken');
+    return this.api.deleteRequest<number, string>(
+      `${this.entryPoint}/${ddId}`,
+      'text',
+      [{ name: 'Authorization', value: `Bearer ${JwtToken}` }],
+      (value) => {
+        return parseInt(value);
+      },
     );
   }
 }
