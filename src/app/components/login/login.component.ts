@@ -10,9 +10,10 @@ import {
 import { take } from 'rxjs';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.sass'],
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.sass'],
+    standalone: false
 })
 export class LoginComponent {
   router = inject(Router);

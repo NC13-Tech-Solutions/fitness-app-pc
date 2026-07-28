@@ -22,9 +22,10 @@ import { FormStatus } from 'src/app/shared/models/form-status.model';
 import { Mode } from 'src/app/shared/models/mode.model';
 
 @Component({
-  selector: 'app-add-or-edit-day',
-  templateUrl: './add-or-edit-day.component.html',
-  styleUrls: ['./add-or-edit-day.component.sass'],
+    selector: 'app-add-or-edit-day',
+    templateUrl: './add-or-edit-day.component.html',
+    styleUrls: ['./add-or-edit-day.component.sass'],
+    standalone: false
 })
 export class AddOrEditDayComponent implements OnInit {
   mode = input<Mode>(Mode.ADD);

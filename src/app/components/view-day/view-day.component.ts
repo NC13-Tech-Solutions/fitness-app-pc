@@ -18,9 +18,10 @@ import { DayData } from 'src/app/shared/models/day-data.model';
 import { Mode } from 'src/app/shared/models/mode.model';
 
 @Component({
-  selector: 'app-view-day',
-  templateUrl: './view-day.component.html',
-  styleUrls: ['./view-day.component.sass'],
+    selector: 'app-view-day',
+    templateUrl: './view-day.component.html',
+    styleUrls: ['./view-day.component.sass'],
+    standalone: false
 })
 export class ViewDayComponent implements OnInit {
   private router = inject(Router);

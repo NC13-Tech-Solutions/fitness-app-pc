@@ -13,18 +13,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-time-picker-dialog',
-  standalone: true,
-  imports: [
-    MatDialogModule,
-    ReactiveFormsModule,
-    MatSliderModule,
-    MatRadioModule,
-    MatButtonModule,
-    MatIconModule,
-  ],
-  templateUrl: './time-picker-dialog.component.html',
-  styleUrl: './time-picker-dialog.component.sass',
+    selector: 'app-time-picker-dialog',
+    imports: [
+        MatDialogModule,
+        ReactiveFormsModule,
+        MatSliderModule,
+        MatRadioModule,
+        MatButtonModule,
+        MatIconModule,
+    ],
+    templateUrl: './time-picker-dialog.component.html',
+    styleUrl: './time-picker-dialog.component.sass'
 })
 export class TimePickerDialogComponent implements AfterViewInit {
   constructor(

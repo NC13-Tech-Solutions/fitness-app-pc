@@ -32,10 +32,11 @@ import { FormStatus } from 'src/app/shared/models/form-status.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-add-or-edit-exercise',
-  templateUrl: './add-or-edit-exercise.component.html',
-  styleUrls: ['./add-or-edit-exercise.component.sass'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-add-or-edit-exercise',
+    templateUrl: './add-or-edit-exercise.component.html',
+    styleUrls: ['./add-or-edit-exercise.component.sass'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class AddOrEditExerciseComponent implements AfterViewInit, OnInit {
   mode = input<Mode>(Mode.ADD);

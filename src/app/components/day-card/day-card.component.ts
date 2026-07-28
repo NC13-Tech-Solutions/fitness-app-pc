@@ -6,10 +6,11 @@ import {
 } from '@angular/core';
 
 @Component({
-  selector: 'app-day-card',
-  templateUrl: './day-card.component.html',
-  styleUrls: ['./day-card.component.sass'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-day-card',
+    templateUrl: './day-card.component.html',
+    styleUrls: ['./day-card.component.sass'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class DayCardComponent{
   dayValue = input<number>(1);

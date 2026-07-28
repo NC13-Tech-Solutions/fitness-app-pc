@@ -17,10 +17,11 @@ import { FileSharingService } from 'src/app/services/http/file-sharing.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-view-exercises',
-  templateUrl: './view-exercises.component.html',
-  styleUrls: ['./view-exercises.component.sass'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-view-exercises',
+    templateUrl: './view-exercises.component.html',
+    styleUrls: ['./view-exercises.component.sass'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class ViewExercisesComponent {
   exercises = input.required<Exercise[]>();

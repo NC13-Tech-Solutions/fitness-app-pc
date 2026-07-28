@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-empty',
-  templateUrl: './empty.component.html',
-  styleUrls: ['./empty.component.sass']
+    selector: 'app-empty',
+    templateUrl: './empty.component.html',
+    styleUrls: ['./empty.component.sass'],
+    standalone: false
 })
 export class EmptyComponent {
 

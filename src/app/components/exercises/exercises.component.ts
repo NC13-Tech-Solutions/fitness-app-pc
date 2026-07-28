@@ -16,10 +16,11 @@ import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
 import { FormStatus } from 'src/app/shared/models/form-status.model';
 
 @Component({
-  selector: 'app-exercises',
-  templateUrl: './exercises.component.html',
-  styleUrls: ['./exercises.component.sass'],
-  changeDetection: ChangeDetectionStrategy.Default,
+    selector: 'app-exercises',
+    templateUrl: './exercises.component.html',
+    styleUrls: ['./exercises.component.sass'],
+    changeDetection: ChangeDetectionStrategy.Default,
+    standalone: false
 })
 export class ExercisesComponent implements OnInit {
   private router = inject(Router);

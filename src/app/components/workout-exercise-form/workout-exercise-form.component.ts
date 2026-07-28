@@ -32,9 +32,10 @@ import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
 import { DayFormService } from 'src/app/services/ctrl/day-form.service';
 
 @Component({
-  selector: 'app-workout-exercise-form',
-  templateUrl: './workout-exercise-form.component.html',
-  styleUrls: ['./workout-exercise-form.component.sass'],
+    selector: 'app-workout-exercise-form',
+    templateUrl: './workout-exercise-form.component.html',
+    styleUrls: ['./workout-exercise-form.component.sass'],
+    standalone: false
 })
 export class WorkoutExerciseFormComponent implements OnInit {
   // FIXME: Need to get Add or Edit input data

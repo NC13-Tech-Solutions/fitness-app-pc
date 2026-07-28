@@ -3,9 +3,10 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Exercise } from '../../models/exercise.model';
 
 @Component({
-  selector: 'app-add-exercise-dialog',
-  templateUrl: './add-exercise-dialog.component.html',
-  styleUrls: ['./add-exercise-dialog.component.sass'],
+    selector: 'app-add-exercise-dialog',
+    templateUrl: './add-exercise-dialog.component.html',
+    styleUrls: ['./add-exercise-dialog.component.sass'],
+    standalone: false
 })
 export class AddExerciseDialogComponent {
   constructor(

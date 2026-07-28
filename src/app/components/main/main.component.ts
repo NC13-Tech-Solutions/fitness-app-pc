@@ -20,10 +20,11 @@ import { MonthStore } from 'src/app/services/ctrl/months.store';
 import { DateData } from 'src/app/shared/models/date-data.model';
 
 @Component({
-  selector: 'app-main',
-  templateUrl: './main.component.html',
-  styleUrls: ['./main.component.sass'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-main',
+    templateUrl: './main.component.html',
+    styleUrls: ['./main.component.sass'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class MainComponent {
   router = inject(Router);
