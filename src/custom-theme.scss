@@ -3,12 +3,14 @@
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
 // Plus imports for other components in your app.
+
+// Then import Bootstrap
+@use "../node_modules/bootstrap/scss/bootstrap";
+
 // Variable overrides first
 $enable-shadows: true;
 $prefix: "mo-";
 
-// Then import Bootstrap
-@import "../node_modules/bootstrap/scss/bootstrap";
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.

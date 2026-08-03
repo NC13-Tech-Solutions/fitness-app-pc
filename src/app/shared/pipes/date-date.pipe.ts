@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { DateData } from '../models/date-data.model';
+import { DateData } from 'app/shared/models/date-data.model';
 
 @Pipe({
   name: 'dateDate',

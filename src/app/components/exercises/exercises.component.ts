@@ -7,13 +7,13 @@ import {
   signal,
 } from '@angular/core';
 import { take } from 'rxjs';
-import { ExerciseService } from '../../services/http/exercise.service';
-import { Exercise } from '../../shared/models/exercise.model';
-import { Mode } from '../../shared/models/mode.model';
+import { ExerciseService } from 'app/services/http/exercise.service';
+import { Exercise } from 'app/shared/models/exercise.model';
+import { Mode } from 'app/shared/models/mode.model';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
-import { FormStatus } from 'src/app/shared/models/form-status.model';
+import { SelectionsStore } from 'app/services/ctrl/selections.store';
+import { FormStatus } from 'app/shared/models/form-status.model';
 
 @Component({
   selector: 'app-exercises',

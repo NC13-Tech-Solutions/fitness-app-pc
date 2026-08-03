@@ -13,8 +13,8 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { Mode } from '../../shared/models/mode.model';
-import { Exercise } from '../../shared/models/exercise.model';
+import { Mode } from 'app/shared/models/mode.model';
+import { Exercise } from 'app/shared/models/exercise.model';
 import {
   AbstractControl,
   FormControl,
@@ -22,13 +22,13 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { MiscDataType } from '../../shared/models/misc-data-type.model';
+import { MiscDataType } from 'app/shared/models/misc-data-type.model';
 import { BehaviorSubject, Observable, of, take } from 'rxjs';
 import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
-import { FileSharingService } from '../../services/http/file-sharing.service';
-import { environment } from 'src/environments/environment';
-import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
-import { FormStatus } from 'src/app/shared/models/form-status.model';
+import { FileSharingService } from 'app/services/http/file-sharing.service';
+import { environment } from 'environments/environment';
+import { SelectionsStore } from 'app/services/ctrl/selections.store';
+import { FormStatus } from 'app/shared/models/form-status.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({

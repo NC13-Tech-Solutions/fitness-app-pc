@@ -1,4 +1,4 @@
-import { ItemsToBeDeletedData } from 'src/app/shared/models/items-to-be-deleted-data.model';
+import { ItemsToBeDeletedData } from 'app/shared/models/items-to-be-deleted-data.model';
 
 /**
  * Adds a new data to the deletion queue.

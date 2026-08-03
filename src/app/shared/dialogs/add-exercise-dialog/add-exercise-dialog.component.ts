@@ -1,6 +1,6 @@
 import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Exercise } from '../../models/exercise.model';
+import { Exercise } from 'app/shared/models/exercise.model';
 
 @Component({
   selector: 'app-add-exercise-dialog',

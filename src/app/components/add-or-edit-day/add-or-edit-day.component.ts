@@ -13,14 +13,14 @@ import {
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { take } from 'rxjs';
-import { DateDataService } from 'src/app/services/ctrl/date-data.service';
-import { DayFormService } from 'src/app/services/ctrl/day-form.service';
-import { ExerciseService } from 'src/app/services/http/exercise.service';
-import { DateData } from 'src/app/shared/models/date-data.model';
-import { DayData } from 'src/app/shared/models/day-data.model';
-import { Exercise } from 'src/app/shared/models/exercise.model';
-import { FormStatus } from 'src/app/shared/models/form-status.model';
-import { Mode } from 'src/app/shared/models/mode.model';
+import { DateDataService } from 'app/services/ctrl/date-data.service';
+import { DayFormService } from 'app/services/ctrl/day-form.service';
+import { ExerciseService } from 'app/services/http/exercise.service';
+import { DateData } from 'app/shared/models/date-data.model';
+import { DayData } from 'app/shared/models/day-data.model';
+import { Exercise } from 'app/shared/models/exercise.model';
+import { FormStatus } from 'app/shared/models/form-status.model';
+import { Mode } from 'app/shared/models/mode.model';
 
 @Component({
   selector: 'app-add-or-edit-day',

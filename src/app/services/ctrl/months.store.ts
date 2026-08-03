@@ -1,5 +1,5 @@
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
-import { DayWeeksMonthYear } from 'src/app/shared/models/day-weeks-month-year.model';
+import { DayWeeksMonthYear } from 'app/shared/models/day-weeks-month-year.model';
 
 export const months = [
   'January',

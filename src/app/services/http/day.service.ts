@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { Observable } from 'rxjs';
-import { DayData } from 'src/app/shared/models/day-data.model';
-import { DateData } from 'src/app/shared/models/date-data.model';
+import { DayData } from 'app/shared/models/day-data.model';
+import { DateData } from 'app/shared/models/date-data.model';
 
 @Injectable({
   providedIn: 'root',

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
-import { Exercise } from 'src/app/shared/models/exercise.model';
+import { Exercise } from 'app/shared/models/exercise.model';
 import { Observable } from 'rxjs';
 
 @Injectable({

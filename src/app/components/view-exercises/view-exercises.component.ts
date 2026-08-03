@@ -8,13 +8,13 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { Observable, take } from 'rxjs';
-import { Exercise } from '../../shared/models/exercise.model';
+import { Exercise } from 'app/shared/models/exercise.model';
 import { MatDialog } from '@angular/material/dialog';
-import { EditDialogComponent } from '../../shared/dialogs/edit-dialog/edit-dialog.component';
-import { MiscDataType } from '../../shared/models/misc-data-type.model';
+import { EditDialogComponent } from 'app/shared/dialogs/edit-dialog/edit-dialog.component';
+import { MiscDataType } from 'app/shared/models/misc-data-type.model';
 import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
-import { FileSharingService } from 'src/app/services/http/file-sharing.service';
-import { environment } from 'src/environments/environment';
+import { FileSharingService } from 'app/services/http/file-sharing.service';
+import { environment } from 'environments/environment';
 
 @Component({
     selector: 'app-view-exercises',

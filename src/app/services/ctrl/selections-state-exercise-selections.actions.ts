@@ -1,4 +1,4 @@
-import { ExerciseSelected } from "src/app/shared/models/exercise-selected.model";
+import { ExerciseSelected } from "app/shared/models/exercise-selected.model";
 
 export function selectExercise(
   state: ExerciseSelected[],

@@ -1,6 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from '../../services/http/user.service';
+import { UserService } from 'app/services/http/user.service';
 import {
   AbstractControl,
   FormControl,

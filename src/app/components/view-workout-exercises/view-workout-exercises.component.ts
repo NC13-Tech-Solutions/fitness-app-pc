@@ -4,7 +4,7 @@ import {
   Input,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { ImportedExercise } from 'src/app/shared/models/imported-exercise.model';
+import { ImportedExercise } from 'app/shared/models/imported-exercise.model';
 
 @Component({
   selector: 'app-view-workout-exercises',

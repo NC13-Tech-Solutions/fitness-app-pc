@@ -11,12 +11,12 @@ import {
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';
-import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
-import { MonthStore } from 'src/app/services/ctrl/months.store';
-import { DayService } from 'src/app/services/http/day.service';
-import { DateData } from 'src/app/shared/models/date-data.model';
-import { DayData } from 'src/app/shared/models/day-data.model';
-import { Mode } from 'src/app/shared/models/mode.model';
+import { SelectionsStore } from 'app/services/ctrl/selections.store';
+import { MonthStore } from 'app/services/ctrl/months.store';
+import { DayService } from 'app/services/http/day.service';
+import { DateData } from 'app/shared/models/date-data.model';
+import { DayData } from 'app/shared/models/day-data.model';
+import { Mode } from 'app/shared/models/mode.model';
 
 @Component({
   selector: 'app-view-day',

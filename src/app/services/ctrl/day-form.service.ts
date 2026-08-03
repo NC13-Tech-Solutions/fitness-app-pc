@@ -6,10 +6,10 @@ import {
   FormArray,
   AbstractControl,
 } from '@angular/forms';
-import { DayData } from 'src/app/shared/models/day-data.model';
-import { ImportedExercise } from 'src/app/shared/models/imported-exercise.model';
-import { VideoData } from 'src/app/shared/models/video-data.model';
-import { Workout } from 'src/app/shared/models/workout.model';
+import { DayData } from 'app/shared/models/day-data.model';
+import { ImportedExercise } from 'app/shared/models/imported-exercise.model';
+import { VideoData } from 'app/shared/models/video-data.model';
+import { Workout } from 'app/shared/models/workout.model';
 
 @Injectable({
   providedIn: 'root',

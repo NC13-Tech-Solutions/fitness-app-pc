@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of, take } from 'rxjs';
 import { ApiService } from './api.service';
 import { DatePipe } from '@angular/common';
-import { User } from 'src/app/shared/models/user.model';
+import { User } from 'app/shared/models/user.model';
 
 @Injectable({
   providedIn: 'root',

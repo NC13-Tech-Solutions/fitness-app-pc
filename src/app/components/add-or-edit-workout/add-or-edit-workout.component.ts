@@ -15,15 +15,15 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { take } from 'rxjs';
-import { DayFormService } from 'src/app/services/ctrl/day-form.service';
-import { FileSharingService } from 'src/app/services/http/file-sharing.service';
-import { TimePickerDialogComponent } from 'src/app/shared/dialogs/time-picker-dialog/time-picker-dialog.component';
-import { Exercise } from 'src/app/shared/models/exercise.model';
-import { FormStatus } from 'src/app/shared/models/form-status.model';
-import { MiscDataType } from 'src/app/shared/models/misc-data-type.model';
-import { Mode } from 'src/app/shared/models/mode.model';
-import { VideoData } from 'src/app/shared/models/video-data.model';
-import { environment } from 'src/environments/environment';
+import { DayFormService } from 'app/services/ctrl/day-form.service';
+import { FileSharingService } from 'app/services/http/file-sharing.service';
+import { TimePickerDialogComponent } from 'app/shared/dialogs/time-picker-dialog/time-picker-dialog.component';
+import { Exercise } from 'app/shared/models/exercise.model';
+import { FormStatus } from 'app/shared/models/form-status.model';
+import { MiscDataType } from 'app/shared/models/misc-data-type.model';
+import { Mode } from 'app/shared/models/mode.model';
+import { VideoData } from 'app/shared/models/video-data.model';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-add-or-edit-workout',

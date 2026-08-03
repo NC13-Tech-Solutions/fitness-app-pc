@@ -1,4 +1,4 @@
-import { ExerciseSelected } from 'src/app/shared/models/exercise-selected.model';
+import { ExerciseSelected } from 'app/shared/models/exercise-selected.model';
 import {
   patchState,
   signalStore,
@@ -10,21 +10,21 @@ import { computed } from '@angular/core';
 import {
   FormDataStatus,
   IEFormDataStatus,
-} from 'src/app/shared/models/form-data-status';
-import { FormStatus } from 'src/app/shared/models/form-status.model';
+} from 'app/shared/models/form-data-status';
+import { FormStatus } from 'app/shared/models/form-status.model';
 import {
   selectExercise,
   changeExercise,
   removeExercise,
 } from './selections-state-exercise-selections.actions';
-import { Workout } from 'src/app/shared/models/workout.model';
+import { Workout } from 'app/shared/models/workout.model';
 import {
   addToDeleteQueue,
   clearQueue,
   removeItemsFromQueue,
 } from './selections-state-itbd.actions';
 import { changeMainFS } from './selections-state-form-status.actions';
-import { ItemsToBeDeletedData } from 'src/app/shared/models/items-to-be-deleted-data.model';
+import { ItemsToBeDeletedData } from 'app/shared/models/items-to-be-deleted-data.model';
 
 type SelectionsState = {
   exerciseSelections: ExerciseSelected[];

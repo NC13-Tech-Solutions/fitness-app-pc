@@ -17,20 +17,20 @@ import {
 import { FormGroup, FormControl } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { take } from 'rxjs';
-import { FileSharingService } from 'src/app/services/http/file-sharing.service';
-import { Exercise } from 'src/app/shared/models/exercise.model';
+import { FileSharingService } from 'app/services/http/file-sharing.service';
+import { Exercise } from 'app/shared/models/exercise.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipEditedEvent, MatChipInputEvent } from '@angular/material/chips';
-import { MiscDataType } from 'src/app/shared/models/misc-data-type.model';
-import { environment } from 'src/environments/environment';
-import { VideoData } from 'src/app/shared/models/video-data.model';
-import { ExerciseSelected } from 'src/app/shared/models/exercise-selected.model';
+import { MiscDataType } from 'app/shared/models/misc-data-type.model';
+import { environment } from 'environments/environment';
+import { VideoData } from 'app/shared/models/video-data.model';
+import { ExerciseSelected } from 'app/shared/models/exercise-selected.model';
 import { MatDialog } from '@angular/material/dialog';
-import { AddExerciseDialogComponent } from 'src/app/shared/dialogs/add-exercise-dialog/add-exercise-dialog.component';
-import { FormStatus } from 'src/app/shared/models/form-status.model';
+import { AddExerciseDialogComponent } from 'app/shared/dialogs/add-exercise-dialog/add-exercise-dialog.component';
+import { FormStatus } from 'app/shared/models/form-status.model';
 import { MatAutocomplete } from '@angular/material/autocomplete';
-import { SelectionsStore } from 'src/app/services/ctrl/selections.store';
-import { DayFormService } from 'src/app/services/ctrl/day-form.service';
+import { SelectionsStore } from 'app/services/ctrl/selections.store';
+import { DayFormService } from 'app/services/ctrl/day-form.service';
 
 @Component({
   selector: 'app-workout-exercise-form',

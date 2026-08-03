@@ -1,5 +1,5 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
-import { Workout } from 'src/app/shared/models/workout.model';
+import { Workout } from 'app/shared/models/workout.model';
 
 @Component({
   selector: 'app-view-workout',

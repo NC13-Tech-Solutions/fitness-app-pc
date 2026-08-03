@@ -12,12 +12,12 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';
-import { UserService } from '../../services/http/user.service';
+import { UserService } from 'app/services/http/user.service';
 import { MatDrawer } from '@angular/material/sidenav';
-import { DayService } from 'src/app/services/http/day.service';
-import { DayData } from 'src/app/shared/models/day-data.model';
-import { MonthStore } from 'src/app/services/ctrl/months.store';
-import { DateData } from 'src/app/shared/models/date-data.model';
+import { DayService } from 'app/services/http/day.service';
+import { DayData } from 'app/shared/models/day-data.model';
+import { MonthStore } from 'app/services/ctrl/months.store';
+import { DateData } from 'app/shared/models/date-data.model';
 
 @Component({
     selector: 'app-main',

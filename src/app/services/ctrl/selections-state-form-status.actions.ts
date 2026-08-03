@@ -2,8 +2,8 @@ import {
   FormDataStatus,
   IEFormDataStatus,
   WorkoutFormDataStatus,
-} from 'src/app/shared/models/form-data-status';
-import { FormStatus } from 'src/app/shared/models/form-status.model';
+} from 'app/shared/models/form-data-status';
+import { FormStatus } from 'app/shared/models/form-status.model';
 
 /**
  * Update the main form status
